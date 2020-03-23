@@ -2,7 +2,7 @@
 version: "3"
 services:
   app:
-    build: .
+    build: ./server
     depends_on:
       - postgres
     environment:
@@ -13,7 +13,7 @@ services:
       - "3000:3000"
     command: npm run dev
     volumes:
-      - .:/app/
+      - ./server:/app/
     networks:
       - clementine
 

@@ -1,4 +1,4 @@
-const { app } = require('../../server')
+const { app } = require('../../index')
 const db = require('../persistence/db')
 
 beforeEach(() => {
@@ -54,9 +54,7 @@ describe('Session', () => {
 
     const userLoginQuery = `
       mutation testUserLogin {
-        userLogin(email: "${email}", password: "${password}") {
-          id
-        }
+        userLogin(email: "${email}", password: "${password}")
       }
     `
 
@@ -83,9 +81,9 @@ describe('Session', () => {
       .then(res => {
         const body = res.body
         if (body.errors) {
+          console.log(body.errors)
           throw Error(body.errors)
         }
-        expect(res.body.data.userLogin).toHaveProperty('id')
       })
 
     await request
@@ -96,8 +94,7 @@ describe('Session', () => {
       .then(res => {
         const body = res.body
         if (body.errors) {
-          console.log(body.errors)
-          throw Error('fail')
+          throw Error(body.errors)
         }
 
         expect(res.body.data.user).toHaveProperty('email', email)

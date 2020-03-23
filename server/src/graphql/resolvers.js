@@ -22,9 +22,7 @@ module.exports = {
 
       const sessionId = await Session.create(user.id)
       req.session.id = sessionId
-      return {
-        id: sessionId
-      }
+      return true
     },
     userLogout: async (_, {}, { req }) => {
       try {
