@@ -1,7 +1,7 @@
 # docker-compose.yml
 version: "3"
 services:
-  app:
+  server:
     build: ./server
     depends_on:
       - postgres
@@ -14,6 +14,20 @@ services:
     command: npm run dev
     volumes:
       - ./server:/app/
+    networks:
+      - clementine
+
+  client:
+    build: ./client
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    stdin_open: true
+    command: npm run start
+    volumes:
+      - ./client:/app/
     networks:
       - clementine
 

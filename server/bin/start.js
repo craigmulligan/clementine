@@ -1,3 +1,3 @@
-const Server = require('../');
+const Server = require('../index')
 
-Server.start(process.env.PORT);
+Server.start(process.env.PORT)
