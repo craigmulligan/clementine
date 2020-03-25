@@ -1,6 +1,7 @@
 const { ForbiddenError, GraphQLError } = require('apollo-server-express')
 const bcrypt = require('bcrypt')
 const User = require('../persistence/users')
+const Graph = require('../persistence/graphs')
 
 module.exports = {
   Query: {
@@ -32,6 +33,15 @@ module.exports = {
       } catch (error) {
         throw GraphQLError(`DELETE session >> ${error.stack}`)
       }
+    },
+    graphCreate: async (_, { name }, { req }) => {
+      const userId = req.session.userId
+      return Graph.create(userId)
+    }
+  },
+  Graph: {
+    user: ({ userId }) => {
+      return User.findById(userId)
     }
   }
 }

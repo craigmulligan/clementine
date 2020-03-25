@@ -17,10 +17,6 @@ module.exports = {
       const [user] = rows
       return user
     } catch (error) {
-      if (error.constraint === 'users_email_key') {
-        return null
-      }
-
       throw error
     }
   },
