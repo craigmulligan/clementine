@@ -43,5 +43,10 @@ module.exports = {
     user: ({ userId }) => {
       return User.findById(userId)
     }
+  },
+  User: {
+    graphs: ({ id }) => {
+      return Graph.findAll({ userId: id })
+    }
   }
 }

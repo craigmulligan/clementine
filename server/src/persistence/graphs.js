@@ -5,22 +5,14 @@ const db = require('./db')
 
 module.exports = {
   async create(name, userId) {
-    try {
-      const { rows } = await db.query(sql`
+    const { rows } = await db.query(sql`
       INSERT INTO graphs (id, name, userId)
         VALUES (${uuid()}, ${name}, ${userId})
         RETURNING id, name, userId;
       `)
 
-      const [graph] = rows
-      return graph
-    } catch (error) {
-      if (error.constraint === 'graph_user_key') {
-        return null
-      }
-
-      throw error
-    }
+    const [graph] = rows
+    return graph
   },
   async findAll({ userId }) {
     const { rows } = await db.query(sql`
