@@ -101,13 +101,8 @@ describe('Session', () => {
   })
 })
 
-describe('graph', () => {
-  test('basics', async () => {
-    const request = require('supertest').agent(app)
-    await userCreate(request)
-    await userLogin(request)
-
-    const CREATE_GRAPH = `
+function createGraph(request, name = 'myGraph') {
+  const query = `
       mutation cg {
         graphCreate(name: "myGraph") {
           id
@@ -119,9 +114,46 @@ describe('graph', () => {
       }
     `
 
+  return request
+    .post('/api/graphql')
+    .send({ query })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .then(res => {
+      const body = res.body
+      if (body.errors) {
+        throw Error(body.errors)
+      }
+
+      return res.body.data.graphCreate
+    })
+}
+
+describe('graph', () => {
+  test('basics', async () => {
+    const request = require('supertest').agent(app)
+    await userCreate(request)
+    await userLogin(request)
+    const graph = await createGraph(request)
+
+    expect(graph).toHaveProperty('id')
+    expect(graph).toHaveProperty('name')
+
+    const VIEW_GRAPH = `
+      query lg {
+        user {
+          id
+          graphs {
+            id
+            name
+          }
+        }
+      }
+    `
+
     await request
       .post('/api/graphql')
-      .send({ query: CREATE_GRAPH })
+      .send({ query: VIEW_GRAPH })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json')
       .then(res => {
@@ -130,9 +162,10 @@ describe('graph', () => {
           throw Error(body.errors)
         }
 
-        expect(res.body.data.graphCreate).toHaveProperty('id')
-        expect(res.body.data.graphCreate).toHaveProperty('user')
-        expect(res.body.data.graphCreate).toHaveProperty('name')
+        for (graph in res.body.data.user.graphs) {
+          expect(graph).toHaveProperty('id')
+          expect(graph).toHaveProperty('name')
+        }
       })
   })
 })

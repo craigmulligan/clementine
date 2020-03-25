@@ -4,6 +4,7 @@ module.exports = gql`
   type User {
     id: ID!
     email: String!
+    graphs: [Graph]
   }
 
   type Graph {
