@@ -1,6 +1,7 @@
 import React from 'react'
 import { gql } from 'apollo-boost'
 import { useQuery } from '@apollo/react-hooks'
+import { GraphList, GraphCreate } from './graph'
 
 const GET_USER = gql`
   {
@@ -23,7 +24,8 @@ function Dashboard() {
 
   return (
     <div>
-      User: {data.user.id} : {data.user.email}{' '}
+      User: {data.user.id} : {data.user.email} <GraphList />
+      <GraphCreate />
     </div>
   )
 }
