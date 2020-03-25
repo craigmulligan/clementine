@@ -129,6 +129,31 @@ function createGraph(request, name = 'myGraph') {
     })
 }
 
+function createKey(request, graphId) {
+  const query = `
+      mutation cg {
+        keyCreate(graphId: "${graphId}") {
+          id
+          secret
+        }
+      }
+    `
+
+  return request
+    .post('/api/graphql')
+    .send({ query })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .then(res => {
+      const body = res.body
+      if (body.errors) {
+        throw Error(body.errors)
+      }
+
+      return res.body.data.keyCreate
+    })
+}
+
 describe('graph', () => {
   test('basics', async () => {
     const request = require('supertest').agent(app)
@@ -167,5 +192,17 @@ describe('graph', () => {
           expect(graph).toHaveProperty('name')
         }
       })
+  })
+})
+
+describe('keys', () => {
+  test.only('basics', async () => {
+    const request = require('supertest').agent(app)
+    await userCreate(request)
+    await userLogin(request)
+    const graph = await createGraph(request)
+
+    const key = await createKey(request, graph.id)
+    expect(key).toHaveProperty('id')
   })
 })

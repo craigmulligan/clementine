@@ -2,6 +2,7 @@ const { ForbiddenError, GraphQLError } = require('apollo-server-express')
 const bcrypt = require('bcrypt')
 const User = require('../persistence/users')
 const Graph = require('../persistence/graphs')
+const Key = require('../persistence/keys')
 
 module.exports = {
   Query: {
@@ -37,16 +38,31 @@ module.exports = {
     graphCreate: async (_, { name }, { req }) => {
       const userId = req.session.userId
       return Graph.create(userId)
+    },
+    keyCreate: (_, { graphId }, { req }) => {
+      // TODO permissions
+      return Key.create(graphId)
     }
   },
   Graph: {
     user: ({ userId }) => {
       return User.findById(userId)
+    },
+    keys: ({ id }) => {
+      return Key.findAll({ graphId })
     }
   },
   User: {
     graphs: ({ id }) => {
       return Graph.findAll({ userId: id })
+    }
+  },
+  Key: {
+    secret: ({ secret }) => {
+      return Key.decrypt(secret)
+    },
+    graph: ({ graphId }) => {
+      return Graph.findById(graphId)
     }
   }
 }

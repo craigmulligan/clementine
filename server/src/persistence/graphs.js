@@ -14,6 +14,14 @@ module.exports = {
     const [graph] = rows
     return graph
   },
+  async findById(id) {
+    const { rows } = await db.query(sql`
+    SELECT * FROM graphs WHERE id=${id} LIMIT 1;
+    `)
+
+    const [graph] = rows
+    return graph
+  },
   async findAll({ userId }) {
     const { rows } = await db.query(sql`
     SELECT * FROM graphs WHERE userId=${userId};
