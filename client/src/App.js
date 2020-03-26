@@ -2,6 +2,7 @@ import React from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { Signup, Login } from './auth'
 import Dashboard from './dashboard'
+import { GraphShow } from './graph'
 import client from './client'
 import { Route } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
@@ -24,6 +25,10 @@ function App() {
         <Route path="/login" component={Login} />
         <UserRedirect>
           <Route path="/dash" component={Dashboard} />
+          <Route
+            path="/graph/:graphId"
+            component={({ params }) => <GraphShow graphId={params.graphId} />}
+          />
         </UserRedirect>
       </UserProvider>
     </ApolloProvider>

@@ -8,6 +8,11 @@ module.exports = {
   Query: {
     user: (_, _args, { req }) => {
       return User.findById(req.session.userId)
+    },
+    graph: (_, { graphId }, { req }) => {
+      console.log({ graphId })
+      // TODO permissions
+      return Graph.findById(graphId)
     }
   },
   Mutation: {
@@ -37,7 +42,7 @@ module.exports = {
     },
     graphCreate: async (_, { name }, { req }) => {
       const userId = req.session.userId
-      return Graph.create(userId)
+      return Graph.create(name, userId)
     },
     keyCreate: (_, { graphId }, { req }) => {
       // TODO permissions
@@ -49,7 +54,7 @@ module.exports = {
       return User.findById(userId)
     },
     keys: ({ id }) => {
-      return Key.findAll({ graphId })
+      return Key.findAll({ graphId: id })
     }
   },
   User: {
