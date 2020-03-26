@@ -12,24 +12,28 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <UserProvider>
-        <Menu />
-        <div>
-          <h2>
-            Clementine{' '}
-            <span role="img" aria-label="emoji">
-              🚀
-            </span>
-          </h2>
-        </div>
-        <Route path="/signup" component={Signup} />
-        <Route path="/login" component={Login} />
-        <UserRedirect>
-          <Route path="/dash" component={Dashboard} />
-          <Route
-            path="/graph/:graphId"
-            component={({ params }) => <GraphShow graphId={params.graphId} />}
-          />
-        </UserRedirect>
+        <main>
+          <Menu />
+          <div>
+            <header>
+              <h2>
+                Clementine{' '}
+                <span role="img" aria-label="emoji">
+                  🍊
+                </span>
+              </h2>
+            </header>
+          </div>
+          <Route path="/signup" component={Signup} />
+          <Route path="/login" component={Login} />
+          <UserRedirect>
+            <Route path="/dash" component={Dashboard} />
+            <Route
+              path="/graph/:graphId"
+              component={({ params }) => <GraphShow graphId={params.graphId} />}
+            />
+          </UserRedirect>
+        </main>
       </UserProvider>
     </ApolloProvider>
   )

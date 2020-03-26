@@ -1,5 +1,5 @@
 import { gql } from 'apollo-boost'
-import React, { useRef, useContext } from 'react'
+import React, { useRef } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
 
