@@ -15,6 +15,18 @@ const api = require('./api')
 const gql = new ApolloServer({
   typeDefs,
   resolvers,
+  playground: true,
+  tracing: true,
+  engine: {
+    endpointUrl: 'http://localhost:3000/api/ingress/traces',
+    apiKey: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    schemaTag: 'development',
+    debugPrintReports: true,
+    reportErrorFunction: err => {
+      console.log({ err })
+      return err
+    }
+  },
   formatError: err => {
     console.log(err)
     console.log(err.extensions.exception)
@@ -35,16 +47,16 @@ app.use(
     store: new RedisStore({ client: redisClient }),
     secret: SESSION_SECRET,
     saveUninitialized: false,
-    rolling: true
+    rolling: true,
+    resave: false
   })
 )
 app.get('/', (req, res) => res.sendStatus(200))
 app.get('/health', (req, res) => res.sendStatus(200))
 
 app.use(morgan('short'))
-app.use(express.json())
+app.use('/api', api)
 app.use(helmet())
-app.use(api)
 gql.applyMiddleware({
   app,
   path: '/api/graphql',

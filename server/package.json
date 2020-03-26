@@ -13,7 +13,9 @@
     "migrate": "node ./bin/migrate.js up",
     "migrate:create": "migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": ["graphql"],
+  "keywords": [
+    "graphql"
+  ],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {
@@ -25,6 +27,7 @@
     "express-session": "^1.17.0",
     "graphql": "^14.6.0",
     "graphql-auth": "^0.2.6",
+    "graphql-scalars": "^1.0.9",
     "helmet": "^3.16.0",
     "migrate": "^1.6.2",
     "morgan": "^1.9.1",
