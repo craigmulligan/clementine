@@ -187,9 +187,9 @@ describe('graph', () => {
           throw Error(body.errors)
         }
 
-        for (graph in res.body.data.user.graphs) {
-          expect(graph).toHaveProperty('id')
-          expect(graph).toHaveProperty('name')
+        for (g of res.body.data.user.graphs) {
+          expect(g).toHaveProperty('id')
+          expect(g).toHaveProperty('name')
         }
       })
   })

@@ -3,16 +3,24 @@ const bcrypt = require('bcrypt')
 const User = require('../persistence/users')
 const Graph = require('../persistence/graphs')
 const Key = require('../persistence/keys')
+const Trace = require('../persistence/traces')
+const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 
 module.exports = {
+  DateTime: DateTimeResolver,
+  JSON: JSONResolver,
   Query: {
     user: (_, _args, { req }) => {
+      // TODO permissions
       return User.findById(req.session.userId)
     },
     graph: (_, { graphId }, { req }) => {
-      console.log({ graphId })
       // TODO permissions
       return Graph.findById(graphId)
+    },
+    traces: (_, { graphId }, { req }) => {
+      // TODO permissions
+      return Trace.findAll({ graphId })
     }
   },
   Mutation: {

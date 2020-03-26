@@ -4,9 +4,10 @@ const bcrypt = require('bcrypt')
 const db = require('./db')
 
 module.exports = {
-  async create(key, source, trace) {
+  async create(graphId, trace) {
     const {
       duration,
+      key,
       startTime,
       endTime,
       execution,
@@ -24,11 +25,13 @@ module.exports = {
       const [trace] = rows
       return trace
     } catch (error) {
-      if (error.constraint === 'users_email_key') {
-        return null
-      }
-
       throw error
     }
+  },
+  async findAll({ userId }) {
+    const { rows } = await db.query(sql`
+      SELECT * FROM traces WHERE graphId=${graphId};
+      `)
+    return rows
   }
 }
