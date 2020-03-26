@@ -196,7 +196,7 @@ describe('graph', () => {
 })
 
 describe('keys', () => {
-  test.only('basics', async () => {
+  test('basics', async () => {
     const request = require('supertest').agent(app)
     await userCreate(request)
     await userLogin(request)
@@ -204,5 +204,6 @@ describe('keys', () => {
 
     const key = await createKey(request, graph.id)
     expect(key).toHaveProperty('id')
+    expect(key).toHaveProperty('secret')
   })
 })

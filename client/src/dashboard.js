@@ -24,8 +24,9 @@ function Dashboard() {
 
   return (
     <div>
-      User: {data.user.id} : {data.user.email} <GraphList />
+      User: {data.user.id} : {data.user.email}
       <GraphCreate />
+      <GraphList />
     </div>
   )
 }

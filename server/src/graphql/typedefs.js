@@ -22,6 +22,7 @@ module.exports = gql`
 
   type Query {
     user: User
+    graph(graphId: ID!): Graph
   }
 
   type Mutation {
