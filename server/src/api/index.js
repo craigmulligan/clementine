@@ -3,6 +3,8 @@ const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const _ = require('lodash')
 const db = require('../persistence/db')
+const fs = require('fs')
+const base64 = require('@protobufjs/base64')
 
 function parseTS(message) {
   return new Date(message.seconds * 1000 + message.nanos / 1000)
@@ -18,9 +20,12 @@ router.post(
     }
   }),
   async (req, res) => {
-    console.log('BODY', req.body)
-
     const instance = proto.FullTracesReport.decode(req.body)
+    console.log(instance.toJSON())
+    fs.writeFileSync(
+      `${__dirname}/dummy-json.json`,
+      JSON.stringify(instance.toJSON())
+    )
     const report = proto.FullTracesReport.toObject(instance, {
       enums: String, // enums as string names
       longs: String, // longs as strings (requires long.js)
@@ -31,9 +36,8 @@ router.post(
       oneofs: true // includes virtual oneof fields set to the present field's name
     })
 
-    console.log('writing points!', report)
     // await Trace.create(report.trace[0])
-    console.log('points written!', report)
+    // console.log('points written!', report)
     res.status(201).send()
   }
 )

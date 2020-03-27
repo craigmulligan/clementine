@@ -63,3 +63,7 @@ npm run migrate up
 - Add Graph data model [server]
 - Add Trace data model [server]
 - Add permissions [server]
+
+# NOTES
+
+- API_KEY needs to be in format `service_id:<api_key>`.
