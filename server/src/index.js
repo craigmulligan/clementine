@@ -11,16 +11,23 @@ const RedisStore = require('connect-redis')(session)
 
 const app = express()
 const api = require('./api')
+app.use('/api', api)
 
 const gql = new ApolloServer({
   typeDefs,
   resolvers,
   playground: true,
-  tracing: true,
+  introspection: true,
   engine: {
-    endpointUrl: 'http://localhost:3000/api/ingress/traces',
-    apiKey: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    endpointUrl: 'http://localhost:3000',
+    apiKey: '123:123',
+    debugPrintReports: true,
     schemaTag: 'development',
+    // FIXME: Do not know why we need these below properties,
+    // If not provided, application doesn't start!!
+    privateHeaders: true,
+    // privateVariables: true,
+    maxUncompressedReportSize: 0, //4000000,
     debugPrintReports: true,
     reportErrorFunction: err => {
       console.log({ err })
@@ -55,7 +62,6 @@ app.get('/', (req, res) => res.sendStatus(200))
 app.get('/health', (req, res) => res.sendStatus(200))
 
 app.use(morgan('short'))
-app.use('/api', api)
 app.use(helmet())
 gql.applyMiddleware({
   app,
