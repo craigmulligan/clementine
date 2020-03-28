@@ -1,10 +1,10 @@
 const Trace = require('./traces')
-const Graph = require('.graphs')
+const Graph = require('./graphs')
 const User = require('./users')
 const Key = require('./keys')
 const db = require('./db')
 
-modules.exports = {
+module.exports = {
   Trace,
   Graph,
   User,

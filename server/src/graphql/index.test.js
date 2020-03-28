@@ -1,5 +1,5 @@
 const { app } = require('../index')
-const db = require('../persistence/db')
+const { db, User, Graph, Key } = require('../persistence')
 
 beforeEach(() => {
   return db.query('START TRANSACTION')
@@ -72,9 +72,11 @@ describe('userCreate', () => {
 
 describe('Session', () => {
   test('basics session', async () => {
+    const email = 'xx@gmail.com',
+      password = 'yy'
     const request = require('supertest').agent(app)
-    await userCreate(request)
-    await userLogin(request)
+    await User.create(email, password)
+    await userLogin(request, email, password)
 
     const userQuery = `
       query testUser {
