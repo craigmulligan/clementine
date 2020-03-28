@@ -1,6 +1,6 @@
-const {Pool} = require('pg');
+const { Pool } = require('pg')
 
 module.exports = new Pool({
-  max: 10,
+  max: process.env.WORKER_MAX || 1,
   connectionString: process.env.DATABASE_URL
-});
+})

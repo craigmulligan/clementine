@@ -22,30 +22,23 @@ function decrypt(text) {
 module.exports = {
   encrypt,
   decrypt,
-  async create(graphId) {
-    try {
-      const secret = encrypt(uuid())
+  async create(graph_id) {
+    const secret = encrypt(uuid())
 
-      const { rows } = await db.query(sql`
-        INSERT INTO keys (id, secret, graphId)
-        VALUES (${uuid()}, ${secret}, ${graphId})
-        RETURNING id, secret, graphId;
+    const { rows } = await db.query(sql`
+        INSERT INTO keys (id, secret, graph_id)
+        VALUES (${uuid()}, ${secret}, ${graph_id})
+        RETURNING id, secret, graph_id;
       `)
 
-      const [key] = rows
-      return key
-    } catch (error) {
-      if (error.constraint === 'graph_user_key') {
-        return null
-      }
-
-      throw error
-    }
+    const [key] = rows
+    return key
   },
-  async findAll({ graphId }) {
+  async findAll({ graph_id }) {
     const { rows } = await db.query(sql`
-    SELECT * FROM keys WHERE graphId=${graphId};
+      SELECT * FROM keys WHERE graph_id=${graph_id};
     `)
+
     return rows
   }
 }

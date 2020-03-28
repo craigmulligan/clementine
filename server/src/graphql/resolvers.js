@@ -12,21 +12,21 @@ module.exports = {
   Query: {
     user: (_, _args, { req }) => {
       // TODO permissions
-      return User.findById(req.session.userId)
+      return User.findById(req.session.user_id)
     },
-    graph: (_, { graphId }, { req }) => {
+    graph: (_, { graph_id }, { req }) => {
       // TODO permissions
-      return Graph.findById(graphId)
+      return Graph.findById(graph_id)
     },
-    traces: (_, { graphId }, { req }) => {
+    traces: (_, { graph_id }, { req }) => {
       // TODO permissions
-      return Trace.findAll({ graphId })
+      return Trace.findAll({ graph_id })
     }
   },
   Mutation: {
     userCreate: async (_, { email, password }, { req }) => {
       const user = await User.create(email, password)
-      req.session.userId = user.id
+      req.session.user_id = user.id
       return user
     },
     userLogin: async (_, { email, password }, { req }) => {
@@ -35,7 +35,7 @@ module.exports = {
         throw new ForbiddenError('Invalid password or user')
       }
 
-      req.session.userId = user.id
+      req.session.user_id = user.id
 
       return user
     },
@@ -49,33 +49,33 @@ module.exports = {
       }
     },
     graphCreate: async (_, { name }, { req }) => {
-      const userId = req.session.userId
-      return Graph.create(name, userId)
+      const user_id = req.session.user_id
+      return Graph.create(name, user_id)
     },
-    keyCreate: (_, { graphId }, { req }) => {
+    keyCreate: (_, { graph_id }, { req }) => {
       // TODO permissions
-      return Key.create(graphId)
+      return Key.create(graph_id)
     }
   },
   Graph: {
-    user: ({ userId }) => {
-      return User.findById(userId)
+    user: ({ user_id }) => {
+      return User.findById(user_id)
     },
     keys: ({ id }) => {
-      return Key.findAll({ graphId: id })
+      return Key.findAll({ graph_id: id })
     }
   },
   User: {
     graphs: ({ id }) => {
-      return Graph.findAll({ userId: id })
+      return Graph.findAll({ user_id: id })
     }
   },
   Key: {
-    secret: ({ secret }) => {
-      return Key.decrypt(secret)
+    secret: ({ graph_id, secret }) => {
+      return `${graph_id}:${Key.decrypt(secret)}`
     },
-    graph: ({ graphId }) => {
-      return Graph.findById(graphId)
+    graph: ({ graph_id }) => {
+      return Graph.findById(graph_id)
     }
   }
 }

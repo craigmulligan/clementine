@@ -8,6 +8,14 @@ afterEach(() => {
   return db.query('ROLLBACK')
 })
 
+function raiseGqlErr(res) {
+  if (res.body.data.errors) {
+    throw Error(JSON.stringify(body.data.errors))
+  }
+
+  return res
+}
+
 function userCreate(request, email = 'xx@gmail.com', password = 'yy') {
   const query = `
       mutation testUserCreate {
@@ -24,13 +32,9 @@ function userCreate(request, email = 'xx@gmail.com', password = 'yy') {
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect('Content-Type', /json/)
+    .then(raiseGqlErr)
     .then(res => {
       const body = res.body
-
-      if (body.errors) {
-        console.log(body.errors[0].extensions.exception)
-        throw Error(body.errors)
-      }
 
       return res.body.data.userCreate
     })
@@ -51,12 +55,9 @@ function userLogin(request, email = 'xx@gmail.com', password = 'yy') {
     .send({ query })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
+    .then(raiseGqlErr)
     .then(res => {
       const body = res.body
-      if (body.errors) {
-        throw Error(body.errors)
-      }
-
       return res.body.data.userLogin
     })
 }
@@ -92,79 +93,92 @@ describe('Session', () => {
       .send({ query: userQuery })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json')
+      .then(raiseGqlErr)
       .then(res => {
         const body = res.body
-        if (body.errors) {
-          throw Error(body.errors)
-        }
 
         expect(res.body.data.user).toHaveProperty('email')
       })
   })
 })
 
-function createGraph(request, name = 'myGraph') {
-  const query = `
-      mutation cg {
-        graphCreate(name: "myGraph") {
-          id
-          user {
+describe('graph', () => {
+  test('create', async () => {
+    const request = require('supertest').agent(app)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
+    await userLogin(request)
+
+    const query = `
+        mutation cg {
+          graphCreate(name: "myGraph") {
             id
+            user {
+              id
+              email
+            }
+            name
           }
+        }
+      `
+
+    return request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+      .then(res => {
+        const body = res.body
+        expect(res.body.data.graphCreate.user).toHaveProperty('id', user.id)
+
+        const graph = res.body.data.graphCreate
+        expect(graph).toHaveProperty('id')
+        expect(graph).toHaveProperty('name')
+      })
+  })
+
+  test('show', async () => {
+    const request = require('supertest').agent(app)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
+    await userLogin(request)
+    const graph1 = await Graph.create('myGraph', user.id)
+    const graph2 = await Graph.create('mySecondGraph', user.id)
+
+    const query = `
+      query gv {
+        graph(graph_id: "${graph2.id}") {
+          id
           name
         }
       }
     `
 
-  return request
-    .post('/api/graphql')
-    .send({ query })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .then(res => {
-      const body = res.body
-      if (body.errors) {
-        throw Error(body.errors)
-      }
+    await request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+      .then(res => {
+        const body = res.body
+        const g = res.body.data.graph
+        expect(g.id).toBe(graph2.id)
+        expect(g).toHaveProperty('name', 'mySecondGraph')
+      })
+  })
 
-      return res.body.data.graphCreate
-    })
-}
-
-function createKey(request, graphId) {
-  const query = `
-      mutation cg {
-        keyCreate(graphId: "${graphId}") {
-          id
-          secret
-        }
-      }
-    `
-
-  return request
-    .post('/api/graphql')
-    .send({ query })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json')
-    .then(res => {
-      const body = res.body
-      if (body.errors) {
-        throw Error(body.errors)
-      }
-
-      return res.body.data.keyCreate
-    })
-}
-
-describe('graph', () => {
-  test('basics', async () => {
+  test('list', async () => {
     const request = require('supertest').agent(app)
-    await userCreate(request)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
     await userLogin(request)
-    const graph = await createGraph(request)
-
-    expect(graph).toHaveProperty('id')
-    expect(graph).toHaveProperty('name')
+    const graph1 = await Graph.create('myGraph', user.id)
+    const graph2 = await Graph.create('mySecondGraph', user.id)
 
     const VIEW_GRAPH = `
       query lg {
@@ -183,11 +197,10 @@ describe('graph', () => {
       .send({ query: VIEW_GRAPH })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json')
+      .then(raiseGqlErr)
       .then(res => {
         const body = res.body
-        if (body.errors) {
-          throw Error(body.errors)
-        }
+        expect(res.body.data.user.graphs.length).toBe(2)
 
         for (g of res.body.data.user.graphs) {
           expect(g).toHaveProperty('id')
@@ -198,14 +211,84 @@ describe('graph', () => {
 })
 
 describe('keys', () => {
-  test('basics', async () => {
+  test('create', async () => {
     const request = require('supertest').agent(app)
-    await userCreate(request)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
     await userLogin(request)
-    const graph = await createGraph(request)
+    const graph = await Graph.create('myGraph', user.id)
 
-    const key = await createKey(request, graph.id)
-    expect(key).toHaveProperty('id')
-    expect(key).toHaveProperty('secret')
+    const query = `
+      mutation cg {
+        keyCreate(graph_id: "${graph.id}") {
+          id
+          secret
+          graph {
+            id
+          }
+        }
+      }
+    `
+
+    return request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+      .then(res => {
+        const body = res.body
+        const key = res.body.data.keyCreate
+        expect(key).toHaveProperty('id')
+        expect(key).toHaveProperty('graph.id', graph.id)
+        expect(key).toHaveProperty('secret')
+        expect(key.secret.split(':')[0]).toBe(graph.id)
+      })
+  })
+
+  test.only('list', async () => {
+    const request = require('supertest').agent(app)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
+    await userLogin(request)
+
+    const graph = await Graph.create('myGraph', user.id)
+    const graph2 = await Graph.create('mm', user.id)
+    const key1 = await Key.create(graph.id)
+    const key2 = await Key.create(graph.id)
+    const key3 = await Key.create(graph2.id)
+
+    const query = `
+      query cg {
+        user {
+          graphs {
+            id
+            keys {
+              id
+            }
+          }
+        }
+      }
+    `
+
+    await request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+      .then(async res => {
+        const body = res.body
+        const g1 = res.body.data.user.graphs.find(g => g.id === graph.id)
+        expect(g1.keys.length).toBe(2)
+        expect(g1.keys).toContainEqual({ id: key1.id })
+        expect(g1.keys).toContainEqual({ id: key2.id })
+
+        const g2 = res.body.data.user.graphs.find(x => x.id === graph2.id)
+        expect(g2.keys.length).toBe(1)
+        expect(g2.keys).toContainEqual({ id: key3.id })
+      })
   })
 })
