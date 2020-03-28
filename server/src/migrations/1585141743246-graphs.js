@@ -8,7 +8,7 @@ module.exports.up = async function(next) {
   await client.query(`
     CREATE TABLE IF NOT EXISTS graphs (
       id uuid PRIMARY KEY,
-      userId uuid REFERENCES users (id) ON DELETE CASCADE,
+      user_id uuid REFERENCES users (id) ON DELETE CASCADE,
       name text
     );
   `)

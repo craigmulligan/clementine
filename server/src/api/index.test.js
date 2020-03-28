@@ -25,6 +25,18 @@ function formatProto(path) {
 }
 
 describe('/api/ingress', () => {
+  test('No ApiKey', async () => {
+    const compressed = await formatProto('./dummy.json')
+    const request = require('supertest').agent(app)
+
+    // TODO create graph
+    await request
+      .post('/api/ingress/traces')
+      .set('content-encoding', 'gzip')
+      .send(compressed)
+      .expect(403)
+  })
+
   test('Happy path', async () => {
     const compressed = await formatProto('./dummy.json')
     const request = require('supertest').agent(app)
@@ -42,6 +54,14 @@ describe('/api/ingress', () => {
 
     const traces = await Trace.findAll({ graphId: graph.id })
     expect(traces.length).toBe(2)
-    expect(traces).toMatchSnapshot()
+    const t = traces[0]
+    expect(t).toHaveProperty('id')
+    expect(t).toHaveProperty('graphId')
+    expect(t).toHaveProperty('duration')
+    expect(t).toHaveProperty('startTime')
+    expect(t).toHaveProperty('endTime')
+    expect(t).toHaveProperty('root')
+    expect(t).toHaveProperty('clientName')
+    expect(t).toHaveProperty('clientVersion')
   })
 })
