@@ -2,9 +2,9 @@ const { Router } = require('express')
 const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const _ = require('lodash')
-const db = require('../persistence/db')
+const Trace = require('../persistence/traces')
+
 const fs = require('fs')
-const base64 = require('@protobufjs/base64')
 
 function parseTS(message) {
   return new Date(message.seconds * 1000 + message.nanos / 1000)
@@ -21,11 +21,19 @@ router.post(
   }),
   async (req, res) => {
     const instance = proto.FullTracesReport.decode(req.body)
-    console.log(instance.toJSON())
-    fs.writeFileSync(
-      `${__dirname}/dummy-json.json`,
-      JSON.stringify(instance.toJSON())
-    )
+    const apiKey = req.get('x-api-key')
+
+    if (!apiKey) {
+      return res.status(403).send('FORBIDDEN: Missing apiKey')
+    }
+
+    // verifyKey
+    const graphId = apiKey.split(':')[0]
+
+    // fs.writeFileSync(
+    // `${__dirname}/dummy-json.json`,
+    // JSON.stringify(instance.toJSON())
+    // )
     const report = proto.FullTracesReport.toObject(instance, {
       enums: String, // enums as string names
       longs: String, // longs as strings (requires long.js)
@@ -36,9 +44,25 @@ router.post(
       oneofs: true // includes virtual oneof fields set to the present field's name
     })
 
-    // await Trace.create(report.trace[0])
-    // console.log('points written!', report)
-    res.status(201).send()
+    const traces = Object.entries(report.tracesPerQuery).reduce(
+      (acc, [key, v]) => {
+        return [
+          ...acc,
+          ...v.trace.map(trace => {
+            return {
+              key,
+              ...trace,
+              startTime: parseTS(trace.endTime),
+              endTime: parseTS(trace.startTime)
+            }
+          })
+        ]
+      },
+      []
+    )
+
+    const rowIds = await Trace.create(graphId, traces)
+    res.status(201).send(rowIds)
   }
 )
 

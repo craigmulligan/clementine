@@ -32,6 +32,7 @@
     "migrate": "^1.6.2",
     "morgan": "^1.9.1",
     "pg": "^7.9.0",
+    "pg-format": "^1.0.4",
     "redis": "^3.0.2",
     "sql-template-strings": "^2.2.2",
     "uuid": "^3.3.2"

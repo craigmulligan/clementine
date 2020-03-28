@@ -63,6 +63,7 @@ npm run migrate up
 - Add Graph data model [server]
 - Add Trace data model [server]
 - Add permissions [server]
+- fix tests so that they use the persistence module for fixtures.
 
 # NOTES
 
