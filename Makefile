@@ -11,3 +11,6 @@ build:
 
 dev:
 	docker-compose up
+
+migrate:
+	docker-compose run server npm run migrate

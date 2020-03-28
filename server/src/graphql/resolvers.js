@@ -32,7 +32,7 @@ module.exports = {
     userLogin: async (_, { email, password }, { req }) => {
       const user = await User.find(email)
       if (!user || !(await bcrypt.compare(password, user.password))) {
-        throw ForbiddenError('Invalid password or user')
+        throw new ForbiddenError('Invalid password or user')
       }
 
       req.session.userId = user.id

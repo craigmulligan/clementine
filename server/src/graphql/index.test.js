@@ -8,7 +8,7 @@ afterEach(() => {
   return db.query('ROLLBACK')
 })
 
-function userCreate(request, email = 'hobohobo@gmail.com', password = 'yyy') {
+function userCreate(request, email = 'xx@gmail.com', password = 'yy') {
   const query = `
       mutation testUserCreate {
         userCreate(email: "${email}", password: "${password}") {

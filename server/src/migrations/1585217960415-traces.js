@@ -8,13 +8,14 @@ module.exports.up = async function(next) {
   await client.query(`
     CREATE TABLE IF NOT EXISTS traces (
       id uuid PRIMARY KEY,
-      graphId uuid REFERENCES graphs (id) ON DELETE CASCADE,
-      duration float,
-      startTime timestamp default (now() at time zone 'utc'),
-      endTime timestamp default (now() at time zone 'utc'),
-      execution jsonb,
-      validation jsonb,
-      parsing jsonb
+      graphId uuid REFERENCES graphs (id) ON DELETE CASCADE NOT NULL,
+      key text NOT NULL,
+      duration float NOT NULL,
+      startTime timestamp NOT NULL,
+      endTime timestamp NOT NULL,
+      root jsonb NOT NULL,
+      clientName text,
+      clientVersion text 
     );
   `)
 
