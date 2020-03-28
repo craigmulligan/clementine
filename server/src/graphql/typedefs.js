@@ -35,13 +35,13 @@ module.exports = gql`
 
   type Query {
     user: User
-    graph(graphId: ID!): Graph
-    traces(graphId: ID!): [Trace]
+    graph(graph_id: ID!): Graph
+    traces(graph_id: ID!): [Trace]
   }
 
   type Mutation {
     graphCreate(name: String!): Graph!
-    keyCreate(graphId: ID!): Key!
+    keyCreate(graph_id: ID!): Key!
     userLogout: Boolean!
     userCreate(email: String, password: String): User!
     userLogin(email: String, password: String): User!

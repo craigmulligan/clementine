@@ -6,7 +6,7 @@ const db = require('./db')
 const format = require('pg-format')
 
 module.exports = {
-  async create(graphId, traces) {
+  async create(graph_id, traces) {
     const values = traces.map(trace => {
       const {
         durationNs,
@@ -21,7 +21,7 @@ module.exports = {
       return [
         uuid(),
         key,
-        graphId,
+        graph_id,
         durationNs,
         startTime,
         endTime,
@@ -31,8 +31,8 @@ module.exports = {
 
     const query = format(
       `
-        INSERT INTO traces (id, key, graphId, duration, startTime, endTime, root)
-          VALUES %L 
+        INSERT INTO traces (id, key, graph_id, duration, start_time, end_time, root)
+          VALUES %L
           RETURNING id;
         `,
       values
@@ -41,9 +41,9 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async findAll({ graphId }) {
+  async findAll({ graph_id }) {
     const { rows } = await db.query(sql`
-      SELECT * FROM traces WHERE graphId=${graphId};
+      SELECT * FROM traces WHERE graph_id=${graph_id};
       `)
     return rows
   }

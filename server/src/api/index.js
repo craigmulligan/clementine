@@ -28,7 +28,7 @@ router.post(
     }
 
     // verifyKey
-    const graphId = apiKey.split(':')[0]
+    const graph_id = apiKey.split(':')[0]
 
     // fs.writeFileSync(
     // `${__dirname}/dummy-json.json`,
@@ -61,7 +61,7 @@ router.post(
       []
     )
 
-    const rowIds = await Trace.create(graphId, traces)
+    const rowIds = await Trace.create(graph_id, traces)
     res.status(201).send(rowIds)
   }
 )

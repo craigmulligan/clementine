@@ -4,11 +4,11 @@ const bcrypt = require('bcrypt')
 const db = require('./db')
 
 module.exports = {
-  async create(name, userId) {
+  async create(name, user_id) {
     const { rows } = await db.query(sql`
-      INSERT INTO graphs (id, name, userId)
-        VALUES (${uuid()}, ${name}, ${userId})
-        RETURNING id, name, userId;
+      INSERT INTO graphs (id, name, user_id)
+        VALUES (${uuid()}, ${name}, ${user_id})
+        RETURNING id, name, user_id;
       `)
 
     const [graph] = rows
@@ -22,9 +22,9 @@ module.exports = {
     const [graph] = rows
     return graph
   },
-  async findAll({ userId }) {
+  async findAll({ user_id }) {
     const { rows } = await db.query(sql`
-    SELECT * FROM graphs WHERE userId=${userId};
+    SELECT * FROM graphs WHERE user_id=${user_id};
     `)
     return rows
   }
