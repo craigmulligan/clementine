@@ -29,12 +29,12 @@ psql postgres://user:pass@localhost:5432/db
 
 # TODO:
 
-- Add createdAt for all models [server]
 - Add permissions [server]
 - Basic UI wireframes [client]
 - Add errors + cache misses to TraceModel [server]
-- Add createKey componennt [client]
+- Add createKey component [client]
 - Add apiKey checks + rate limiting on ingress endpoint [server]
+- Add Error aggregation [server]
 
 # NOTES
 

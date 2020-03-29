@@ -9,12 +9,13 @@ module.exports.up = async function(next) {
     CREATE TABLE IF NOT EXISTS graphs (
       id uuid PRIMARY KEY,
       "userId" uuid REFERENCES users (id) ON DELETE CASCADE,
-      name text
+      name text,
+      "createdAt" timestamp default (now() at time zone 'utc') NOT NULL
     );
   `)
 
   await client.query(`
-    CREATE INDEX "graphUser" on users (id);
+    CREATE INDEX "graphUser" on graphs ("userId");
   `)
 
   await client.release(true)

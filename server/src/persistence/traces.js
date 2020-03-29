@@ -17,7 +17,8 @@ module.exports = {
         clientName,
         clientVersion,
         schemaTag,
-        details
+        details,
+        hasErrors
       } = trace
 
       return [
@@ -29,13 +30,14 @@ module.exports = {
         endTime,
         JSON.stringify(root),
         schemaTag,
-        details
+        details,
+        hasErrors
       ]
     })
 
     const query = format(
       `
-        INSERT INTO traces (id, key, "graphId", duration, "startTime", "endTime", root, "schemaTag", details)
+        INSERT INTO traces (id, key, "graphId", duration, "startTime", "endTime", root, "schemaTag", details, "hasErrors")
           VALUES %L
           RETURNING id;
         `,

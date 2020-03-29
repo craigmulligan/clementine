@@ -10,7 +10,6 @@ function parseTS(message) {
 }
 
 const router = Router()
-
 // https://www.apollographql.com/docs/graph-manager/setup-analytics/#sending-metrics-to-the-reporting-endpoint
 // Some more cases to cover
 router.post(
@@ -55,7 +54,8 @@ router.post(
               key,
               ...trace,
               startTime: parseTS(trace.endTime),
-              endTime: parseTS(trace.startTime)
+              endTime: parseTS(trace.startTime),
+              hasErrors: extractErrors(trace.root).length > 0
             }
           })
         ]

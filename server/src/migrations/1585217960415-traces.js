@@ -17,7 +17,9 @@ module.exports.up = async function(next) {
       "clientName" text,
       "clientVersion" text,
       "schemaTag" text,
-      "details" jsonb
+      "details" jsonb,
+      "createdAt" timestamp default (now() at time zone 'utc') NOT NULL ,
+      "hasErrors" boolean NOT NULL
     );
   `)
 
