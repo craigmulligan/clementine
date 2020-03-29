@@ -5,17 +5,15 @@
   "description": "in-progress",
   "main": "config.js",
   "scripts": {
-    "test": "npm run migrate && jest --watchAll",
-    "ci": "npm run migrate && npm test",
+    "test": "jest --watchAll",
+    "ci": "npm test",
     "format": "prettier",
     "start": "node ./bin/start.js",
-    "dev": "npm run migrate && nodemon ./bin/start.js",
+    "dev": "nodemon ./bin/start.js",
     "migrate": "node ./bin/migrate.js up",
     "migrate:create": "migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": [
-    "graphql"
-  ],
+  "keywords": ["graphql"],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {

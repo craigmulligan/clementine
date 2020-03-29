@@ -46,5 +46,11 @@ module.exports = {
       SELECT * FROM traces WHERE graph_id=${graph_id};
       `)
     return rows
+  },
+  async find_all_slowest({ graph_id }) {
+    const { rows } = await db.query(sql`
+      SELECT key as id, avg(duration) as duration, count(id) as requests_count FROM traces WHERE graph_id=${graph_id}  group by key order by duration desc;
+    `)
+    return rows
   }
 }

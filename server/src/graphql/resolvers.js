@@ -63,6 +63,9 @@ module.exports = {
     },
     keys: ({ id }) => {
       return Key.findAll({ graph_id: id })
+    },
+    operations: ({ id }) => {
+      return Trace.find_all_slowest({ graph_id: id })
     }
   },
   User: {

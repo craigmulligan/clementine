@@ -12,6 +12,8 @@ function parseTS(message) {
 
 const router = Router()
 
+// https://www.apollographql.com/docs/graph-manager/setup-analytics/#sending-metrics-to-the-reporting-endpoint
+// Some more cases to cover
 router.post(
   '/ingress/traces',
   bodyParser.raw({

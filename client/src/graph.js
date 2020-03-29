@@ -2,6 +2,7 @@ import { gql } from 'apollo-boost'
 import React, { useRef } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
+import { OperationList } from './operation'
 
 const GET_GRAPHS = gql`
   {
@@ -84,12 +85,17 @@ export function GraphCreate() {
 
 const SHOW_GRAPH = gql`
   query showGraph($graphId: ID!) {
-    graph(graphId: $graphId) {
+    graph(graph_id: $graphId) {
       id
       name
       keys {
         secret
         id
+      }
+      operations {
+        id
+        requests_count
+        duration
       }
     }
   }
@@ -110,6 +116,7 @@ export function GraphShow({ graphId }) {
   return (
     <div>
       <h2>{data.graph.name}</h2>
+      <OperationList operations={data.graph.operations} />
       <p>API Keys</p>
       <ul>
         {data.graph.keys.map(key => {

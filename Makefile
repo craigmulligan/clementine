@@ -10,7 +10,7 @@ build:
 	docker-compose build
 
 dev:
-	docker-compose up
+	MAX_DB_CONNECTIONS=10 docker-compose up
 
 migrate:
-	docker-compose run server npm run migrate
+	MAX_DB_CONNECTIONS=10 docker-compose run server npm run migrate
