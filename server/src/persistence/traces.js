@@ -6,7 +6,7 @@ const db = require('./db')
 const format = require('pg-format')
 
 module.exports = {
-  async create(graph_id, traces) {
+  async create(graphId, traces) {
     const values = traces.map(trace => {
       const {
         durationNs,
@@ -21,7 +21,7 @@ module.exports = {
       return [
         uuid(),
         key,
-        graph_id,
+        graphId,
         durationNs,
         startTime,
         endTime,
@@ -31,7 +31,7 @@ module.exports = {
 
     const query = format(
       `
-        INSERT INTO traces (id, key, graph_id, duration, start_time, end_time, root)
+        INSERT INTO traces (id, key, "graphId", duration, "startTime", "endTime", root)
           VALUES %L
           RETURNING id;
         `,
@@ -43,13 +43,13 @@ module.exports = {
   },
   async findAll({ graph_id }) {
     const { rows } = await db.query(sql`
-      SELECT * FROM traces WHERE graph_id=${graph_id};
+      SELECT * FROM traces WHERE "graphId"=${graph_id};
       `)
     return rows
   },
   async find_all_slowest({ graph_id }) {
     const { rows } = await db.query(sql`
-      SELECT key as id, avg(duration) as duration, count(id) as requests_count FROM traces WHERE graph_id=${graph_id}  group by key order by duration desc;
+      SELECT key as id, avg(duration) as duration, count(id) as requests_count FROM traces WHERE "graphId"=${graph_id}  group by key order by duration desc;
     `)
     return rows
   }

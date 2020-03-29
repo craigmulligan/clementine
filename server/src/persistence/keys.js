@@ -26,9 +26,9 @@ module.exports = {
     const secret = encrypt(uuid())
 
     const { rows } = await db.query(sql`
-        INSERT INTO keys (id, secret, graph_id)
+        INSERT INTO keys (id, secret, "graphId")
         VALUES (${uuid()}, ${secret}, ${graph_id})
-        RETURNING id, secret, graph_id;
+        RETURNING id, secret, "graphId";
       `)
 
     const [key] = rows
@@ -36,7 +36,7 @@ module.exports = {
   },
   async findAll({ graph_id }) {
     const { rows } = await db.query(sql`
-      SELECT * FROM keys WHERE graph_id=${graph_id};
+      SELECT * FROM keys WHERE "graphId"=${graph_id};
     `)
 
     return rows
