@@ -32,6 +32,7 @@
     "graphql-auth": "^0.2.6",
     "graphql-scalars": "^1.0.9",
     "helmet": "^3.16.0",
+    "loglevel": "^1.6.7",
     "migrate": "^1.6.2",
     "morgan": "^1.9.1",
     "pg": "^7.9.0",

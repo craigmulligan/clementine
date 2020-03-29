@@ -31,12 +31,11 @@ psql postgres://user:pass@localhost:5432/db
 
 - Add permissions [server]
 - Basic UI wireframes [client]
-- Add errors + cache misses to TraceModel [server]
-- Add createKey component [client]
 - Add apiKey checks + rate limiting on ingress endpoint [server]
-- Add Error aggregation [server]
 - Better Logging [Server & Client]
+- Ability to remove/revoke a key [Server & Client]
 
 # NOTES
 
+- API_KEY needs to be in format `service_id:<api_key>`.
 - API_KEY needs to be in format `service_id:<api_key>`.

@@ -2,6 +2,7 @@ import React from 'react'
 import { gql } from 'apollo-boost'
 import { useQuery } from '@apollo/react-hooks'
 import { GraphList, GraphCreate } from './graph'
+import { Loading, ErrorBanner } from './utils'
 
 const GET_USER = gql`
   {
@@ -15,8 +16,8 @@ const GET_USER = gql`
 function Dashboard() {
   const { loading, error, data } = useQuery(GET_USER)
 
-  if (loading) return <div>'Loading...'</div>
-  if (error) return <div>`Error! ${error.message}`</div>
+  if (loading) return <Loading />
+  if (error) return <ErrorBanner error={error} />
 
   if (!data.user) {
     return <div>Not Found</div>

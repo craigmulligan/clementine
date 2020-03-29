@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
 import { OperationList } from './operation'
 import { KeyList, KeyCreate } from './key'
+import { ErrorBanner, Loading } from './utils'
 
 const GET_GRAPHS = gql`
   {
@@ -20,8 +21,8 @@ const GET_GRAPHS = gql`
 export function GraphList() {
   const { loading, error, data } = useQuery(GET_GRAPHS)
 
-  if (loading) return <div>'Loading...'</div>
-  if (error) return <div>`Error! ${error.message}`</div>
+  if (loading) return <Loading/>
+  if (error) return <ErrorBanner error={error} />
 
   if (!data.user.graphs) {
     return <div>Not Found</div>
@@ -103,8 +104,9 @@ export function GraphShow({ graphId }) {
     variables: { graphId }
   })
 
-  if (loading) return <div>'Loading...'</div>
-  if (error) return <div>`Error! ${error.message}`</div>
+  if (loading) return <Loading/>
+  if (error) return <ErrorBanner error={error} />
+
 
   if (!data.graph) {
     return <div>Not Found</div>
@@ -137,8 +139,9 @@ export function GraphSettings({ graphId }) {
     variables: { graphId }
   })
 
-  if (loading) return <div>'Loading...'</div>
-  if (error) return <div>`Error! ${error.message}`</div>
+  if (loading) return <Loading/>
+  if (error) return <ErrorBanner error={error} />
+
 
   if (!data.graph) {
     return <div>Not Found</div>

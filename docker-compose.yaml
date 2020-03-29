@@ -11,6 +11,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       MAX_DB_CONNECTIONS: ${MAX_DB_CONNECTIONS}
+      SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
+      KEY_SECRET: ${KEY_SECRET:-"super-secret"}
     ports:
       - "3000:3000"
     command: npm run dev
