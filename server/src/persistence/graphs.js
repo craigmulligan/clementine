@@ -6,9 +6,9 @@ const db = require('./db')
 module.exports = {
   async create(name, user_id) {
     const { rows } = await db.query(sql`
-      INSERT INTO graphs (id, name, user_id)
+      INSERT INTO graphs (id, name, "userId")
         VALUES (${uuid()}, ${name}, ${user_id})
-        RETURNING id, name, user_id;
+        RETURNING id, name, "userId";
       `)
 
     const [graph] = rows
@@ -24,7 +24,7 @@ module.exports = {
   },
   async findAll({ user_id }) {
     const { rows } = await db.query(sql`
-    SELECT * FROM graphs WHERE user_id=${user_id};
+    SELECT * FROM graphs WHERE "userId"=${user_id};
     `)
     return rows
   }

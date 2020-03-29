@@ -8,19 +8,19 @@ module.exports.up = async function(next) {
   await client.query(`
     CREATE TABLE IF NOT EXISTS traces (
       id uuid PRIMARY KEY,
-      graph_id uuid REFERENCES graphs (id) ON DELETE CASCADE NOT NULL,
+      "graphId" uuid REFERENCES graphs (id) ON DELETE CASCADE NOT NULL,
       key text NOT NULL,
       duration float NOT NULL,
-      start_time timestamp NOT NULL,
-      end_time timestamp NOT NULL,
+      "startTime" timestamp NOT NULL,
+      "endTime" timestamp NOT NULL,
       root jsonb NOT NULL,
-      client_name text,
-      client_version text
+      "clientName" text,
+      "clientVersion" text
     );
   `)
 
   await client.query(`
-    CREATE INDEX graph_trace on graphs (id);
+    CREATE INDEX "graphTrace" on graphs (id);
   `)
 
   await client.release(true)
