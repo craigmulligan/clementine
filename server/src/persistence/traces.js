@@ -41,15 +41,15 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async findAll({ graph_id }) {
+  async findAll({ graphId }) {
     const { rows } = await db.query(sql`
-      SELECT * FROM traces WHERE "graphId"=${graph_id};
+      SELECT * FROM traces WHERE "graphId"=${graphId};
       `)
     return rows
   },
-  async find_all_slowest({ graph_id }) {
+  async findAllSlowest({ graphId }) {
     const { rows } = await db.query(sql`
-      SELECT key as id, avg(duration) as duration, count(id) as requests_count FROM traces WHERE "graphId"=${graph_id}  group by key order by duration desc;
+      SELECT key as id, avg(duration) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId}  group by key order by duration desc;
     `)
     return rows
   }

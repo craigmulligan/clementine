@@ -150,7 +150,7 @@ describe('graph', () => {
 
     const query = `
       query gv {
-        graph(graph_id: "${graph2.id}") {
+        graph(graphId: "${graph2.id}") {
           id
           name
         }
@@ -221,7 +221,7 @@ describe('keys', () => {
 
     const query = `
       mutation cg {
-        keyCreate(graph_id: "${graph.id}") {
+        keyCreate(graphId: "${graph.id}") {
           id
           secret
           graph {

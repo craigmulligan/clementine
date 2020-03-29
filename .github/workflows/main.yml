@@ -26,6 +26,9 @@ jobs:
     - name: build
       run: make build
 
+    - name: migrate
+      run: make migrate
+
     # Runs a set of commands using the runners shell
     - name: ci
       run: make ci

@@ -5,13 +5,14 @@
   "description": "in-progress",
   "main": "config.js",
   "scripts": {
-    "test": "jest --watchAll",
-    "ci": "npm test",
+    "wait:db": "wait-on tcp:postgres:5432 && echo 'postgres is up!'",
+    "test": "npm run wait:db && jest --watchAll",
+    "ci": "npm run wait:db && npm test",
     "format": "prettier",
     "start": "node ./bin/start.js",
     "dev": "nodemon ./bin/start.js",
-    "migrate": "node ./bin/migrate.js up",
-    "migrate:create": "migrate create --migrations-dir='./src/migrations'"
+    "migrate": "npm run wait:db && node ./bin/migrate.js up",
+    "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
   "keywords": ["graphql"],
   "author": "hobochild",
@@ -38,7 +39,8 @@
   "devDependencies": {
     "jest": "^25.1.0",
     "nodemon": "^2.0.2",
-    "supertest": "^4.0.2"
+    "supertest": "^4.0.2",
+    "wait-on": "^4.0.1"
   },
   "repository": {
     "type": "git",

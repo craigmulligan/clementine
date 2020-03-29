@@ -85,7 +85,7 @@ export function GraphCreate() {
 
 const SHOW_GRAPH = gql`
   query showGraph($graphId: ID!) {
-    graph(graph_id: $graphId) {
+    graph(graphId: $graphId) {
       id
       name
       keys {
@@ -94,7 +94,7 @@ const SHOW_GRAPH = gql`
       }
       operations {
         id
-        requests_count
+        count
         duration
       }
     }

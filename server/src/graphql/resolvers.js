@@ -1,9 +1,6 @@
 const { ForbiddenError, GraphQLError } = require('apollo-server-express')
 const bcrypt = require('bcrypt')
-const User = require('../persistence/users')
-const Graph = require('../persistence/graphs')
-const Key = require('../persistence/keys')
-const Trace = require('../persistence/traces')
+const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 
 module.exports = {
@@ -12,21 +9,21 @@ module.exports = {
   Query: {
     user: (_, _args, { req }) => {
       // TODO permissions
-      return User.findById(req.session.user_id)
+      return User.findById(req.session.userId)
     },
-    graph: (_, { graph_id }, { req }) => {
+    graph: (_, { graphId }, { req }) => {
       // TODO permissions
-      return Graph.findById(graph_id)
+      return Graph.findById(graphId)
     },
-    traces: (_, { graph_id }, { req }) => {
+    traces: (_, { graphId }, { req }) => {
       // TODO permissions
-      return Trace.findAll({ graph_id })
+      return Trace.findAll({ graphId })
     }
   },
   Mutation: {
     userCreate: async (_, { email, password }, { req }) => {
       const user = await User.create(email, password)
-      req.session.user_id = user.id
+      req.session.userId = user.id
       return user
     },
     userLogin: async (_, { email, password }, { req }) => {
@@ -35,7 +32,7 @@ module.exports = {
         throw new ForbiddenError('Invalid password or user')
       }
 
-      req.session.user_id = user.id
+      req.session.userId = user.id
 
       return user
     },
@@ -49,36 +46,36 @@ module.exports = {
       }
     },
     graphCreate: async (_, { name }, { req }) => {
-      const user_id = req.session.user_id
-      return Graph.create(name, user_id)
+      const userId = req.session.userId
+      return Graph.create(name, userId)
     },
-    keyCreate: (_, { graph_id }, { req }) => {
+    keyCreate: (_, { graphId }, { req }) => {
       // TODO permissions
-      return Key.create(graph_id)
+      return Key.create(graphId)
     }
   },
   Graph: {
-    user: ({ user_id }) => {
-      return User.findById(user_id)
+    user: ({ userId }) => {
+      return User.findById(userId)
     },
     keys: ({ id }) => {
-      return Key.findAll({ graph_id: id })
+      return Key.findAll({ graphId: id })
     },
     operations: ({ id }) => {
-      return Trace.find_all_slowest({ graph_id: id })
+      return Trace.findAllslowest({ graphId: id })
     }
   },
   User: {
     graphs: ({ id }) => {
-      return Graph.findAll({ user_id: id })
+      return Graph.findAll({ userId: id })
     }
   },
   Key: {
-    secret: ({ graph_id, secret }) => {
-      return `${graph_id}:${Key.decrypt(secret)}`
+    secret: ({ graphId, secret }) => {
+      return `${graphId}:${Key.decrypt(secret)}`
     },
-    graph: ({ graph_id }) => {
-      return Graph.findById(graph_id)
+    graph: ({ graphId }) => {
+      return Graph.findById(graphId)
     }
   }
 }

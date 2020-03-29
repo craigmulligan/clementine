@@ -12,7 +12,7 @@ module.exports.up = async function(next) {
   `)
 
   await client.query(`
-  CREATE INDEX "usersrEmail" on users (email);
+  CREATE INDEX "usersEmail" on users (email);
   `)
 
   await client.release(true)
