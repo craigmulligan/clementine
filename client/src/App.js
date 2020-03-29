@@ -2,7 +2,7 @@ import React from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { Signup, Login } from './auth'
 import Dashboard from './dashboard'
-import { GraphShow } from './graph'
+import { GraphShow, GraphSettings } from './graph'
 import client from './client'
 import { Route } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
@@ -31,6 +31,10 @@ function App() {
             <Route
               path="/graph/:graphId"
               component={({ params }) => <GraphShow graphId={params.graphId} />}
+            />
+            <Route
+              path="/graph/:graphId/settings"
+              component={({ params }) => <GraphSettings graphId={params.graphId} />}
             />
           </UserRedirect>
         </main>

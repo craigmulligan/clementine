@@ -3,6 +3,7 @@ import React, { useRef } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
 import { OperationList } from './operation'
+import { KeyList, KeyCreate } from './key'
 
 const GET_GRAPHS = gql`
   {
@@ -88,10 +89,6 @@ const SHOW_GRAPH = gql`
     graph(graphId: $graphId) {
       id
       name
-      keys {
-        secret
-        id
-      }
       operations {
         id
         count
@@ -116,17 +113,43 @@ export function GraphShow({ graphId }) {
   return (
     <div>
       <h2>{data.graph.name}</h2>
+      <Link to={`/graph/${data.graph.id}/settings`}>Settings</Link>
       <OperationList operations={data.graph.operations} />
+    </div>
+  )
+}
+
+export const GRAPH_SETTINGS = gql`
+  query showGraph($graphId: ID!) {
+    graph(graphId: $graphId) {
+      id
+      name
+      keys {
+        id
+        secret
+      }
+    }
+  }
+`
+
+export function GraphSettings({ graphId }) {
+  const { loading, error, data } = useQuery(GRAPH_SETTINGS, {
+    variables: { graphId }
+  })
+
+  if (loading) return <div>'Loading...'</div>
+  if (error) return <div>`Error! ${error.message}`</div>
+
+  if (!data.graph) {
+    return <div>Not Found</div>
+  }
+
+  return (
+    <div>
+      <h2>{data.graph.name}</h2>
       <p>API Keys</p>
-      <ul>
-        {data.graph.keys.map(key => {
-          return (
-            <li key={key.id}>
-              <Link to={`/graph/${key.id}`}>{key.secret}</Link>
-            </li>
-          )
-        })}
-      </ul>
+      <KeyCreate graphId={data.graph.id} />
+      <KeyList keys={data.graph.keys} />
     </div>
   )
 }

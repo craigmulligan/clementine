@@ -35,6 +35,7 @@ psql postgres://user:pass@localhost:5432/db
 - Add createKey component [client]
 - Add apiKey checks + rate limiting on ingress endpoint [server]
 - Add Error aggregation [server]
+- Better Logging [Server & Client]
 
 # NOTES
 

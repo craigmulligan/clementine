@@ -20,7 +20,8 @@ const gql = new ApolloServer({
   introspection: true,
   engine: {
     endpointUrl: 'http://localhost:3000',
-    apiKey: '0e3636a5-291d-4bd4-9892-2d68fb5838be:123',
+    apiKey:
+      '24217a84-e8b3-4f81-a4e0-f6ab5d415569:38e136cf-db4e-4bdd-b5b0-45d8ffad0a4d',
     debugPrintReports: true,
     schemaTag: 'development',
     debugPrintReports: true,
