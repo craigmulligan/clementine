@@ -12,6 +12,7 @@
     "start": "node ./bin/start.js",
     "dev": "nodemon ./bin/start.js",
     "migrate": "npm run wait:db && node ./bin/migrate.js up",
+    "migrate:down": "npm run wait:db && node ./bin/migrate.js down",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
   "keywords": ["graphql"],

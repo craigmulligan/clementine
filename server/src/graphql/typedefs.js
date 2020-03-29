@@ -32,6 +32,8 @@ module.exports = gql`
 
   type Trace {
     id: ID!
+    "Operation Key"
+    key: String!
     duration: Float!
     startTime: DateTime!
     endTime: DateTime!
