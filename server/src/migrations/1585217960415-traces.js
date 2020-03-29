@@ -15,12 +15,20 @@ module.exports.up = async function(next) {
       "endTime" timestamp NOT NULL,
       root jsonb NOT NULL,
       "clientName" text,
-      "clientVersion" text
+      "clientVersion" text,
+      "schemaTag" text,
+      "details" jsonb
     );
   `)
 
   await client.query(`
-    CREATE INDEX "graphTrace" on graphs (id);
+    CREATE INDEX "tracesGraphId" on traces ("graphId");
+  `)
+  await client.query(`
+    CREATE INDEX "tracesKey" on traces (key);
+  `)
+  await client.query(`
+    CREATE INDEX "tracesClientName" on traces ("clientName");
   `)
 
   await client.release(true)
@@ -31,7 +39,7 @@ module.exports.down = async function(next) {
   const client = await db.connect()
 
   await client.query(`
-  DROP TABLE traces;
+    DROP TABLE traces;
   `)
 
   await client.release(true)

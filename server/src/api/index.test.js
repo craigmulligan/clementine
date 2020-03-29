@@ -34,6 +34,10 @@ describe('/api/ingress', () => {
       .expect(403)
   })
 
+  test('uncompressed', () => {
+    // should handle uncompressed payloads too
+  })
+
   test('Happy path', async () => {
     const compressed = await formatProto('./__data__/traces.json')
     const request = require('supertest').agent(app)
@@ -54,6 +58,34 @@ describe('/api/ingress', () => {
     const t = traces[0]
     expect(t).toHaveProperty('id')
     expect(t).toHaveProperty('graphId')
+    expect(t).toHaveProperty('duration')
+    expect(t).toHaveProperty('startTime')
+    expect(t).toHaveProperty('endTime')
+    expect(t).toHaveProperty('root')
+    expect(t).toHaveProperty('clientName')
+    expect(t).toHaveProperty('clientVersion')
+  })
+
+  test('happy path - with errors', async () => {
+    const compressed = await formatProto('./__data__/traces.json')
+    const request = require('supertest').agent(app)
+
+    const user = await User.create('email@email.com', '123')
+    const graph = await Graph.create('myGraph', user.id)
+
+    // TODO create graph
+    await request
+      .post('/api/ingress/traces')
+      .set('content-encoding', 'gzip')
+      .set('x-api-key', graph.id + ':123')
+      .send(compressed)
+      .expect(201)
+
+    const traces = await Trace.findAll({ graphId: graph.id })
+    expect(traces.length).toBe(2)
+    const t = traces[0]
+    expect(t).toHaveProperty('id')
+    expect(t).toHaveProperty('graphId', graph.id)
     expect(t).toHaveProperty('duration')
     expect(t).toHaveProperty('startTime')
     expect(t).toHaveProperty('endTime')

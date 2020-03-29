@@ -2,7 +2,8 @@ const { Router } = require('express')
 const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const { Trace } = require('../persistence')
-// const fs = require('fs')
+const fs = require('fs')
+const { extractErrors } = require('./utils')
 
 function parseTS(message) {
   return new Date(message.seconds * 1000 + message.nanos / 1000)
@@ -31,9 +32,10 @@ router.post(
     const graphId = apiKey.split(':')[0]
 
     // fs.writeFileSync(
-    // `${__dirname}/dummy-json.json`,
+    // `${__dirname}/trace-with-error.json`,
     // JSON.stringify(instance.toJSON())
     // )
+
     const report = proto.FullTracesReport.toObject(instance, {
       enums: String, // enums as string names
       longs: String, // longs as strings (requires long.js)

@@ -62,7 +62,7 @@ module.exports = {
       return Key.findAll({ graphId: id })
     },
     operations: ({ id }) => {
-      return Trace.findAllslowest({ graphId: id })
+      return Trace.findAllSlowest({ graphId: id })
     }
   },
   User: {

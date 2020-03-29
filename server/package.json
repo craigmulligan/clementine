@@ -15,11 +15,14 @@
     "migrate:down": "npm run wait:db && node ./bin/migrate.js down",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": ["graphql"],
+  "keywords": [
+    "graphql"
+  ],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {
     "apollo-server-express": "^2.11.0",
+    "apollo-utilities": "^1.3.3",
     "bcrypt": "^4.0.1",
     "connect-redis": "^4.0.4",
     "cors": "^2.8.5",

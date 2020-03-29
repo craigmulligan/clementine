@@ -1,0 +1,135 @@
+{
+  "header": {
+    "hostname": "1ca2ad3872df",
+    "agentVersion": "apollo-engine-reporting@1.7.0",
+    "runtimeVersion": "node v10.19.0",
+    "uname": "linux, Linux, 5.3.0-42-generic, x64)",
+    "schemaTag": "development",
+    "schemaHash": "f4559b15acd25c08d55f5dc69d8a473471ea9e77a63e1b16187a3ecebb803cc083f94f672492d36ccd472512e3fa3200b524b04f67855ccd5d6cb40e125c025b"
+  },
+  "tracesPerQuery": {
+    "# -\n{user{__typename graphs{__typename id name}id}}": {
+      "trace": [
+        {
+          "endTime": { "seconds": "1585490234", "nanos": 266000000 },
+          "startTime": { "seconds": "1585490234", "nanos": 216000000 },
+          "details": {},
+          "clientName": "",
+          "clientVersion": "",
+          "http": { "method": "POST" },
+          "durationNs": "49442326",
+          "root": {
+            "child": [
+              {
+                "responseName": "user",
+                "type": "User",
+                "startTime": "15158309",
+                "endTime": "42217682",
+                "child": [
+                  {
+                    "responseName": "id",
+                    "type": "ID!",
+                    "startTime": "42651606",
+                    "endTime": "42936253",
+                    "parentType": "User"
+                  },
+                  {
+                    "responseName": "graphs",
+                    "type": "[Graph]",
+                    "startTime": "43151137",
+                    "endTime": "47239959",
+                    "child": [
+                      {
+                        "index": 0,
+                        "child": [
+                          {
+                            "responseName": "id",
+                            "type": "ID!",
+                            "startTime": "47445519",
+                            "endTime": "47508160",
+                            "parentType": "Graph"
+                          },
+                          {
+                            "responseName": "name",
+                            "type": "String!",
+                            "startTime": "47549382",
+                            "endTime": "47568728",
+                            "parentType": "Graph"
+                          }
+                        ]
+                      }
+                    ],
+                    "parentType": "User"
+                  }
+                ],
+                "parentType": "Query"
+              }
+            ]
+          },
+          "fullQueryCacheHit": false,
+          "clientReferenceId": "",
+          "registeredOperation": false,
+          "forbiddenOperation": false
+        }
+      ]
+    },
+    "# showGraph\nquery showGraph($graphId:ID!){graph(graphId:$graphId){__typename id keys{__typename id secret}name operations{__typename count duration id}}}": {
+      "trace": [
+        {
+          "endTime": { "seconds": "1585490236", "nanos": 385000000 },
+          "startTime": { "seconds": "1585490236", "nanos": 362000000 },
+          "details": { "variablesJson": { "graphId": "" } },
+          "clientName": "",
+          "clientVersion": "",
+          "http": { "method": "POST" },
+          "durationNs": "23130253",
+          "root": {
+            "child": [
+              {
+                "responseName": "graph",
+                "type": "Graph",
+                "startTime": "9653026",
+                "endTime": "12694593",
+                "child": [
+                  {
+                    "responseName": "id",
+                    "type": "ID!",
+                    "startTime": "12861528",
+                    "endTime": "12894576",
+                    "parentType": "Graph"
+                  },
+                  {
+                    "responseName": "name",
+                    "type": "String!",
+                    "startTime": "12930030",
+                    "endTime": "12945498",
+                    "parentType": "Graph"
+                  },
+                  {
+                    "responseName": "keys",
+                    "type": "[Key]!",
+                    "startTime": "12986614",
+                    "endTime": "13236379",
+                    "error": [
+                      {
+                        "message": "Dummy Error",
+                        "location": [{ "line": 5, "column": 5 }],
+                        "json": "{\"message\":\"Dummy Error\",\"locations\":[{\"line\":5,\"column\":5}],\"path\":[\"graph\",\"keys\"]}"
+                      }
+                    ],
+                    "parentType": "Graph"
+                  }
+                ],
+                "parentType": "Query"
+              }
+            ]
+          },
+          "fullQueryCacheHit": false,
+          "clientReferenceId": "",
+          "registeredOperation": false,
+          "forbiddenOperation": false
+        }
+      ]
+    }
+  }
+}
