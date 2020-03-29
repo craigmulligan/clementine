@@ -8,10 +8,10 @@
 make dev
 ```
 
-Server -> localhost:3000
-Client -> localhost:5000
-Postgres -> localhost:5432
-Redis -> localhost:6379
+- Server -> localhost:3000
+- Client -> localhost:5000
+- Postgres -> localhost:5432
+- Redis -> localhost:6379
 
 Postgres is exposed on port `5432`. The connection string is `postgres://user:pass@localhost:35432/db` (username, password and database name are defined in [./docker-compose.yaml](./docker-compose.yaml)).
 
