@@ -24,15 +24,11 @@ function Dashboard() {
 
   return (
     <section>
-      <aside>
+      <div>
+        User: {data.user.id} : <mark>{data.user.email}</mark>
+        <GraphCreate />
         <GraphList />
-      </aside>
-      <aside>
-        <div>
-          User: {data.user.id} : <mark>{data.user.email}</mark>
-          <GraphCreate />
-        </div>
-      </aside>
+      </div>
     </section>
   )
 }

@@ -10,6 +10,7 @@ services:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: production
       PORT: 3000
+      MAX_DB_CONNECTIONS: ${MAX_DB_CONNECTIONS}
     ports:
       - "3000:3000"
     command: npm run dev

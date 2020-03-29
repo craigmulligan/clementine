@@ -26,7 +26,7 @@ function formatProto(path) {
 
 describe('/api/ingress', () => {
   test('No ApiKey', async () => {
-    const compressed = await formatProto('./dummy.json')
+    const compressed = await formatProto('./__data__/traces.json')
     const request = require('supertest').agent(app)
 
     // TODO create graph

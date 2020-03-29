@@ -15,12 +15,21 @@ module.exports = gql`
     name: String!
     user: User
     keys: [Key]!
+    operations: [Operation]!
   }
 
   type Key {
     id: ID!
     secret: String!
     graph: Graph!
+  }
+
+  type Operation {
+    id: String!
+    requests_count: Int!
+    errors: Int!
+    errors_percent: Int!
+    duration: Float!
   }
 
   type Trace {
@@ -37,6 +46,7 @@ module.exports = gql`
     user: User
     graph(graph_id: ID!): Graph
     traces(graph_id: ID!): [Trace]
+    operations(graph_id: ID!): [Operation]
   }
 
   type Mutation {
