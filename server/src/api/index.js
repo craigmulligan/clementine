@@ -1,10 +1,8 @@
 const { Router } = require('express')
 const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
-const _ = require('lodash')
-const Trace = require('../persistence/traces')
-
-const fs = require('fs')
+const { Trace } = require('../persistence')
+// const fs = require('fs')
 
 function parseTS(message) {
   return new Date(message.seconds * 1000 + message.nanos / 1000)
@@ -30,7 +28,7 @@ router.post(
     }
 
     // verifyKey
-    const graph_id = apiKey.split(':')[0]
+    const graphId = apiKey.split(':')[0]
 
     // fs.writeFileSync(
     // `${__dirname}/dummy-json.json`,
@@ -63,7 +61,7 @@ router.post(
       []
     )
 
-    const rowIds = await Trace.create(graph_id, traces)
+    const rowIds = await Trace.create(graphId, traces)
     res.status(201).send(rowIds)
   }
 )

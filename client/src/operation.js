@@ -7,7 +7,7 @@ export function OperationList({ operations }) {
         return (
           <li>
             <span>{op.id}</span>
-            <span>{op.requests_count}</span>
+            <span>{op.count}</span>
             <span>{op.duration}</span>
           </li>
         )

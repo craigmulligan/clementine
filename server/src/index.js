@@ -20,14 +20,9 @@ const gql = new ApolloServer({
   introspection: true,
   engine: {
     endpointUrl: 'http://localhost:3000',
-    apiKey: '95efda39-b743-425c-a4a7-d4a931fd0a94:123',
+    // apiKey: '<graphId>:<secret>',
     debugPrintReports: true,
     schemaTag: 'development',
-    // FIXME: Do not know why we need these below properties,
-    // If not provided, application doesn't start!!
-    privateHeaders: true,
-    // privateVariables: true,
-    maxUncompressedReportSize: 0, //4000000,
     debugPrintReports: true,
     reportErrorFunction: err => {
       console.log({ err })

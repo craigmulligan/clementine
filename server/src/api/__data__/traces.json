@@ -1,0 +1,62 @@
+{
+  "header": {
+    "hostname": "c69adee1be7e",
+    "agentVersion": "apollo-engine-reporting@1.7.0",
+    "runtimeVersion": "node v10.19.0",
+    "uname": "linux, Linux, 5.3.0-42-generic, x64)",
+    "schemaTag": "development",
+    "schemaHash": "2c43572e296e959ee9f220972942bead8c1aa26129eb33edcd31394ad4662598174421b6d7a7235c7fded3ea6a682599c17a42ca11e79e7223403b0572d06345"
+  },
+  "tracesPerQuery": {
+    "# GET_USER\nquery GET_USER{user{email id}}": {
+      "trace": [
+        {
+          "endTime": { "seconds": "1585312277", "nanos": 258000000 },
+          "startTime": { "seconds": "1585312277", "nanos": 189000000 },
+          "clientName": "",
+          "clientVersion": "",
+          "http": { "method": "POST" },
+          "durationNs": "67729237",
+          "root": {
+            "child": [
+              {
+                "responseName": "user",
+                "type": "User",
+                "startTime": "29032827",
+                "endTime": "65005807",
+                "parentType": "Query"
+              }
+            ]
+          },
+          "fullQueryCacheHit": false,
+          "clientReferenceId": "",
+          "registeredOperation": false,
+          "forbiddenOperation": false
+        },
+        {
+          "endTime": { "seconds": "1585312278", "nanos": 50000000 },
+          "startTime": { "seconds": "1585312278", "nanos": 45000000 },
+          "clientName": "",
+          "clientVersion": "",
+          "http": { "method": "POST" },
+          "durationNs": "4679795",
+          "root": {
+            "child": [
+              {
+                "responseName": "user",
+                "type": "User",
+                "startTime": "1037483",
+                "endTime": "4302402",
+                "parentType": "Query"
+              }
+            ]
+          },
+          "fullQueryCacheHit": false,
+          "clientReferenceId": "",
+          "registeredOperation": false,
+          "forbiddenOperation": false
+        }
+      ]
+    }
+  }
+}

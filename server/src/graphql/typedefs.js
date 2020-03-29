@@ -26,9 +26,7 @@ module.exports = gql`
 
   type Operation {
     id: String!
-    requests_count: Int!
-    errors: Int!
-    errors_percent: Int!
+    count: Int!
     duration: Float!
   }
 
@@ -44,14 +42,14 @@ module.exports = gql`
 
   type Query {
     user: User
-    graph(graph_id: ID!): Graph
-    traces(graph_id: ID!): [Trace]
-    operations(graph_id: ID!): [Operation]
+    graph(graphId: ID!): Graph
+    traces(graphId: ID!): [Trace]
+    operations(graphId: ID!): [Operation]
   }
 
   type Mutation {
     graphCreate(name: String!): Graph!
-    keyCreate(graph_id: ID!): Key!
+    keyCreate(graphId: ID!): Key!
     userLogout: Boolean!
     userCreate(email: String, password: String): User!
     userLogin(email: String, password: String): User!

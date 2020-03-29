@@ -5,10 +5,7 @@ const proto = require('apollo-engine-reporting-protobuf')
 const zlib = require('zlib')
 const promisify = require('util').promisify
 const gzip = promisify(zlib.gzip)
-const uuid = require('uuid/v4')
-const Trace = require('../persistence/traces')
-const Graph = require('../persistence/graphs')
-const User = require('../persistence/users')
+const { Trace, Graph, User } = require('../persistence')
 
 beforeEach(() => {
   return db.query('START TRANSACTION')
@@ -38,7 +35,7 @@ describe('/api/ingress', () => {
   })
 
   test('Happy path', async () => {
-    const compressed = await formatProto('./dummy.json')
+    const compressed = await formatProto('./__data__/traces.json')
     const request = require('supertest').agent(app)
 
     const user = await User.create('email@email.com', '123')
@@ -52,16 +49,16 @@ describe('/api/ingress', () => {
       .send(compressed)
       .expect(201)
 
-    const traces = await Trace.findAll({ graph_id: graph.id })
+    const traces = await Trace.findAll({ graphId: graph.id })
     expect(traces.length).toBe(2)
     const t = traces[0]
     expect(t).toHaveProperty('id')
-    expect(t).toHaveProperty('graph_id')
+    expect(t).toHaveProperty('graphId')
     expect(t).toHaveProperty('duration')
-    expect(t).toHaveProperty('start_time')
-    expect(t).toHaveProperty('end_time')
+    expect(t).toHaveProperty('startTime')
+    expect(t).toHaveProperty('endTime')
     expect(t).toHaveProperty('root')
-    expect(t).toHaveProperty('client_name')
-    expect(t).toHaveProperty('client_version')
+    expect(t).toHaveProperty('clientName')
+    expect(t).toHaveProperty('clientVersion')
   })
 })
