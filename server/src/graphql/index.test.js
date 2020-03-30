@@ -1,5 +1,5 @@
 const { app } = require('../index')
-const { db, User, Graph, Key } = require('../persistence')
+const { db, User, Graph, Key, Trace } = require('../persistence')
 const { prepareTraces } = require('../api/utils')
 const proto = require('apollo-engine-reporting-protobuf')
 
@@ -249,7 +249,7 @@ describe('keys', () => {
       })
   })
 
-  test.only('list', async () => {
+  test('list', async () => {
     const request = require('supertest').agent(app)
     const email = 'xx@gmail.com',
       password = 'yy'
@@ -296,7 +296,7 @@ describe('keys', () => {
 })
 
 describe('operations', () => {
-  test('can list by graph', () => {
+  test('can list by graph', async () => {
     const request = require('supertest').agent(app)
     const email = 'xx@gmail.com',
       password = 'yy'
@@ -307,18 +307,40 @@ describe('operations', () => {
     const messageJSON = require('../api/__data__/traces.json')
     const message = proto.FullTracesReport.fromObject(messageJSON)
     const traces = prepareTraces(message)
+    const results = await Trace.create(graph.id, traces)
+    expect(results.length).toBe(2)
 
-    await Traces.create(graph.id, traces)
-  })
+    const query = `
+      query cg {
+        operations(graphId: "${graph.id}") {
+          nodes {
+            id
+            key
+            count
+            duration
+          }
+          cursor
+        }
+      }
+    `
 
-  test('can order by duration', () => {
+    await request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+      .then(async res => {
+        const nodes = res.body.data.operations.nodes
+        const firstNode = nodes[0]
+        expect(nodes.length).toBe(1)
+        expect(firstNode).toHaveProperty('key', Buffer.from(firstNode.id, 'base64').toString())
+        expect(firstNode).toHaveProperty('count', 2)
+        expect(firstNode).toHaveProperty('duration')
+  })})
 
-
-  })
-
-  test('can paginate with Cursor', () => {
-
-  })
+  test.todo('can order by duration')
+  test.todo('can paginate with Cursor')
 })
 
 
