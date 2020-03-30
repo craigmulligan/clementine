@@ -3,6 +3,21 @@ const bcrypt = require('bcrypt')
 const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 
+
+const decodeCursor = (cursor) => {
+  // returns [ field, <value> ]
+  if (cursor) {
+    return Buffer.from(cursor, 'base64').toString('utf-8').split(':')
+  }
+
+  return []
+}
+
+const encodeCursor = (o, field, asc) => {
+  return Buffer.from(`${o[field]}:${field}:${asc}`).toString('base64')
+}
+
+
 module.exports = {
   DateTime: DateTimeResolver,
   JSON: JSONResolver,
@@ -18,6 +33,20 @@ module.exports = {
     traces: (_, { graphId }, { req }) => {
       // TODO permissions
       return Trace.findAll({ graphId })
+    },
+    operations: async (_, { graphId, orderBy, after }, { req }) => {
+      // TODO permissions
+      const limit = 7
+      const [ cursor ] = decodeCursor(after)
+      const nodes = await Trace.findAllOperations({ graphId }, orderBy, cursor, limit)
+
+      // we always fetch one more than we need to calculate hasNextPage
+      const hasNextPage = nodes.length >= limit
+
+      return {
+        cursor: hasNextPage ? encodeCursor(nodes.pop(), orderBy.field, orderBy.asc) : '',
+        nodes,
+      }
     }
   },
   Mutation: {
@@ -60,9 +89,6 @@ module.exports = {
     },
     keys: ({ id }) => {
       return Key.findAll({ graphId: id })
-    },
-    operations: ({ id }) => {
-      return Trace.findAllSlowest({ graphId: id })
     }
   },
   User: {
@@ -76,6 +102,11 @@ module.exports = {
     },
     graph: ({ graphId }) => {
       return Graph.findById(graphId)
+    }
+  },
+  Operation: {
+    id: ({ key }) => {
+      return Buffer.from(key).toString('base64')
     }
   }
 }

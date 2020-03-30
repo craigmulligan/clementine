@@ -4,6 +4,16 @@ module.exports = gql`
   scalar JSON
   scalar DateTime
 
+  enum OperationOrderFields {
+    duration
+    count
+  }
+
+  input OperationOrderBy {
+    asc: Boolean!
+    field: OperationOrderFields!
+  }
+
   type User {
     id: ID!
     email: String!
@@ -15,7 +25,6 @@ module.exports = gql`
     name: String!
     user: User
     keys: [Key]!
-    operations: [Operation]!
   }
 
   type Key {
@@ -26,8 +35,14 @@ module.exports = gql`
 
   type Operation {
     id: String!
+    key: String!
     count: Int!
     duration: Float!
+  }
+
+  type OperationConnection {
+    nodes: [Operation]!
+    cursor: String
   }
 
   type Trace {
@@ -46,7 +61,11 @@ module.exports = gql`
     user: User
     graph(graphId: ID!): Graph
     traces(graphId: ID!): [Trace]
-    operations(graphId: ID!): [Operation]
+    operations(
+      graphId: ID!
+      orderBy: OperationOrderBy
+      after: String
+    ): OperationConnection
   }
 
   type Mutation {

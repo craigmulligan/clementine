@@ -8,6 +8,7 @@ const cors = require('cors')
 const redis = require('redis')
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
+const logger = require('loglevel')
 
 const app = express()
 const api = require('./api')
@@ -26,13 +27,13 @@ const gql = new ApolloServer({
     schemaTag: 'development',
     debugPrintReports: true,
     reportErrorFunction: err => {
-      console.log({ err })
+      logger.error(err)
       return err
     }
   },
   formatError: err => {
-    console.log(err)
-    console.log(err.extensions.exception)
+    logger.error(err)
+    logger.error(err.extensions.exception)
     return err
   },
   context: async ({ req, res }) => {

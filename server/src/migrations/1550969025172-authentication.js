@@ -7,7 +7,7 @@ module.exports.up = async function(next) {
   CREATE TABLE IF NOT EXISTS users (
     id uuid PRIMARY KEY,
     email text UNIQUE,
-    "createdAt" timestamp default (now() at time zone 'utc') NOT NULL,
+    "createdAt" timestampz default (now() at time zone 'utc') NOT NULL,
     password text
   );
   `)

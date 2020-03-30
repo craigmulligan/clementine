@@ -10,7 +10,7 @@ module.exports.up = async function(next) {
       id uuid PRIMARY KEY,
       "userId" uuid REFERENCES users (id) ON DELETE CASCADE,
       name text,
-      "createdAt" timestamp default (now() at time zone 'utc') NOT NULL
+      "createdAt" timestampz default (now() at time zone 'utc') NOT NULL
     );
   `)
 

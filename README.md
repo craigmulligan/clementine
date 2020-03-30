@@ -34,6 +34,8 @@ psql postgres://user:pass@localhost:5432/db
 - Add apiKey checks + rate limiting on ingress endpoint [server]
 - Better Logging [Server & Client]
 - Ability to remove/revoke a key [Server & Client]
+- Switch to preprocess queries [Client]
+- user prepared statements in postgres [Server] https://github.com/felixfbecker/node-sql-template-strings#named-prepared-statements-in-postgres
 
 # NOTES
 

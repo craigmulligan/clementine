@@ -21,7 +21,7 @@ const GET_GRAPHS = gql`
 export function GraphList() {
   const { loading, error, data } = useQuery(GET_GRAPHS)
 
-  if (loading) return <Loading/>
+  if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
   if (!data.user.graphs) {
@@ -90,11 +90,6 @@ const SHOW_GRAPH = gql`
     graph(graphId: $graphId) {
       id
       name
-      operations {
-        id
-        count
-        duration
-      }
     }
   }
 `
@@ -104,9 +99,8 @@ export function GraphShow({ graphId }) {
     variables: { graphId }
   })
 
-  if (loading) return <Loading/>
+  if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
-
 
   if (!data.graph) {
     return <div>Not Found</div>
@@ -116,7 +110,7 @@ export function GraphShow({ graphId }) {
     <div>
       <h2>{data.graph.name}</h2>
       <Link to={`/graph/${data.graph.id}/settings`}>Settings</Link>
-      <OperationList operations={data.graph.operations} />
+      <OperationList graphId={data.graph.id} />
     </div>
   )
 }
@@ -139,9 +133,8 @@ export function GraphSettings({ graphId }) {
     variables: { graphId }
   })
 
-  if (loading) return <Loading/>
+  if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
-
 
   if (!data.graph) {
     return <div>Not Found</div>

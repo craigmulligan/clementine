@@ -8,7 +8,7 @@ module.exports.up = async function(next) {
   await client.query(`
     CREATE TABLE IF NOT EXISTS keys (
       id uuid PRIMARY KEY,
-      "createdAt" timestamp default (now() at time zone 'utc') NOT NULL,
+      "createdAt" timestampz default (now() at time zone 'utc') NOT NULL,
       "graphId" uuid REFERENCES graphs (id) ON DELETE CASCADE,
       secret text
     );

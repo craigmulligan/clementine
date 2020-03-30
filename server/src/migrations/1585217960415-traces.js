@@ -11,14 +11,14 @@ module.exports.up = async function(next) {
       "graphId" uuid REFERENCES graphs (id) ON DELETE CASCADE NOT NULL,
       key text NOT NULL,
       duration float NOT NULL,
-      "startTime" timestamp NOT NULL,
-      "endTime" timestamp NOT NULL,
+      "startTime" timestampz NOT NULL,
+      "endTime" timestampz NOT NULL,
       root jsonb NOT NULL,
       "clientName" text,
       "clientVersion" text,
       "schemaTag" text,
       "details" jsonb,
-      "createdAt" timestamp default (now() at time zone 'utc') NOT NULL ,
+      "createdAt" timestampz default (now() at time zone 'utc') NOT NULL,
       "hasErrors" boolean NOT NULL
     );
   `)

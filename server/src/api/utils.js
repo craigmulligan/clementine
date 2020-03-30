@@ -13,5 +13,5 @@ const extractErrors = (node, acc = []) => {
 }
 
 module.exports = {
-  extractErrors
+  extractErrors,
 }
