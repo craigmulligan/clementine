@@ -1,5 +1,7 @@
 const { app } = require('../index')
 const { db, User, Graph, Key } = require('../persistence')
+const { prepareTraces } = require('../api/utils')
+const proto = require('apollo-engine-reporting-protobuf')
 
 beforeEach(() => {
   return db.query('START TRANSACTION')
@@ -292,3 +294,32 @@ describe('keys', () => {
       })
   })
 })
+
+describe('operations', () => {
+  test('can list by graph', () => {
+    const request = require('supertest').agent(app)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
+    await userLogin(request)
+    const graph = await Graph.create('myGraph', user.id)
+
+    const messageJSON = require('../api/__data__/traces.json')
+    const message = proto.FullTracesReport.fromObject(messageJSON)
+    const traces = prepareTraces(message)
+
+    await Traces.create(graph.id, traces)
+  })
+
+  test('can order by duration', () => {
+
+
+  })
+
+  test('can paginate with Cursor', () => {
+
+  })
+})
+
+
+

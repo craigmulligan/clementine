@@ -62,6 +62,7 @@ module.exports = {
     limit
   ) {
     // get slowest by 95 percentile, count and group by key.
+    // TODO we probably need a better query builder
     const query = sql`SELECT * from (SELECT key, PERCENTILE_CONT(0.95) within group (order by duration asc) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId} group by key`
 
     if (orderBy.field === 'count') {

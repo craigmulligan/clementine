@@ -3,11 +3,7 @@ const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const { Trace } = require('../persistence')
 const fs = require('fs')
-const { extractErrors } = require('./utils')
-
-function parseTS(message) {
-  return new Date(message.seconds * 1000 + message.nanos / 1000)
-}
+const { prepareTraces } = require('./utils')
 
 const router = Router()
 // https://www.apollographql.com/docs/graph-manager/setup-analytics/#sending-metrics-to-the-reporting-endpoint
@@ -45,24 +41,7 @@ router.post(
       oneofs: true // includes virtual oneof fields set to the present field's name
     })
 
-    const traces = Object.entries(report.tracesPerQuery).reduce(
-      (acc, [key, v]) => {
-        return [
-          ...acc,
-          ...v.trace.map(trace => {
-            return {
-              key,
-              ...trace,
-              startTime: parseTS(trace.endTime),
-              endTime: parseTS(trace.startTime),
-              hasErrors: extractErrors(trace.root).length > 0
-            }
-          })
-        ]
-      },
-      []
-    )
-
+    const traces = prepareTraces(report)
     const rowIds = await Trace.create(graphId, traces)
     res.status(201).send(rowIds)
   }

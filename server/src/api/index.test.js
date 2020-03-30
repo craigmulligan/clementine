@@ -1,6 +1,5 @@
 const { app } = require('../index')
 const db = require('../persistence/db')
-const { FullTracesReport } = require('apollo-engine-reporting-protobuf')
 const proto = require('apollo-engine-reporting-protobuf')
 const zlib = require('zlib')
 const promisify = require('util').promisify

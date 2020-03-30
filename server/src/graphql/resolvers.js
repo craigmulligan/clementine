@@ -2,20 +2,7 @@ const { ForbiddenError, GraphQLError } = require('apollo-server-express')
 const bcrypt = require('bcrypt')
 const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
-
-
-const decodeCursor = (cursor) => {
-  // returns [ field, <value> ]
-  if (cursor) {
-    return Buffer.from(cursor, 'base64').toString('utf-8').split(':')
-  }
-
-  return []
-}
-
-const encodeCursor = (o, field, asc) => {
-  return Buffer.from(`${o[field]}:${field}:${asc}`).toString('base64')
-}
+const { Cursor } = require('./utils')
 
 
 module.exports = {
@@ -37,14 +24,14 @@ module.exports = {
     operations: async (_, { graphId, orderBy, after }, { req }) => {
       // TODO permissions
       const limit = 7
-      const [ cursor ] = decodeCursor(after)
+      const [ cursor ] = Cursor.decode(after)
       const nodes = await Trace.findAllOperations({ graphId }, orderBy, cursor, limit)
 
       // we always fetch one more than we need to calculate hasNextPage
       const hasNextPage = nodes.length >= limit
 
       return {
-        cursor: hasNextPage ? encodeCursor(nodes.pop(), orderBy.field, orderBy.asc) : '',
+        cursor: hasNextPage ? Cursor.encode(nodes.pop(), orderBy.field, orderBy.asc) : '',
         nodes,
       }
     }
