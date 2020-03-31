@@ -90,6 +90,7 @@ module.exports = {
       SELECT * from
         (SELECT key, PERCENTILE_CONT(0.95)
           within group (order by duration asc) as duration,
+          count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
           count(id) as count FROM traces WHERE "graphId"=${graphId} group by key
         ) as ops order by ${sql.identifier([
           orderBy.field

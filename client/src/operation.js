@@ -36,6 +36,7 @@ const OPERATION_LIST = gql`
         id
         key
         count
+        errorCount
         duration
       }
       cursor
@@ -87,6 +88,13 @@ export function OperationList({ graphId }) {
       >
         slowest
       </button>
+      <button
+        onClick={() => {
+          setOrderField('errorCount')
+        }}
+      >
+        Most Errors
+      </button>
       {data.operations.nodes.map(op => {
         const doc = gql`
           ${op.key}
@@ -100,6 +108,7 @@ export function OperationList({ graphId }) {
               <mark>{name ? name : op.id}</mark>
             </span>
             <span>&nbsp;{op.count}</span>
+            <span>&nbsp;{op.errorCount}</span>
             <span>
               &nbsp;<code>{op.duration}</code>
             </span>

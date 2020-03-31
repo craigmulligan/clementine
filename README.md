@@ -37,6 +37,7 @@ psql postgres://user:pass@localhost:5432/db
 - Switch to preprocess queries [Client]
 - user prepared statements in postgres [Server] https://github.com/felixfbecker/node-sql-template-strings#named-prepared-statements-in-postgres
 - Entire migration set run in transaction [Server]
+- Proxy requests in dev mode to api [Client]
 
 # NOTES
 
