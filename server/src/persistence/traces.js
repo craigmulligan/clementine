@@ -87,7 +87,7 @@ module.exports = {
 
     const query = sql`
     SELECT * from (
-      SELECT * from
+      SELECT *, (100 * "errorCount"/count) as "errorPercent" from
         (SELECT key, PERCENTILE_CONT(0.95)
           within group (order by duration asc) as duration,
           count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",

@@ -27,6 +27,10 @@ module.exports = {
     return rows[0]
   },
   async findById(id) {
+    if (!id) {
+      return null
+    }
+
     const { rows } = await db.query(sql`
     SELECT * FROM users WHERE id=${id} LIMIT 1;
     `)

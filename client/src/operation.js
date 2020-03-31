@@ -37,6 +37,7 @@ const OPERATION_LIST = gql`
         key
         count
         errorCount
+        errorPercent
         duration
       }
       cursor
@@ -95,6 +96,13 @@ export function OperationList({ graphId }) {
       >
         Most Errors
       </button>
+      <button
+        onClick={() => {
+          setOrderField('errorPercent')
+        }}
+      >
+        Highest Error Rate
+      </button>
       {data.operations.nodes.map(op => {
         const doc = gql`
           ${op.key}
@@ -109,6 +117,7 @@ export function OperationList({ graphId }) {
             </span>
             <span>&nbsp;{op.count}</span>
             <span>&nbsp;{op.errorCount}</span>
+            <span>&nbsp;{op.errorPercent}%</span>
             <span>
               &nbsp;<code>{op.duration}</code>
             </span>
