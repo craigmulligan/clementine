@@ -18,6 +18,7 @@ services:
     command: npm run dev
     volumes:
       - ./server/src:/app/src
+      - ./server/bin:/app/bin
     networks:
       - clementine
 

@@ -1,6 +1,5 @@
-const { Pool } = require('pg')
+const { createPool } = require('slonik')
 
-module.exports = new Pool({
-  max: process.env.MAX_DB_CONNECTIONS || 1,
-  connectionString: process.env.DATABASE_URL
+module.exports = createPool(process.env.DATABASE_URL, {
+  maximumPoolSize: process.env.MAX_DB_CONNECTIONS || 1
 })

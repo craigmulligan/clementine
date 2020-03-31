@@ -1,16 +1,15 @@
 const { app } = require('../index')
-const db = require('../persistence/db')
 const proto = require('apollo-engine-reporting-protobuf')
 const zlib = require('zlib')
 const promisify = require('util').promisify
 const gzip = promisify(zlib.gzip)
-const { Trace, Graph, User } = require('../persistence')
+const { Trace, Graph, User, sql, db } = require('../persistence')
 
 beforeEach(() => {
-  return db.query('START TRANSACTION')
+  return db.query(sql`START TRANSACTION`)
 })
 afterEach(() => {
-  return db.query('ROLLBACK')
+  return db.query(sql`ROLLBACK`)
 })
 
 function formatProto(path) {

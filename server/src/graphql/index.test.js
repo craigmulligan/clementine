@@ -1,18 +1,19 @@
 const { app } = require('../index')
-const { db, User, Graph, Key, Trace } = require('../persistence')
+const { db, User, Graph, Key, Trace, sql } = require('../persistence')
 const { prepareTraces } = require('../api/utils')
 const proto = require('apollo-engine-reporting-protobuf')
+const { runMigration } = require('../persistence/migrator')
 
-beforeEach(() => {
-  return db.query('START TRANSACTION')
+beforeEach(async () => {
+  await runMigration('up')
 })
-afterEach(() => {
-  return db.query('ROLLBACK')
+afterEach(async () => {
+  await runMigration('down')
 })
 
 function raiseGqlErr(res) {
-  if (res.body.data.errors) {
-    throw Error(JSON.stringify(body.data.errors))
+  if (res.body.errors) {
+    throw Error(JSON.stringify(res.body.errors))
   }
 
   return res
@@ -296,7 +297,7 @@ describe('keys', () => {
 })
 
 describe('operations', () => {
-  test('can list by graph', async () => {
+  test.only('can list by graph', async () => {
     const request = require('supertest').agent(app)
     const email = 'xx@gmail.com',
       password = 'yy'
@@ -308,7 +309,6 @@ describe('operations', () => {
     const message = proto.FullTracesReport.fromObject(messageJSON)
     const traces = prepareTraces(message)
     const results = await Trace.create(graph.id, traces)
-    expect(results.length).toBe(2)
 
     const query = `
       query cg {
@@ -334,14 +334,15 @@ describe('operations', () => {
         const nodes = res.body.data.operations.nodes
         const firstNode = nodes[0]
         expect(nodes.length).toBe(1)
-        expect(firstNode).toHaveProperty('key', Buffer.from(firstNode.id, 'base64').toString())
+        expect(firstNode).toHaveProperty(
+          'key',
+          Buffer.from(firstNode.id, 'base64').toString()
+        )
         expect(firstNode).toHaveProperty('count', 2)
         expect(firstNode).toHaveProperty('duration')
-  })})
+      })
+  })
 
   test.todo('can order by duration')
   test.todo('can paginate with Cursor')
 })
-
-
-

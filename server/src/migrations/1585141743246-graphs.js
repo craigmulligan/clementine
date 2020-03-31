@@ -1,34 +1,28 @@
 'use strict'
 
-const db = require('../persistence/db')
+const { db, sql } = require('../persistence')
 
 module.exports.up = async function(next) {
-  const client = await db.connect()
-
-  await client.query(`
+  await db.query(sql`
     CREATE TABLE IF NOT EXISTS graphs (
       id uuid PRIMARY KEY,
       "userId" uuid REFERENCES users (id) ON DELETE CASCADE,
       name text,
-      "createdAt" timestampz default (now() at time zone 'utc') NOT NULL
+      "createdAt" timestamp with time zone default (now() at time zone 'utc') NOT NULL
     );
   `)
 
-  await client.query(`
-    CREATE INDEX "graphUser" on graphs ("userId");
-  `)
+  // await db.query(sql`
+  // CREATE INDEX "graphUser" on graphs ("userId");
+  // `)
 
-  await client.release(true)
   next()
 }
 
 module.exports.down = async function(next) {
-  const client = await db.connect()
-
-  await client.query(`
+  await db.query(sql`
   DROP TABLE graphs;
   `)
 
-  await client.release(true)
   next()
 }
