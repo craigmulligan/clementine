@@ -14,7 +14,9 @@
     "migrate": "npm run wait:db && node ./bin/migrate.js",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": ["graphql"],
+  "keywords": [
+    "graphql"
+  ],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {
