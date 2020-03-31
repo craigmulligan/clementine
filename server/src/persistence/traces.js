@@ -46,7 +46,9 @@ module.exports = {
         'timestamp',
         'jsonb',
         'bool'
-      ])};
+      ])}
+      RETURNING id 
+      ;
     `
 
     // const query = format(

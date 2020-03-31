@@ -4,12 +4,13 @@ const zlib = require('zlib')
 const promisify = require('util').promisify
 const gzip = promisify(zlib.gzip)
 const { Trace, Graph, User, sql, db } = require('../persistence')
+const { runMigration } = require('../persistence/migrator')
 
-beforeEach(() => {
-  return db.query(sql`START TRANSACTION`)
+beforeEach(async () => {
+  await runMigration('up')
 })
-afterEach(() => {
-  return db.query(sql`ROLLBACK`)
+afterEach(async () => {
+  await runMigration('down')
 })
 
 function formatProto(path) {
