@@ -10,13 +10,13 @@ build:
 	docker-compose build
 
 dev:
-	MAX_DB_CONNECTIONS=10 docker-compose up
+	docker-compose up
 
 migrate:
-	MAX_DB_CONNECTIONS=1 docker-compose run server npm run migrate up
+	docker-compose run server npm run migrate up
 
 migrate-down:
-	MAX_DB_CONNECTIONS=1 docker-compose run server npm run migrate down
+	docker-compose run server npm run migrate down
 
 db-rm:
 	docker-compose kill postgres && docker-compose rm postgres
