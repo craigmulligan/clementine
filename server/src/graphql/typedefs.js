@@ -8,6 +8,7 @@ module.exports = gql`
     duration
     count
     errorCount
+    errorPercent
   }
 
   input OperationOrderBy {
