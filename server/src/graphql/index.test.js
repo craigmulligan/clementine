@@ -400,7 +400,7 @@ describe('operations', () => {
       })
   })
 
-  test.only('can paginate with Cursor', async () => {
+  test('can paginate with Cursor', async () => {
     const request = require('supertest').agent(app)
     const email = 'xx@gmail.com',
       password = 'yy'
