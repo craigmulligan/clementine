@@ -1,10 +1,7 @@
 const { sql } = require('slonik')
 const uuid = require('uuid/v4')
 const bcrypt = require('bcrypt')
-const pg = require('pg')
 const db = require('./db')
-const format = require('pg-format')
-const logger = require('loglevel')
 
 module.exports = {
   async create(graphId, traces) {
