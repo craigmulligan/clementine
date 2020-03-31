@@ -72,25 +72,34 @@ module.exports = {
   async findAllOperations({ graphId }, orderBy, cursor, limit) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
-    let orderClause = sql``
+    let orderDirection = sql``
 
     if (cursor) {
       if (orderBy.asc) {
-        cursorClause = sql`where ${sql.identifier(['key'])} >= ${cursor}`
+        cursorClause = sql` where key >= ${cursor}`
       } else {
-        cursorClause = sql` where ${sql.identifier(['key'])} <= ${cursor}`
+        cursorClause = sql` where key <= ${cursor}`
       }
     }
 
     if (orderBy.asc) {
-      orderClause = sql` asc`
+      orderDirection = sql` asc`
     } else {
-      orderClause = sql` desc`
+      orderDirection = sql` desc`
     }
 
-    const query = sql`SELECT * from (SELECT key, PERCENTILE_CONT(0.95) within group (order by duration asc) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId} group by key) as ops ${cursorClause} order by ${sql.identifier(
-      [orderBy.field]
-    )}, key ${orderClause} limit ${limit}`
+    const query = sql`
+    SELECT * from (
+      SELECT * from
+        (SELECT key, PERCENTILE_CONT(0.95)
+          within group (order by duration asc) as duration,
+          count(id) as count FROM traces WHERE "graphId"=${graphId} group by key
+        ) as ops order by ${sql.identifier([
+          orderBy.field
+        ])}${orderDirection}, key ${orderDirection}
+    ) as orderedOps
+    ${cursorClause}
+    limit ${limit}`
 
     const { rows } = await db.query(query)
     return rows
