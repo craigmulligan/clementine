@@ -297,7 +297,7 @@ describe('keys', () => {
 })
 
 describe('operations', () => {
-  test.only('can list by graph', async () => {
+  test('can list by graph', async () => {
     const request = require('supertest').agent(app)
     const email = 'xx@gmail.com',
       password = 'yy'
