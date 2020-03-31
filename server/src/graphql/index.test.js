@@ -3,6 +3,7 @@ const { db, User, Graph, Key, Trace, sql } = require('../persistence')
 const { prepareTraces } = require('../api/utils')
 const proto = require('apollo-engine-reporting-protobuf')
 const { runMigration } = require('../persistence/migrator')
+const uuid = require('uuid/v4')
 
 beforeEach(async () => {
   await runMigration('up')
@@ -343,6 +344,130 @@ describe('operations', () => {
       })
   })
 
-  test.todo('can order by duration')
-  test.todo('can paginate with Cursor')
+  async function createTraces(graph, objs) {
+    for (obj of objs) {
+      const message = proto.FullTracesReport.fromObject(obj)
+      const traces = prepareTraces(message)
+      await Trace.create(graph.id, traces)
+    }
+  }
+
+  test('can order by duration', async () => {
+    const request = require('supertest').agent(app)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
+    await userLogin(request)
+    const graph = await Graph.create('myGraph', user.id)
+    await createTraces(
+      graph,
+      [
+        '../api/__data__/traces.json',
+        '../api/__data__/traces-with-error.json'
+      ].map(require)
+    )
+
+    const orderBy = {
+      field: 'duration',
+      asc: true
+    }
+
+    const query = `
+      query cg {
+        operations(graphId: "${graph.id}", orderBy: { field: duration, asc: false }) {
+          nodes {
+            id
+            key
+            count
+            duration
+          }
+          cursor
+        }
+      }
+    `
+
+    await request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+      .then(async res => {
+        const nodes = res.body.data.operations.nodes
+        expect(nodes.length).toBe(3)
+        expect(nodes[0].duration).toBeGreaterThan(nodes[1].duration)
+        expect(nodes[1].duration).toBeGreaterThan(nodes[2].duration)
+      })
+  })
+
+  test.only('can paginate with Cursor', async () => {
+    const request = require('supertest').agent(app)
+    const email = 'xx@gmail.com',
+      password = 'yy'
+    const user = await User.create(email, password)
+    await userLogin(request)
+    const graph = await Graph.create('myGraph', user.id)
+    // load alot of traces (does not matter that they are dupes)
+    const queryKeys = [...Array(50).keys()].map(() => uuid())
+
+    const traceObjs = queryKeys.map(k => {
+      const template = require('../api/__data__/traces.json')
+      // here we just assign all the current traces to a new opId (uuid)
+      template.tracesPerQuery[k] =
+        template.tracesPerQuery['# GET_USER\nquery GET_USER{user{email id}}']
+      return template
+    })
+
+    await createTraces(graph, traceObjs)
+
+    const query = `
+      query cg {
+        operations(graphId: "${graph.id}") {
+          nodes {
+            id
+            key
+            count
+            duration
+          }
+          cursor
+        }
+      }
+    `
+
+    const res = await request
+      .post('/api/graphql')
+      .send({ query })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+
+    expect(res.body.data.operations.nodes.length).toBe(6)
+
+    const queryWithCursor = `
+      query cg {
+        operations(graphId: "${graph.id}", after: "${res.body.data.operations.cursor}") {
+          nodes {
+            id
+            key
+            count
+            duration
+          }
+          cursor
+        }
+      }
+    `
+
+    const resWithCursor = await request
+      .post('/api/graphql')
+      .send({ query: queryWithCursor })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .then(raiseGqlErr)
+
+    expect(resWithCursor.body.data.operations.nodes.length).toBe(6)
+    // check that nothing from the first response is in the second.
+    for (node of resWithCursor.body.data.operations.nodes) {
+      expect(res.body.data.operations.nodes).not.toContainEqual(node)
+    }
+  })
 })

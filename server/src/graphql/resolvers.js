@@ -4,7 +4,6 @@ const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 const { Cursor } = require('./utils')
 
-
 module.exports = {
   DateTime: DateTimeResolver,
   JSON: JSONResolver,
@@ -23,16 +22,26 @@ module.exports = {
     },
     operations: async (_, { graphId, orderBy, after }, { req }) => {
       // TODO permissions
+      if (!orderBy) {
+        orderBy = { field: 'count', asc: false }
+      }
       const limit = 7
-      const [ cursor ] = Cursor.decode(after)
-      const nodes = await Trace.findAllOperations({ graphId }, orderBy, cursor, limit)
+      const [cursor] = Cursor.decode(after)
+      const nodes = await Trace.findAllOperations(
+        { graphId },
+        orderBy,
+        cursor,
+        limit
+      )
 
       // we always fetch one more than we need to calculate hasNextPage
       const hasNextPage = nodes.length >= limit
 
       return {
-        cursor: hasNextPage ? Cursor.encode(nodes.pop(), orderBy.field, orderBy.asc) : '',
-        nodes,
+        cursor: hasNextPage
+          ? Cursor.encode(nodes.pop(), 'key', orderBy.asc)
+          : '',
+        nodes
       }
     }
   },

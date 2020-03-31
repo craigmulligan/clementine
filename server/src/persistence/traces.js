@@ -47,7 +47,7 @@ module.exports = {
         'jsonb',
         'bool'
       ])}
-      RETURNING id 
+      RETURNING id
       ;
     `
 
@@ -69,61 +69,28 @@ module.exports = {
       `)
     return rows
   },
-  async findAllOperations(
-    { graphId },
-    orderBy = { field: 'count', asc: false },
-    cursor,
-    limit
-  ) {
+  async findAllOperations({ graphId }, orderBy, cursor, limit) {
     // get slowest by 95 percentile, count and group by key.
-    // TODO we probably need a better query builder
-    //
     let cursorClause = sql``
+    let orderClause = sql``
 
     if (cursor) {
       if (orderBy.asc) {
-        cursorClause = sql` asc where ${sql.identifier([
-          orderBy.field
-        ])} >= ${cursor}`
+        cursorClause = sql`where ${sql.identifier(['key'])} >= ${cursor}`
+      } else {
+        cursorClause = sql` where ${sql.identifier(['key'])} <= ${cursor}`
       }
-      cursorClause = sql` desc where ${sql.identifier([
-        orderBy.field
-      ])} >= ${cursor}`
     }
 
-    const query = sql`SELECT * from (SELECT key, PERCENTILE_CONT(0.95) within group (order by duration asc) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId} group by key) as ops order by ${sql.identifier(
+    if (orderBy.asc) {
+      orderClause = sql` asc`
+    } else {
+      orderClause = sql` desc`
+    }
+
+    const query = sql`SELECT * from (SELECT key, PERCENTILE_CONT(0.95) within group (order by duration asc) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId} group by key) as ops ${cursorClause} order by ${sql.identifier(
       [orderBy.field]
-    )}  ${cursorClause} limit ${limit}`
-
-    //
-    // order by ${sql.identifier(
-    // orderBy.field
-    // )}  as ops limit ${limit}
-
-    // if (!orderBy.asc) {
-    // query.append(sql` desc`)
-    // }
-
-    // query.append(sql`) as ops`)
-
-    // if (cursor) {
-    // if (orderBy.field == 'count') {
-    // query.append(sql` where count`)
-    // }
-
-    // if (orderBy.field == 'duration') {
-    // query.append(sql` where duration`)
-    // }
-
-    // orderBy.asc
-    // ? query.append(sql` >= ${cursor}`)
-    // : query.append(sql` <= ${cursor}`)
-    // }
-
-    // query.append(sql` limit ${limit}`)
-
-    // logger.debug(query.sql)
-    // logger.debug(query.values)
+    )}, key ${orderClause} limit ${limit}`
 
     const { rows } = await db.query(query)
     return rows
