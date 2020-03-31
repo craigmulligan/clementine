@@ -7,6 +7,7 @@ module.exports = gql`
   enum OperationOrderFields {
     duration
     count
+    errorCount
   }
 
   input OperationOrderBy {
@@ -37,6 +38,8 @@ module.exports = gql`
     id: String!
     key: String!
     count: Int!
+    errorCount: Int!
+    errorPercent: Int!
     duration: Float!
   }
 
