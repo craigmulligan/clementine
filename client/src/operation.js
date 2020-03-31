@@ -26,7 +26,11 @@ function getOperationTypes(doc) {
 }
 
 const OPERATION_LIST = gql`
-  query operationList($graphId: ID!, $orderBy: OperationOrderBy, $after: String) {
+  query operationList(
+    $graphId: ID!
+    $orderBy: OperationOrderBy
+    $after: String
+  ) {
     operations(graphId: $graphId, orderBy: $orderBy, after: $after) {
       nodes {
         id
@@ -52,7 +56,6 @@ export function OperationList({ graphId }) {
     }
   })
 
-
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
@@ -62,15 +65,13 @@ export function OperationList({ graphId }) {
 
   return (
     <ul>
-      <small>
-        <button
-          onClick={() => {
-            setOrderAsc(prev => !prev)
-          }}
-        >
-          {orderAsc ? 'desc' : 'asc'}
-        </button>
-      </small>
+      <button
+        onClick={() => {
+          setOrderAsc(prev => !prev)
+        }}
+      >
+        {orderAsc ? 'desc' : 'asc'}
+      </button>
       <button
         onStalledCapture
         onClick={() => {
@@ -94,7 +95,7 @@ export function OperationList({ graphId }) {
         const operationTypes = getOperationTypes(doc)
 
         return (
-          <li key={doc.id}>
+          <li key={op.id}>
             <span>
               <mark>{name ? name : op.id}</mark>
             </span>
@@ -107,33 +108,35 @@ export function OperationList({ graphId }) {
         )
       })}
       <button
-         disabled={data.operations.cursor.length === 0}
-         onClick={() => {
-        fetchMore({ variables: {
-          graphId,
-          orderBy: {
-            field: orderField,
-            asc: orderAsc
-          },
-          after: data.operations.cursor
-        },
-          updateQuery: (previousResult, { fetchMoreResult }) => {
-            const prevOps = previousResult.operations.nodes;
-            const newOps = fetchMoreResult.operations.nodes;
-            const nodes = [...prevOps, ...newOps]
+        disabled={data.operations.cursor.length === 0}
+        onClick={() => {
+          fetchMore({
+            variables: {
+              graphId,
+              orderBy: {
+                field: orderField,
+                asc: orderAsc
+              },
+              after: data.operations.cursor
+            },
+            updateQuery: (previousResult, { fetchMoreResult }) => {
+              const prevOps = previousResult.operations.nodes
+              const newOps = fetchMoreResult.operations.nodes
+              const nodes = [...prevOps, ...newOps]
 
-            return {
-              operations: {
-                // Put the new comments in the front of the list
-                ...fetchMoreResult.operations,
-                nodes,
+              return {
+                operations: {
+                  // Put the new comments in the front of the list
+                  ...fetchMoreResult.operations,
+                  nodes
+                }
               }
             }
-          }
-        }
-        )}
-      }
-      >{data.operations.cursor.length === 0 ? "no more" : "more"}</button>
+          })
+        }}
+      >
+        {data.operations.cursor.length === 0 ? 'no more' : 'more'}
+      </button>
     </ul>
   )
 }
