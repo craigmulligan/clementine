@@ -1,4 +1,4 @@
-const sql = require('sql-template-strings')
+const { sql } = require('slonik')
 const uuid = require('uuid/v4')
 const bcrypt = require('bcrypt')
 const pg = require('pg')
@@ -27,24 +27,36 @@ module.exports = {
         key,
         graphId,
         durationNs,
-        startTime,
-        endTime,
+        startTime.toUTCString(),
+        endTime.toUTCString(),
         JSON.stringify(root),
-        schemaTag,
-        details,
-        hasErrors
+        !!hasErrors
       ]
     })
 
-    // TODO is this compeletely safe from injection?
-    const query = format(
-      `
-        INSERT INTO traces (id, key, "graphId", duration, "startTime", "endTime", root, "schemaTag", details, "hasErrors")
-          VALUES %L
-          RETURNING id;
-        `,
-      values
-    )
+    const query = sql`
+      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors")
+      SELECT *
+      FROM ${sql.unnest(values, [
+        'uuid',
+        'text',
+        'uuid',
+        'float8',
+        'timestamp',
+        'timestamp',
+        'jsonb',
+        'bool'
+      ])};
+    `
+
+    // const query = format(
+    // `
+    // INSERT INTO traces (id, key, "graphId", duration, "startTime", "endTime", root, "schemaTag", details, "hasErrors")
+    // VALUES %L
+    // RETURNING id;
+    // `,
+    // values
+    // )
 
     const { rows } = await db.query(query)
     return rows
@@ -63,39 +75,53 @@ module.exports = {
   ) {
     // get slowest by 95 percentile, count and group by key.
     // TODO we probably need a better query builder
-    const query = sql`SELECT * from (SELECT key, PERCENTILE_CONT(0.95) within group (order by duration asc) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId} group by key`
-
-    if (orderBy.field === 'count') {
-      query.append(sql` order by count`)
-    }
-
-
-    if (orderBy.field === 'duration') {
-      query.append(sql` order by duration`)
-    }
-
-    if (!orderBy.asc) {
-      query.append(sql` desc`)
-    }
-
-    query.append(') as ops')
+    //
+    let cursorClause = sql``
 
     if (cursor) {
-      if (orderBy.field == 'count') {
-        query.append(' where count')
+      if (orderBy.asc) {
+        cursorClause = sql` asc where ${sql.identifier([
+          orderBy.field
+        ])} >= ${cursor}`
       }
-
-      if (orderBy.field == 'duration') {
-        query.append(' where duration')
-      }
-
-      orderBy.asc ? query.append(sql` >= ${cursor}`) : query.append(sql` <= ${cursor}`)
+      cursorClause = sql` desc where ${sql.identifier([
+        orderBy.field
+      ])} >= ${cursor}`
     }
 
-    query.append(sql` limit ${limit}`)
+    const query = sql`SELECT * from (SELECT key, PERCENTILE_CONT(0.95) within group (order by duration asc) as duration, count(id) as count FROM traces WHERE "graphId"=${graphId} group by key) as ops order by ${sql.identifier(
+      [orderBy.field]
+    )}  ${cursorClause} limit ${limit}`
 
-    logger.debug(query.sql)
-    logger.debug(query.values)
+    //
+    // order by ${sql.identifier(
+    // orderBy.field
+    // )}  as ops limit ${limit}
+
+    // if (!orderBy.asc) {
+    // query.append(sql` desc`)
+    // }
+
+    // query.append(sql`) as ops`)
+
+    // if (cursor) {
+    // if (orderBy.field == 'count') {
+    // query.append(sql` where count`)
+    // }
+
+    // if (orderBy.field == 'duration') {
+    // query.append(sql` where duration`)
+    // }
+
+    // orderBy.asc
+    // ? query.append(sql` >= ${cursor}`)
+    // : query.append(sql` <= ${cursor}`)
+    // }
+
+    // query.append(sql` limit ${limit}`)
+
+    // logger.debug(query.sql)
+    // logger.debug(query.values)
 
     const { rows } = await db.query(query)
     return rows

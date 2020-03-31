@@ -1,4 +1,4 @@
-const sql = require('sql-template-strings')
+const { sql } = require('slonik')
 const uuid = require('uuid/v4')
 const crypto = require('crypto')
 const db = require('./db')

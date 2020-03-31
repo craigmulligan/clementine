@@ -11,13 +11,10 @@
     "format": "prettier",
     "start": "node ./bin/start.js",
     "dev": "nodemon ./bin/start.js",
-    "migrate": "npm run wait:db && node ./bin/migrate.js up",
-    "migrate:down": "npm run wait:db && node ./bin/migrate.js down",
+    "migrate": "npm run wait:db && node ./bin/migrate.js",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": [
-    "graphql"
-  ],
+  "keywords": ["graphql"],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {
@@ -37,6 +34,7 @@
     "pg": "^7.9.0",
     "pg-format": "^1.0.4",
     "redis": "^3.0.2",
+    "slonik": "^22.4.4",
     "sql-template-strings": "^2.2.2",
     "uuid": "^3.3.2"
   },
