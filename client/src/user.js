@@ -8,6 +8,7 @@ const GET_USER = gql`
     user {
       id
       email
+      createdAt
     }
   }
 `

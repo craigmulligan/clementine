@@ -15,5 +15,5 @@ module.exports = {
   Cursor: {
     encode: encodeCursor,
     decode: decodeCursor
-  }
+  },
 }

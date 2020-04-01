@@ -3,6 +3,7 @@ import { ApolloProvider } from '@apollo/react-hooks'
 import { Signup, Login } from './auth'
 import Dashboard from './dashboard'
 import { GraphShow, GraphSettings } from './graph'
+import { OperationShow, OperationList } from './operation'
 import client from './client'
 import { Route } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
@@ -34,7 +35,27 @@ function App() {
             />
             <Route
               path="/graph/:graphId/settings"
-              component={({ params }) => <GraphSettings graphId={params.graphId} />}
+              component={({ params }) => (
+                <GraphSettings graphId={params.graphId} />
+              )}
+            />
+            <Route
+              path="/graph/:graphId/operation"
+              component={({ params }) => (
+                <OperationList
+                  graphId={params.graphId}
+                  operationId={params.operationId}
+                />
+              )}
+            />
+            <Route
+              path="/graph/:graphId/operation/:operationId"
+              component={({ params }) => (
+                <OperationShow
+                  graphId={params.graphId}
+                  operationId={params.operationId}
+                />
+              )}
             />
           </UserRedirect>
         </main>
