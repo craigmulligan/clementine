@@ -3,6 +3,10 @@ import { getOperationName } from 'apollo-utilities'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from './utils'
+import { Link } from 'wouter'
+import KeyMetrics from './keyMetrics'
+import { print } from 'graphql/language/printer'
+import { TraceList } from './trace'
 
 function getOperationTypes(doc) {
   let operationTypes = []
@@ -35,15 +39,28 @@ const OPERATION_LIST = gql`
       nodes {
         id
         key
-        count
-        errorCount
-        errorPercent
-        duration
+        keyMetrics {
+          count
+          errorCount
+          errorPercent
+          duration
+        }
       }
       cursor
     }
   }
 `
+
+export function OperationShow({ graphId, operationId }) {
+  // <p><Link to=`/graph/${graphId}/operation/${operationId}/trace`>Traces</Link>
+  return (
+    <div>
+      {operationId}
+      <Source>{atob(operationId)}</Source>
+      <TraceList graphId={graphId} operationId={operationId} />
+    </div>
+  )
+}
 
 export function OperationList({ graphId }) {
   const [orderField, setOrderField] = useState('count')
@@ -111,18 +128,15 @@ export function OperationList({ graphId }) {
         const operationTypes = getOperationTypes(doc)
 
         return (
-          <li key={op.id}>
-            <span>
-              <mark>{name ? name : op.id}</mark>
-            </span>
-            <span>&nbsp;{op.count}</span>
-            <span>&nbsp;{op.errorCount}</span>
-            <span>&nbsp;{op.errorPercent}%</span>
-            <span>
-              &nbsp;<code>{op.duration}</code>
-            </span>
-            <span>&nbsp;{operationTypes.join(' ')}</span>
-          </li>
+          <Link to={`/graph/${graphId}/operation/${op.id}`}>
+            <li key={op.id}>
+              <span>
+                <mark>{name ? name : op.id}</mark>
+              </span>
+              <KeyMetrics {...op.keyMetrics} />
+              <span>&nbsp;{operationTypes.join(' ')}</span>
+            </li>
+          </Link>
         )
       })}
       <button
@@ -156,5 +170,21 @@ export function OperationList({ graphId }) {
         {data.operations.cursor.length === 0 ? 'no more' : 'more'}
       </button>
     </ul>
+  )
+}
+
+function Source({ children }) {
+  return (
+    <div>
+      <pre>
+        <code>
+          {print(
+            gql`
+              ${children}
+            `
+          )}
+        </code>
+      </pre>
+    </div>
   )
 }

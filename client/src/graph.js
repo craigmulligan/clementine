@@ -2,12 +2,13 @@ import { gql } from 'apollo-boost'
 import React, { useRef } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
-import { OperationList } from './operation'
 import { KeyList, KeyCreate } from './key'
+import KeyMetics from './keyMetrics'
 import { ErrorBanner, Loading } from './utils'
+import { cloneDeep } from 'lodash'
 
 const GET_GRAPHS = gql`
-  {
+  query GRAPH_LIST {
     user {
       id
       graphs {
@@ -41,7 +42,7 @@ export function GraphList() {
 }
 
 const GRAPH_CREATE = gql`
-  mutation login($name: String!) {
+  mutation CREATE_GRAPH($name: String!) {
     graphCreate(name: $name) {
       id
       name
@@ -65,6 +66,21 @@ export function GraphCreate() {
             } = await gc({
               variables: {
                 name: nameRef.current.value
+              },
+              update: (cache, { data: { graphCreate } }) => {
+                const prevData = cache.readQuery({
+                  query: GET_GRAPHS
+                })
+
+                // cloneDeep is necessary for the cache to pickup the change
+                // and have the observable components rerender
+                const data = cloneDeep(prevData)
+                data.user.graphs.push(graphCreate)
+
+                cache.writeQuery({
+                  query: GET_GRAPHS,
+                  data
+                })
               }
             })
 
@@ -82,10 +98,16 @@ export function GraphCreate() {
 }
 
 const SHOW_GRAPH = gql`
-  query showGraph($graphId: ID!) {
+  query GRAPH_SHOW($graphId: ID!) {
     graph(graphId: $graphId) {
       id
       name
+      keyMetrics {
+        count
+        duration
+        errorCount
+        errorPercent
+      }
     }
   }
 `
@@ -105,14 +127,26 @@ export function GraphShow({ graphId }) {
   return (
     <div>
       <h2>{data.graph.name}</h2>
+      <div>
+        <KeyMetics {...data.graph.keyMetrics} />
+      </div>
       <Link to={`/graph/${data.graph.id}/settings`}>Settings</Link>
-      <OperationList graphId={data.graph.id} />
+      <ul>
+        <Link to={`/graph/${data.graph.id}/operation`}>
+          <li>
+            <h4>Operations</h4>
+            <small>
+              Slice you data by operation and find low hanging fruit
+            </small>
+          </li>
+        </Link>
+      </ul>
     </div>
   )
 }
 
 export const GRAPH_SETTINGS = gql`
-  query showGraph($graphId: ID!) {
+  query GRAPH_SETTINGS($graphId: ID!) {
     graph(graphId: $graphId) {
       id
       name

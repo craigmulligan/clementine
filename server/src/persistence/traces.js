@@ -60,10 +60,43 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async findAll({ graphId }) {
-    const { rows } = await db.query(sql`
-      SELECT * FROM traces WHERE "graphId"=${graphId};
-      `)
+  async findAll({ graphId, operationKey }, orderBy, cursor, limit) {
+    // get slowest by 95 percentile, count and group by key.
+    let cursorClause = sql``
+    let orderDirection = sql``
+    let operationClause = sql``
+
+    if (cursor) {
+      if (orderBy.asc) {
+        cursorClause = sql` where key >= ${cursor}`
+      } else {
+        cursorClause = sql` where key <= ${cursor}`
+      }
+    }
+
+    if (orderBy.asc) {
+      orderDirection = sql` asc`
+    } else {
+      orderDirection = sql` desc`
+    }
+
+    if (operationKey) {
+      operationClause = sql` AND key=${operationKey}`
+    }
+
+    const query = sql`
+    SELECT * from (
+      SELECT * FROM traces 
+      WHERE "graphId"=${graphId}
+      ${operationClause}
+      order by ${sql.identifier([
+        orderBy.field
+      ])}${orderDirection}, key ${orderDirection}
+    ) as orderedTraces
+    ${cursorClause}
+    limit ${limit}`
+
+    const { rows } = await db.query(query)
     return rows
   },
   async findAllOperations({ graphId }, orderBy, cursor, limit) {
@@ -101,5 +134,18 @@ module.exports = {
 
     const { rows } = await db.query(query)
     return rows
+  },
+  findKeyMetrics({ graphId }) {
+    const query = sql`
+          select *, 
+          (100 * "errorCount"/count) as "errorPercent" 
+          from (
+            select count(id) as count,
+            count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
+            PERCENTILE_CONT(0.95) within group (order by duration asc) as duration
+            FROM traces WHERE "graphId"=${graphId}
+          ) as graphKeyMetrics;`
+
+    return db.one(query)
   }
 }

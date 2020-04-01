@@ -1,4 +1,8 @@
-const { ForbiddenError, GraphQLError } = require('apollo-server-express')
+const {
+  UserInputError,
+  ForbiddenError,
+  GraphQLError
+} = require('apollo-server-express')
 const bcrypt = require('bcrypt')
 const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
@@ -16,9 +20,35 @@ module.exports = {
       // TODO permissions
       return Graph.findById(graphId)
     },
-    traces: (_, { graphId }, { req }) => {
+    traces: async (_, { graphId, after, operationId, orderBy }, { req }) => {
       // TODO permissions
-      return Trace.findAll({ graphId })
+      let operationKey
+      if (!orderBy) {
+        orderBy = { field: 'duration', asc: false }
+      }
+
+      if (operationId) {
+        operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
+      }
+      const limit = 7
+      const [cursor] = Cursor.decode(after)
+
+      const nodes = await Trace.findAll(
+        { graphId, operationKey },
+        orderBy,
+        cursor,
+        limit
+      )
+
+      // we always fetch one more than we need to calculate hasNextPage
+      const hasNextPage = nodes.length >= limit
+
+      return {
+        cursor: hasNextPage
+          ? Cursor.encode(nodes.pop(), 'key', orderBy.asc)
+          : '',
+        nodes
+      }
     },
     operations: async (_, { graphId, orderBy, after }, { req }) => {
       // TODO permissions
@@ -67,11 +97,16 @@ module.exports = {
 
         return true
       } catch (error) {
-        throw GraphQLError(`DELETE session >> ${error.stack}`)
+        throw new GraphQLError(`DELETE session >> ${error.stack}`)
       }
     },
     graphCreate: async (_, { name }, { req }) => {
       const userId = req.session.userId
+
+      if (name.length === 0) {
+        throw new UserInputError('name cannot be empty')
+      }
+
       return Graph.create(name, userId)
     },
     keyCreate: (_, { graphId }, { req }) => {
@@ -85,6 +120,9 @@ module.exports = {
     },
     keys: ({ id }) => {
       return Key.findAll({ graphId: id })
+    },
+    keyMetrics: ({ id }) => {
+      return Trace.findKeyMetrics({ graphId: id })
     }
   },
   User: {
@@ -103,6 +141,9 @@ module.exports = {
   Operation: {
     id: ({ key }) => {
       return Buffer.from(key).toString('base64')
+    },
+    keyMetrics: ({ duration, count, errorCount, errorPercent }) => {
+      return { duration, count, errorCount, errorPercent }
     }
   }
 }

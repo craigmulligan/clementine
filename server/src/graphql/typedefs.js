@@ -19,33 +19,46 @@ module.exports = gql`
   type User {
     id: ID!
     email: String!
+    createdAt: DateTime!
     graphs: [Graph]
   }
 
   type Graph {
     id: ID!
     name: String!
+    createdAt: DateTime!
     user: User
     keys: [Key]!
+    keyMetrics: KeyMetics
   }
 
-  type Key {
-    id: ID!
-    secret: String!
-    graph: Graph!
-  }
-
-  type Operation {
-    id: String!
-    key: String!
+  type KeyMetics {
     count: Int!
     errorCount: Int!
     errorPercent: Int!
     duration: Float!
   }
 
+  type Key {
+    id: ID!
+    secret: String!
+    createdAt: DateTime!
+    graph: Graph!
+  }
+
+  type Operation {
+    id: String!
+    key: String!
+    keyMetrics: KeyMetics!
+  }
+
   type OperationConnection {
     nodes: [Operation]!
+    cursor: String
+  }
+
+  type TraceConnection {
+    nodes: [Trace]!
     cursor: String
   }
 
@@ -56,15 +69,14 @@ module.exports = gql`
     duration: Float!
     startTime: DateTime!
     endTime: DateTime!
-    execution: JSON!
-    validation: JSON!
-    parsing: JSON!
+    createdAt: DateTime!
+    root: JSON!
   }
 
   type Query {
     user: User
     graph(graphId: ID!): Graph
-    traces(graphId: ID!): [Trace]
+    traces(graphId: ID!, operationId: ID, after: String): TraceConnection
     operations(
       graphId: ID!
       orderBy: OperationOrderBy
