@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import { getOperationName } from 'apollo-utilities'
+import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
@@ -22,7 +21,7 @@ const TRACE_LIST = gql`
 `
 
 export function TraceList({ graphId, operationId }) {
-  const { loading, error, data, fetchMore } = useQuery(TRACE_LIST, {
+  const { loading, error, data } = useQuery(TRACE_LIST, {
     variables: {
       graphId,
       operationId
