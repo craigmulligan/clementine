@@ -9,7 +9,6 @@
     "@testing-library/user-event": "^7.1.2",
     "apollo-boost": "^0.4.7",
     "graphql": "^14.6.0",
-    "graphql-formatter": "^1.0.3",
     "loglevel": "^1.6.7",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
