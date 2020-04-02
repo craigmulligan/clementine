@@ -4,6 +4,7 @@ import { useLocation } from 'wouter'
 import { gql } from 'apollo-boost'
 import client from './client'
 import UserContext from './user'
+import { Header } from './header'
 
 const SIGNUP = gql`
   mutation signup($email: String!, $password: String!) {
@@ -24,6 +25,7 @@ export function Signup() {
 
   return (
     <div>
+      <Header />
       <form
         onSubmit={async e => {
           e.preventDefault()
@@ -36,7 +38,7 @@ export function Signup() {
             })
 
             setUser(user)
-            setLocation('/dash')
+            setLocation('/graph')
           } catch (e) {
             // alert(e.message)
             console.log(e)
@@ -70,6 +72,7 @@ export function Login() {
 
   return (
     <div>
+      <Header />
       <form
         onSubmit={async e => {
           e.preventDefault()
@@ -83,7 +86,7 @@ export function Login() {
 
             await client.resetStore()
             setUser(user)
-            setLocation('/dash')
+            setLocation('/graph')
           } catch (e) {
             alert(e.message)
           }
