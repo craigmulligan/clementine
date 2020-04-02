@@ -43,3 +43,47 @@ psql postgres://user:pass@localhost:5432/db
 
 - API_KEY needs to be in format `service_id:<api_key>`.
 - API_KEY needs to be in format `service_id:<api_key>`.
+
+# Queries
+
+# Request Distribution
+
+```
+select rounded, count(id) from (
+ select round(duration/1000/1000) as rounded, id from traces
+) as tracesDurations
+group by rounded
+order by count;
+```
+
+# Round date fn
+
+```
+CREATE FUNCTION date_round(base_date timestamptz, round_interval interval)
+    RETURNS timestamptz AS $BODY$
+SELECT '1970-01-01'::timestamptz
+    + (EXTRACT(epoch FROM $1)::integer + EXTRACT(epoch FROM $2)::integer / 2)
+    / EXTRACT(epoch FROM $2)::integer
+    * EXTRACT(epoch FROM $2)::integer * interval '1 second';
+$BODY$ LANGUAGE SQL STABLE;
+```
+
+# Request latency over time
+
+```
+select rounded, count(id) from (
+ select date_round("startTime", '15 minutes') as rounded, id from traces
+) as tracesDurations
+group by rounded
+order by count;
+```
+
+# Request rate over time (RPM)
+
+```
+select rounded, count(id) from (
+ select date_round("startTime", '15 minutes') as rounded, id from traces
+) as tracesDurations
+group by rounded
+order by count;
+```

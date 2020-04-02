@@ -157,5 +157,43 @@ module.exports = {
           ) as graphKeyMetrics;`
 
     return db.one(query)
+  },
+  async findRPM({ graphId }) {
+    const query = sql`
+        select "startTime", count(id) from (
+         select date_round("startTime", '15 minutes') as "startTime", id from traces
+         WHERE "graphId"=${graphId}
+        ) as RPM
+        group by "startTime" 
+        order by "startTime";
+      `
+
+    const { rows } = await db.query(query)
+    return rows
+  },
+  async latencyDistribution({ graphId }) {
+    const query = sql`
+      WITH min_max AS (
+          SELECT 
+              min(duration) AS min_val,
+              max(duration) AS max_val
+          FROM traces 
+          WHERE "graphId"=${graphId}
+          AND NOT "hasErrors"
+      )
+      SELECT 
+          min(duration) as min_duration,
+          max(duration) as duration,
+          count(*),
+          width_bucket(duration, min_val, max_val, 50) AS bucket
+      FROM traces, min_max
+      WHERE "graphId"=${graphId}
+      AND NOT "hasErrors"
+      GROUP BY bucket
+      ORDER BY bucket;
+    `
+
+    const { rows } = await db.query(query)
+    return rows
   }
 }
