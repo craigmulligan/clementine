@@ -71,8 +71,11 @@ $BODY$ LANGUAGE SQL STABLE;
 # Request latency over time
 
 ```
+TODO
+with generate_series(NOW() - INTERVAL '1 DAY', NOW(), INTERVAL '15 minute') as timestamps
 select rounded, count(id) from (
  select date_round("startTime", '15 minutes') as rounded, id from traces
+  join timestamps on timestamps = date_round
 ) as tracesDurations
 group by rounded
 order by count;
@@ -81,9 +84,13 @@ order by count;
 # Request rate over time (RPM)
 
 ```
-select rounded, count(id) from (
- select date_round("startTime", '15 minutes') as rounded, id from traces
-) as tracesDurations
-group by rounded
-order by count;
+with series as (
+  select interval from generate_series(date_round(NOW(), '15 minutes') - INTERVAL '1 DAY', date_round(NOW(), '15 minutes'), INTERVAL '15 minute') as interval
+)
+
+SELECT count(*), interval
+FROM series
+left outer JOIN traces on date_round("startTime", '15 minutes') = interval
+group by interval
+order by interval;
 ```
