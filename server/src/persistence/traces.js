@@ -160,12 +160,16 @@ module.exports = {
   },
   async findRPM({ graphId }) {
     const query = sql`
-        select "startTime", count(id) from (
-         select date_round("startTime", '15 minutes') as "startTime", id from traces
-         WHERE "graphId"=${graphId}
-        ) as RPM
-        group by "startTime" 
-        order by "startTime";
+      with series as (
+        select interval from generate_series(date_round(NOW(), '15 minutes') - INTERVAL '1 DAY', date_round(NOW(), '15 minutes'), INTERVAL '15 minute') as interval
+      )
+
+      SELECT count(*), interval as "startTime"
+      FROM series
+      left outer JOIN traces on date_round("startTime", '15 minutes') = interval
+      WHERE "graphId"=${graphId}
+      group by interval 
+      order by interval;
       `
 
     const { rows } = await db.query(query)
