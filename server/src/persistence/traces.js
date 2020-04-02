@@ -60,7 +60,12 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async findAll({ graphId, operationKey }, orderBy, cursor, limit) {
+  async findAll(
+    { graphId, operationKey },
+    orderBy = { field: 'duration', asc: false },
+    cursor,
+    limit = 7
+  ) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
     let orderDirection = sql``
@@ -99,7 +104,12 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async findAllOperations({ graphId }, orderBy, cursor, limit) {
+  async findAllOperations(
+    { graphId },
+    orderBy = { field: 'count', asc: false },
+    cursor,
+    limit
+  ) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
     let orderDirection = sql``
