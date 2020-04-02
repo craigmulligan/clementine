@@ -72,6 +72,26 @@ module.exports = gql`
     cursor: String
   }
 
+  type LatencyDistribution {
+    duration: Float!
+    count: Int!
+  }
+
+  type LatencyDistributionConnection {
+    nodes: [LatencyDistribution]!
+    cursor: String
+  }
+
+  type RPM {
+    startTime: DateTime!
+    count: Int!
+  }
+
+  type RPMConnection {
+    nodes: [RPM]!
+    cursor: String
+  }
+
   type Trace {
     id: ID!
     "Operation Key"
@@ -97,6 +117,11 @@ module.exports = gql`
       orderBy: OperationOrderBy
       after: String
     ): OperationConnection
+    latencyDistribution(
+      graphId: ID!
+      operationId: ID
+    ): LatencyDistributionConnection!
+    rpm(graphId: ID!, operationId: ID): RPMConnection!
   }
 
   type Mutation {

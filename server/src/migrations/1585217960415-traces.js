@@ -19,6 +19,18 @@ module.exports.up = async function(next) {
       "createdAt" timestamp with time zone default (now() at time zone 'utc') NOT NULL,
       "hasErrors" boolean NOT NULL
     );
+
+    
+  `)
+
+  await db.query(sql`
+    CREATE FUNCTION date_round(base_date timestamptz, round_interval interval)
+      RETURNS timestamptz AS $BODY$
+  SELECT '1970-01-01'::timestamptz
+      + (EXTRACT(epoch FROM $1)::integer + EXTRACT(epoch FROM $2)::integer / 2)
+      / EXTRACT(epoch FROM $2)::integer
+      * EXTRACT(epoch FROM $2)::integer * interval '1 second';
+  $BODY$ LANGUAGE SQL STABLE;
   `)
 
   // await db.query(sql`

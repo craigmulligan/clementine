@@ -73,6 +73,22 @@ module.exports = {
           : '',
         nodes
       }
+    },
+    rpm: async (_, { graphId }, { req }) => {
+      const nodes = await Trace.findRPM({ graphId })
+
+      return {
+        nodes,
+        cursor: ''
+      }
+    },
+    latencyDistribution: async (_, { graphId }, { req }) => {
+      const nodes = await Trace.latencyDistribution({ graphId })
+
+      return {
+        nodes,
+        cursor: ''
+      }
     }
   },
   Mutation: {
