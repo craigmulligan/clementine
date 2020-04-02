@@ -317,8 +317,10 @@ describe('operations', () => {
           nodes {
             id
             key
-            count
-            duration
+            keyMetrics {
+              count
+              duration
+            }
           }
           cursor
         }
@@ -339,8 +341,8 @@ describe('operations', () => {
           'key',
           Buffer.from(firstNode.id, 'base64').toString()
         )
-        expect(firstNode).toHaveProperty('count', 2)
-        expect(firstNode).toHaveProperty('duration')
+        expect(firstNode.keyMetrics).toHaveProperty('count', 2)
+        expect(firstNode.keyMetrics).toHaveProperty('duration')
       })
   })
 
@@ -378,8 +380,10 @@ describe('operations', () => {
           nodes {
             id
             key
-            count
-            duration
+            keyMetrics {
+              count
+              duration
+            }
           }
           cursor
         }
@@ -395,8 +399,12 @@ describe('operations', () => {
       .then(async res => {
         const nodes = res.body.data.operations.nodes
         expect(nodes.length).toBe(3)
-        expect(nodes[0].duration).toBeGreaterThan(nodes[1].duration)
-        expect(nodes[1].duration).toBeGreaterThan(nodes[2].duration)
+        expect(nodes[0].keyMetrics.duration).toBeGreaterThan(
+          nodes[1].keyMetrics.duration
+        )
+        expect(nodes[1].keyMetrics.duration).toBeGreaterThan(
+          nodes[2].keyMetrics.duration
+        )
       })
   })
 
@@ -426,8 +434,10 @@ describe('operations', () => {
           nodes {
             id
             key
-            count
-            duration
+            keyMetrics {
+              count
+              duration
+            }
           }
           cursor
         }
@@ -449,8 +459,10 @@ describe('operations', () => {
           nodes {
             id
             key
-            count
-            duration
+            keyMetrics {
+              count
+              duration
+            }
           }
           cursor
         }
