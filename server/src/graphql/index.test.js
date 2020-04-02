@@ -4,6 +4,7 @@ const { prepareTraces } = require('../api/utils')
 const proto = require('apollo-engine-reporting-protobuf')
 const { runMigration } = require('../persistence/migrator')
 const uuid = require('uuid/v4')
+const exec = require('util').promisify(require('child_process').exec)
 
 beforeEach(async () => {
   await runMigration('up')
@@ -481,5 +482,44 @@ describe('operations', () => {
     for (node of resWithCursor.body.data.operations.nodes) {
       expect(res.body.data.operations.nodes).not.toContainEqual(node)
     }
+  })
+
+  describe('timeline', () => {
+    beforeEach(async () => {
+      await exec(
+        `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/db_dump.psql`
+      )
+    })
+
+    test.only('can query timeline by graph', async () => {
+      const request = require('supertest').agent(app)
+      await userLogin(request, 'x@x.com', '123')
+      const graphId = '03a74877-ccc1-402d-984c-6ff170ab4690'
+
+      const query = `
+        query tl {
+          timeline(graphId: "${graphId}") {
+            nodes {
+              id
+              bins {
+                id
+                count
+              }
+            }
+          }
+        }
+      `
+
+      await request
+        .post('/api/graphql')
+        .send({ query })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(raiseGqlErr)
+        .then(async res => {
+          const nodes = res.body.data.timeline.nodes
+          expect(nodes.length).toBe(7)
+        })
+    })
   })
 })
