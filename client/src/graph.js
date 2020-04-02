@@ -28,6 +28,9 @@ export function GraphList() {
   return (
     <div>
       <p>Graph list</p>
+      <Link to={'/graph/create'}>
+        <button>Create Graph</button>
+      </Link>
       <ul>
         {data.user.graphs.map(graph => {
           return (
@@ -126,10 +129,13 @@ export function GraphShow({ graphId }) {
 
   return (
     <div>
-      <h2>{data.graph.name}</h2>
-      <div>
-        <KeyMetics {...data.graph.keyMetrics} />
-      </div>
+      <header>
+        <h2>{data.graph.name}</h2>
+        <div>
+          <KeyMetics {...data.graph.keyMetrics} />
+        </div>
+      </header>
+      <hr />
       <Link to={`/graph/${data.graph.id}/settings`}>Settings</Link>
       <ul>
         <Link to={`/graph/${data.graph.id}/operation`}>
@@ -138,6 +144,12 @@ export function GraphShow({ graphId }) {
             <small>
               Slice you data by operation and find low hanging fruit
             </small>
+          </li>
+        </Link>
+        <Link to={`/graph/${data.graph.id}/timeline`}>
+          <li>
+            <h4>Timeline</h4>
+            <small>Everybody loves a graph or two.</small>
           </li>
         </Link>
       </ul>
@@ -174,7 +186,7 @@ export function GraphSettings({ graphId }) {
     <div>
       <h2>{data.graph.name}</h2>
       <p>API Keys</p>
-      <KeyCreate graphId={data.graph.id} />
+
       <KeyList keys={data.graph.keys} />
     </div>
   )

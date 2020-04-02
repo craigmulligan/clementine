@@ -16,6 +16,16 @@ module.exports = gql`
     field: OperationOrderFields!
   }
 
+  enum TraceOrderFields {
+    duration
+    startTime
+  }
+
+  input TraceOrderBy {
+    asc: Boolean!
+    field: TraceOrderFields!
+  }
+
   type User {
     id: ID!
     email: String!
@@ -76,7 +86,12 @@ module.exports = gql`
   type Query {
     user: User
     graph(graphId: ID!): Graph
-    traces(graphId: ID!, operationId: ID, after: String): TraceConnection
+    traces(
+      graphId: ID!
+      operationId: ID
+      orderBy: TraceOrderBy
+      after: String
+    ): TraceConnection
     operations(
       graphId: ID!
       orderBy: OperationOrderBy

@@ -11,7 +11,7 @@ function Menu() {
     return (
       <header>
         <nav>
-          <Link to="/dash">
+          <Link to="/graph">
             <a>Dashboard</a>
           </Link>
           <Logout />

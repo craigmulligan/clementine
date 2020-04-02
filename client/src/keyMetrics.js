@@ -18,11 +18,11 @@ export default function keyMetrics({
 }) {
   return (
     <span>
-      <span>&nbsp;{count}</span>
-      <span>&nbsp;{errorCount}</span>
-      <span>&nbsp;{errorPercent}%</span>
+      <span>Total: &nbsp;{count}</span>
+      <span>&nbsp;Total Errors: {errorCount}</span>
+      <span>&nbsp;Error Rate: &nbsp;{errorPercent}%</span>
       <span>
-        &nbsp;<code>{printDuration(duration)}</code>
+        &nbsp;95p <code>{printDuration(duration)}</code>
       </span>
     </span>
   )

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
@@ -6,8 +6,18 @@ import { Link } from 'wouter'
 import TracingReponse from './TracingReponse'
 
 const TRACE_LIST = gql`
-  query traceList($graphId: ID!, $operationId: ID!, $after: String) {
-    traces(graphId: $graphId, operationId: $operationId, after: $after) {
+  query traceList(
+    $graphId: ID!
+    $operationId: ID!
+    $after: String
+    $orderBy: TraceOrderBy
+  ) {
+    traces(
+      graphId: $graphId
+      operationId: $operationId
+      after: $after
+      orderBy: $orderBy
+    ) {
       nodes {
         id
         duration
@@ -21,10 +31,16 @@ const TRACE_LIST = gql`
 `
 
 export function TraceList({ graphId, operationId }) {
+  const [orderField, setOrderField] = useState('duration')
+  const [orderAsc, setOrderAsc] = useState(false)
   const { loading, error, data } = useQuery(TRACE_LIST, {
     variables: {
       graphId,
-      operationId
+      operationId,
+      orderBy: {
+        field: orderField,
+        asc: orderAsc
+      }
     }
   })
 
@@ -35,22 +51,47 @@ export function TraceList({ graphId, operationId }) {
     return <div>Not Found</div>
   }
 
-  const trace = data.traces.nodes[0]
-
   return (
     <div>
-      <Link to={`/graph/${graphId}/operation/${operationId}/trace/${trace.id}`}>
-        <li key={trace.id}>
-          <span>
-            <mark>{trace.duration}</mark>
-            <TracingReponse
-              tracing={trace.root}
-              duration={trace.duration}
-              startTime={trace.startTime}
-            />
-          </span>
-        </li>
-      </Link>
+      <button
+        onClick={() => {
+          setOrderAsc(prev => !prev)
+        }}
+      >
+        {orderAsc ? 'desc' : 'asc'}
+      </button>
+      <button
+        onClick={() => {
+          setOrderField('startTime')
+        }}
+      >
+        Time
+      </button>
+      <button
+        onClick={() => {
+          setOrderField('duration')
+        }}
+      >
+        Duration
+      </button>
+      <ul>
+        {data.traces.nodes.map(trace => {
+          return (
+            <li key={trace.id}>
+              <details>
+                <summary>
+                  {trace.id} - {trace.startTime} - {trace.duration}
+                </summary>
+                <TracingReponse
+                  tracing={trace.root}
+                  duration={trace.duration}
+                  startTime={trace.startTime}
+                />
+              </details>
+            </li>
+          )
+        })}
+      </ul>
     </div>
   )
 }

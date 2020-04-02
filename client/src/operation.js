@@ -52,12 +52,24 @@ const OPERATION_LIST = gql`
 `
 
 export function OperationShow({ graphId, operationId }) {
-  // <p><Link to=`/graph/${graphId}/operation/${operationId}/trace`>Traces</Link>
   return (
     <div>
-      {operationId}
-      <Source>{atob(operationId)}</Source>
-      <TraceList graphId={graphId} operationId={operationId} />
+      <ul>
+        <Link to={`/graph/${graphId}/operation/${operationId}/source`}>
+          <li>
+            <h4>Source</h4>
+            <small>View the full query string</small>
+          </li>
+        </Link>
+        <Link to={`/graph/${graphId}/operation/${operationId}/trace`}>
+          <li>
+            <h4>Traces</h4>
+            <small>
+              Drill down into individual traces to find slow resolvers.
+            </small>
+          </li>
+        </Link>
+      </ul>
     </div>
   )
 }
@@ -92,7 +104,6 @@ export function OperationList({ graphId }) {
         {orderAsc ? 'desc' : 'asc'}
       </button>
       <button
-        onStalledCapture
         onClick={() => {
           setOrderField('count')
         }}
@@ -173,7 +184,7 @@ export function OperationList({ graphId }) {
   )
 }
 
-function Source({ children }) {
+export function OperationSource({ children }) {
   return (
     <div>
       <pre>
