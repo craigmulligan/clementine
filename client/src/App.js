@@ -8,7 +8,7 @@ import { Route, Switch } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
 import Menu from './menu'
 import { TraceList } from './trace'
-import { TimeLine } from './timeline'
+import { TimeLine, Rpm, LatencyDistribution } from './timeline'
 
 function App() {
   return (
@@ -45,8 +45,14 @@ function App() {
               )}
             />
             <Route
-              path="/graph/:graphId/timeline"
-              component={({ params }) => <TimeLine graphId={params.graphId} />}
+              path="/graph/:graphId/rpm"
+              component={({ params }) => <Rpm graphId={params.graphId} />}
+            />
+            <Route
+              path="/graph/:graphId/ld"
+              component={({ params }) => (
+                <LatencyDistribution graphId={params.graphId} />
+              )}
             />
             <Route
               path="/graph/:graphId/operation/:operationId"
@@ -67,6 +73,24 @@ function App() {
               path="/graph/:graphId/operation/:operationId/trace"
               component={({ params }) => (
                 <TraceList
+                  graphId={params.graphId}
+                  operationId={params.operationId}
+                />
+              )}
+            />
+            <Route
+              path="/graph/:graphId/operation/:operationId/rpm"
+              component={({ params }) => (
+                <Rpm
+                  graphId={params.graphId}
+                  operationId={params.operationId}
+                />
+              )}
+            />
+            <Route
+              path="/graph/:graphId/operation/:operationId/ld"
+              component={({ params }) => (
+                <LatencyDistribution
                   graphId={params.graphId}
                   operationId={params.operationId}
                 />

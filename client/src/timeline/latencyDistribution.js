@@ -3,8 +3,8 @@ import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'wouter'
-import ScatterPlot from './scatterplot'
-import { Sparkline, BarSeries, WithTooltip } from '@data-ui/sparkline'
+import Chart from './chart'
+import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
 
 function printDuration(nanoSeconds) {
   const microSeconds = Math.round(nanoSeconds / 1000)
@@ -16,9 +16,9 @@ function printDuration(nanoSeconds) {
   return `${microSeconds} µs`
 }
 
-const TRACE_LIST = gql`
-  query latencyDistribution($graphId: ID!) {
-    latencyDistribution(graphId: $graphId) {
+const LATENCY_DISTRIBUTION = gql`
+  query latencyDistribution($graphId: ID!, $operationId: ID) {
+    latencyDistribution(graphId: $graphId, operationId: $operationId) {
       nodes {
         duration
         count
@@ -38,37 +38,32 @@ const renderTooltip = (
 )
 
 export default function TimeLine({ graphId, operationId }) {
-  const { loading, error, data } = useQuery(TRACE_LIST, {
+  const { loading, error, data } = useQuery(LATENCY_DISTRIBUTION, {
     variables: {
-      graphId
+      graphId,
+      operationId
     }
   })
 
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
-  return (
-    <WithTooltip renderTooltip={renderTooltip}>
-      {({ onMouseMove, onMouseLeave, tooltipData }) => (
-        <Sparkline
-          ariaLabel="Latency Distribution"
-          width={500}
-          height={200}
-          onMouseLeave={onMouseLeave}
-          onMouseMove={onMouseMove}
-          data={data.latencyDistribution.nodes}
-          valueAccessor={d => d.count}
-        >
-          <BarSeries
-            fillOpacity={0.8}
-            renderLabel={(d, i) => {
-              const indexToHighlight = tooltipData ? tooltipData.index : 5
+  const dataCount = data.latencyDistribution.nodes.map(d => ({
+    x: d.duration / 1000 / 1000,
+    y: d.count
+  }))
 
-              return i === indexToHighlight ? '🤔' : null
-            }}
-          />
-        </Sparkline>
-      )}
-    </WithTooltip>
+  return (
+    <Chart
+      ariaLabel="LatencyDistribution"
+      xScale={{ type: 'linear' }}
+      yScale={{ type: 'linear' }}
+      snapTooltipToDataX
+    >
+      <XAxis label="Duration" />
+      <YAxis label="Requests" />
+      <BarSeries data={dataCount} fill="blue" />
+      <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
+    </Chart>
   )
 }

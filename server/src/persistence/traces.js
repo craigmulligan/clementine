@@ -158,23 +158,29 @@ module.exports = {
 
     return db.one(query)
   },
-  async findRPM({ graphId }) {
+  async findRPM({ graphId, operationKey }) {
+    let operationClause = sql``
+    if (operationKey) {
+      operationClause = sql` AND key=${operationKey}`
+    }
+
     const query = sql`
       with series as (
         select interval from generate_series(date_round(NOW(), '15 minutes') - INTERVAL '1 DAY', date_round(NOW(), '15 minutes'), INTERVAL '15 minute') as interval
       ),
 
-      graphTraces as (
+      rpm as (
         select "startTime", "hasErrors" from traces
         WHERE "graphId"=${graphId}
+        ${operationClause}
       )
 
-      SELECT 
+      SELECT
         count("startTime") as count,
         count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
         interval as "startTime"
       FROM series
-        left outer JOIN traces on date_round(traces."startTime", '15 minutes') = interval
+        left outer JOIN rpm on date_round(rpm."startTime", '15 minutes') = interval
         group by interval
         order by interval;
       `
@@ -182,7 +188,11 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async latencyDistribution({ graphId }) {
+  async latencyDistribution({ graphId, operationKey }) {
+    let operationClause = sql``
+    if (operationKey) {
+      operationClause = sql` AND key=${operationKey}`
+    }
     const query = sql`
       WITH min_max AS (
           SELECT
@@ -190,6 +200,7 @@ module.exports = {
               max(duration) AS max_val
           FROM traces
           WHERE "graphId"=${graphId}
+          ${operationClause}
           AND NOT "hasErrors"
       )
       SELECT
