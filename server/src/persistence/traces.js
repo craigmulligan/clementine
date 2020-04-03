@@ -91,7 +91,7 @@ module.exports = {
 
     const query = sql`
     SELECT * from (
-      SELECT * FROM traces 
+      SELECT * FROM traces
       WHERE "graphId"=${graphId}
       ${operationClause}
       order by ${sql.identifier([
@@ -147,8 +147,8 @@ module.exports = {
   },
   findKeyMetrics({ graphId }) {
     const query = sql`
-          select *, 
-          (100 * "errorCount"/count) as "errorPercent" 
+          select *,
+          (100 * "errorCount"/count) as "errorPercent"
           from (
             select count(id) as count,
             count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
@@ -162,14 +162,21 @@ module.exports = {
     const query = sql`
       with series as (
         select interval from generate_series(date_round(NOW(), '15 minutes') - INTERVAL '1 DAY', date_round(NOW(), '15 minutes'), INTERVAL '15 minute') as interval
+      ),
+
+      graphTraces as (
+        select "startTime", "hasErrors" from traces
+        WHERE "graphId"=${graphId}
       )
 
-      SELECT count(*), interval as "startTime"
+      SELECT 
+        count("startTime") as count,
+        count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
+        interval as "startTime"
       FROM series
-      left outer JOIN traces on date_round("startTime", '15 minutes') = interval
-      WHERE "graphId"=${graphId}
-      group by interval 
-      order by interval;
+        left outer JOIN traces on date_round(traces."startTime", '15 minutes') = interval
+        group by interval
+        order by interval;
       `
 
     const { rows } = await db.query(query)
@@ -178,14 +185,14 @@ module.exports = {
   async latencyDistribution({ graphId }) {
     const query = sql`
       WITH min_max AS (
-          SELECT 
+          SELECT
               min(duration) AS min_val,
               max(duration) AS max_val
-          FROM traces 
+          FROM traces
           WHERE "graphId"=${graphId}
           AND NOT "hasErrors"
       )
-      SELECT 
+      SELECT
           min(duration) as min_duration,
           max(duration) as duration,
           count(*),

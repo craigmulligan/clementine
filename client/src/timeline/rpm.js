@@ -31,6 +31,7 @@ const TRACE_LIST = gql`
       nodes {
         startTime
         count
+        errorCount
       }
       cursor
     }

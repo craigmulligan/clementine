@@ -20,7 +20,6 @@ const gql = new ApolloServer({
   playground: true,
   introspection: true,
   engine: {
-    apiKey: 'service:clementine:eCU6jUBFDLsW1ToRu-iWyw',
     debugPrintReports: true,
     schemaTag: 'development',
     reportErrorFunction: err => {
