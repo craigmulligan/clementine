@@ -74,14 +74,13 @@ module.exports = {
         nodes
       }
     },
-    rpm: async (_, { graphId, operationId }, { req }) => {
+    rpm: async (_, { graphId, operationId, to, from }, { req }) => {
       let operationKey
       if (operationId) {
         operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
       }
 
-      console.log(operationId, operationKey)
-      const nodes = await Trace.findRPM({ graphId, operationKey })
+      const nodes = await Trace.findRPM({ graphId, operationKey }, to, from)
 
       return {
         nodes,

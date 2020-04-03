@@ -15,8 +15,8 @@ import {
 } from '@data-ui/xy-chart'
 
 const TRACE_LIST = gql`
-  query RPM($graphId: ID!, $operationId: ID) {
-    rpm(graphId: $graphId, operationId: $operationId) {
+  query RPM($graphId: ID!, $operationId: ID, $to: DateTime, $from: DateTime) {
+    rpm(graphId: $graphId, operationId: $operationId, to: $to, from: $from) {
       nodes {
         startTime
         count
@@ -28,10 +28,13 @@ const TRACE_LIST = gql`
 `
 
 export default function TimeLine({ graphId, operationId }) {
+  const [to, setTo] = useState(null)
+  const [from, setFrom] = useState(null)
   const { loading, error, data } = useQuery(TRACE_LIST, {
     variables: {
       graphId,
-      operationId
+      operationId,
+      from
     }
   })
 
@@ -49,17 +52,29 @@ export default function TimeLine({ graphId, operationId }) {
   }))
 
   return (
-    <Chart
-      ariaLabel="RPM"
-      xScale={{ type: 'time' }}
-      yScale={{ type: 'linear' }}
-      snapTooltipToDataX
-    >
-      <XAxis label="Time" />
-      <YAxis label="Requests" />
-      <LineSeries data={dataCount} stroke="blue" />
-      <LineSeries data={dataErrorCount} stroke="red" />
-      <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
-    </Chart>
+    <div>
+      <button
+        onClick={() => {
+          const monthMs = 86400000 * 30
+          const now = new Date()
+          const from = new Date(now - monthMs)
+          setFrom(from)
+        }}
+      >
+        Month
+      </button>
+      <Chart
+        ariaLabel="RPM"
+        xScale={{ type: 'time' }}
+        yScale={{ type: 'linear' }}
+        snapTooltipToDataX
+      >
+        <XAxis label="Time" />
+        <YAxis label="Requests" />
+        <LineSeries data={dataCount} stroke="blue" />
+        <LineSeries data={dataErrorCount} stroke="red" />
+        <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
+      </Chart>
+    </div>
   )
 }
