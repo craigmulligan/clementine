@@ -122,7 +122,12 @@ module.exports = gql`
       graphId: ID!
       operationId: ID
     ): LatencyDistributionConnection!
-    rpm(graphId: ID!, operationId: ID): RPMConnection!
+    rpm(
+      graphId: ID!
+      operationId: ID
+      from: DateTime
+      to: DateTime
+    ): RPMConnection!
   }
 
   type Mutation {

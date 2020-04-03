@@ -158,7 +158,7 @@ module.exports = {
 
     return db.one(query)
   },
-  async findRPM({ graphId, operationKey }, cursor, interval) {
+  async findRPM({ graphId, operationKey }, to, from, interval) {
     // cursor is a expected to be a date object.
     let operationClause = sql``
     if (operationKey) {
@@ -166,23 +166,20 @@ module.exports = {
     }
 
     const dayMs = 86400000
-    const now = new Date()
-    if (!cursor) {
-      cursor = new Date(now - dayMs)
+    if (!to) {
+      to = new Date()
+    }
+    if (!from) {
+      from = new Date(to - dayMs)
     }
 
-    const gap = now - cursor
+    const gap = to - from
     // we always have 100 "intervals in the series".
     // probably a smart way to do this in postgres instead.
-    const intervalMin = Math.floor(gap / 1000 / 60 / 100) + ' minutes'
-
-    const nowMs = Math.round(now / 1000)
-    // we always generate a series of 100 points.
-    // So the first get the cursor and calculate the distance from now.
-    // Then use that to find the interval.
+    const intervalMin = Math.floor(gap / 1000 / 60 / 100) + ' minute'
     const query = sql`
       with series as (
-        select interval from generate_series(date_round(${cursor.toUTCString()}, ${intervalMin}), date_round(${now.toUTCString()}, ${intervalMin}), INTERVAL '14 minute') as interval
+        select interval from generate_series(date_round(${from.toUTCString()}, ${intervalMin}), date_round(${to.toUTCString()}, ${intervalMin}), (${intervalMin})::INTERVAL) as interval
       ),
       rpm as (
         select "startTime", "hasErrors" from traces
@@ -204,6 +201,7 @@ module.exports = {
     return rows
   },
   async latencyDistribution({ graphId, operationKey }) {
+    // this is not bound by time may have to do for bigger data sets.
     let operationClause = sql``
     if (operationKey) {
       operationClause = sql` AND key=${operationKey}`
