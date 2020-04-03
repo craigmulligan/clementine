@@ -85,6 +85,7 @@ module.exports = gql`
   type RPM {
     startTime: DateTime!
     count: Int!
+    errorCount: Int!
   }
 
   type RPMConnection {
