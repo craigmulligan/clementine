@@ -115,7 +115,7 @@ const SHOW_GRAPH = gql`
   }
 `
 
-export function GraphShow({ graphId }) {
+export function GraphHeader({ graphId }) {
   const { loading, error, data } = useQuery(SHOW_GRAPH, {
     variables: { graphId }
   })
@@ -136,9 +136,16 @@ export function GraphShow({ graphId }) {
         </div>
       </header>
       <hr />
-      <Link to={`/graph/${data.graph.id}/settings`}>Settings</Link>
+    </div>
+  )
+}
+
+export function GraphShow({ graphId }) {
+  return (
+    <div>
+      <Link to={`/graph/${graphId}/settings`}>Settings</Link>
       <ul>
-        <Link to={`/graph/${data.graph.id}/operation`}>
+        <Link to={`/graph/${graphId}/operation`}>
           <li>
             <h4>Operations</h4>
             <small>
@@ -146,13 +153,13 @@ export function GraphShow({ graphId }) {
             </small>
           </li>
         </Link>
-        <Link to={`/graph/${data.graph.id}/rpm`}>
+        <Link to={`/graph/${graphId}/rpm`}>
           <li>
             <h4>RPM</h4>
             <small>Get a feel for your traffic over time</small>
           </li>
         </Link>
-        <Link to={`/graph/${data.graph.id}/ld`}>
+        <Link to={`/graph/${graphId}/ld`}>
           <li>
             <h4>Latency Distribution</h4>
             <small>What it says on the tin</small>

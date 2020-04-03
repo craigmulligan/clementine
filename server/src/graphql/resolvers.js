@@ -30,7 +30,7 @@ module.exports = {
       if (operationId) {
         operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
       }
-      const limit = 500
+      const limit = 10
       const [cursor] = Cursor.decode(after)
 
       const nodes = await Trace.findAll(

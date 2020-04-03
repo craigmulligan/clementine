@@ -51,6 +51,18 @@ const OPERATION_LIST = gql`
   }
 `
 
+export function OperationHeader({ graphId, operationId }) {
+  return (
+    <div>
+      <header>
+        <h2>{operationId}</h2>
+        <p>KeyMetrics will go here</p>
+      </header>
+      <hr />
+    </div>
+  )
+}
+
 export function OperationShow({ graphId, operationId }) {
   return (
     <div>
