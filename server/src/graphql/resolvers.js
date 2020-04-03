@@ -74,16 +74,27 @@ module.exports = {
         nodes
       }
     },
-    rpm: async (_, { graphId }, { req }) => {
-      const nodes = await Trace.findRPM({ graphId })
+    rpm: async (_, { graphId, operationId }, { req }) => {
+      let operationKey
+      if (operationId) {
+        operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
+      }
+
+      console.log(operationId, operationKey)
+      const nodes = await Trace.findRPM({ graphId, operationKey })
 
       return {
         nodes,
         cursor: ''
       }
     },
-    latencyDistribution: async (_, { graphId }, { req }) => {
-      const nodes = await Trace.latencyDistribution({ graphId })
+    latencyDistribution: async (_, { graphId, operationId }, { req }) => {
+      let operationKey
+      if (operationId) {
+        operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
+      }
+
+      const nodes = await Trace.latencyDistribution({ graphId, operationKey })
 
       return {
         nodes,

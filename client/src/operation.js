@@ -69,6 +69,18 @@ export function OperationShow({ graphId, operationId }) {
             </small>
           </li>
         </Link>
+        <Link to={`/graph/${graphId}/operation/${operationId}/rpm`}>
+          <li>
+            <h4>RPM</h4>
+            <small>Get a feel for your traffic over time</small>
+          </li>
+        </Link>
+        <Link to={`/graph/${graphId}/operation/${operationId}/ld`}>
+          <li>
+            <h4>Latency Distribution</h4>
+            <small>What it says on the tin</small>
+          </li>
+        </Link>
       </ul>
     </div>
   )

@@ -10,3 +10,5 @@ export function TimeLine({ graphId, operationId }) {
     </div>
   )
 }
+
+export { LatencyDistribution, Rpm }

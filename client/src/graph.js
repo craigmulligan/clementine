@@ -146,10 +146,16 @@ export function GraphShow({ graphId }) {
             </small>
           </li>
         </Link>
-        <Link to={`/graph/${data.graph.id}/timeline`}>
+        <Link to={`/graph/${data.graph.id}/rpm`}>
           <li>
-            <h4>Timeline</h4>
-            <small>Everybody loves a graph or two.</small>
+            <h4>RPM</h4>
+            <small>Get a feel for your traffic over time</small>
+          </li>
+        </Link>
+        <Link to={`/graph/${data.graph.id}/ld`}>
+          <li>
+            <h4>Latency Distribution</h4>
+            <small>What it says on the tin</small>
           </li>
         </Link>
       </ul>
