@@ -14,17 +14,6 @@ import {
   PointSeries
 } from '@data-ui/xy-chart'
 
-const renderTooltip = (
-  { datum } // eslint-disable-line react/prop-types
-) => (
-  <div>
-    {datum.count && <div>{datum.count}</div>}
-    <div>{datum.y ? datum.startTime : '--'}</div>
-  </div>
-)
-
-const renderLabel = d => <div>{d.startTime}</div>
-
 const TRACE_LIST = gql`
   query RPM($graphId: ID!, $operationId: ID) {
     rpm(graphId: $graphId, operationId: $operationId) {
