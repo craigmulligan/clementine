@@ -67,7 +67,6 @@ export default function TimeLine({ graphId, operationId }) {
         ariaLabel="RPM"
         xScale={{ type: 'time' }}
         yScale={{ type: 'linear' }}
-        snapTooltipToDataX
       >
         <XAxis label="Time" />
         <YAxis label="Requests" />

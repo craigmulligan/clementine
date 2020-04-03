@@ -1,8 +1,19 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { Signup, Login } from './auth'
-import { GraphShow, GraphSettings, GraphCreate, GraphList } from './graph'
-import { OperationShow, OperationList, OperationSource } from './operation'
+import {
+  GraphShow,
+  GraphSettings,
+  GraphCreate,
+  GraphList,
+  GraphHeader
+} from './graph'
+import {
+  OperationShow,
+  OperationList,
+  OperationSource,
+  OperationHeader
+} from './operation'
 import client from './client'
 import { Route, Switch } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
@@ -28,39 +39,62 @@ function App() {
               <Route
                 path="/graph/:graphId"
                 component={({ params }) => (
-                  <GraphShow graphId={params.graphId} />
+                  <Fragment>
+                    <GraphHeader graphId={params.graphId} />
+                    <GraphShow graphId={params.graphId} />
+                  </Fragment>
                 )}
               />
             </Switch>
             <Route
               path="/graph/:graphId/settings"
               component={({ params }) => (
-                <GraphSettings graphId={params.graphId} />
+                <Fragment>
+                  <GraphHeader graphId={params.graphId} />
+                  <GraphSettings graphId={params.graphId} />
+                </Fragment>
               )}
             />
             <Route
               path="/graph/:graphId/operation"
               component={({ params }) => (
-                <OperationList graphId={params.graphId} />
+                <Fragment>
+                  <GraphHeader graphId={params.graphId} />
+                  <OperationList graphId={params.graphId} />
+                </Fragment>
               )}
             />
             <Route
               path="/graph/:graphId/rpm"
-              component={({ params }) => <Rpm graphId={params.graphId} />}
+              component={({ params }) => (
+                <Fragment>
+                  <GraphHeader graphId={params.graphId} />
+                  <Rpm graphId={params.graphId} />
+                </Fragment>
+              )}
             />
             <Route
               path="/graph/:graphId/ld"
               component={({ params }) => (
-                <LatencyDistribution graphId={params.graphId} />
+                <Fragment>
+                  <GraphHeader graphId={params.graphId} />
+                  <LatencyDistribution graphId={params.graphId} />
+                </Fragment>
               )}
             />
             <Route
               path="/graph/:graphId/operation/:operationId"
               component={({ params }) => (
-                <OperationShow
-                  graphId={params.graphId}
-                  operationId={params.operationId}
-                />
+                <Fragment>
+                  <OperationHeader
+                    graphId={params.graphId}
+                    operationId={params.operationId}
+                  />
+                  <OperationShow
+                    graphId={params.graphId}
+                    operationId={params.operationId}
+                  />
+                </Fragment>
               )}
             />
             <Route
