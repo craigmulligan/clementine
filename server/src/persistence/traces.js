@@ -158,17 +158,32 @@ module.exports = {
 
     return db.one(query)
   },
-  async findRPM({ graphId, operationKey }) {
+  async findRPM({ graphId, operationKey }, cursor, interval) {
+    // cursor is a expected to be a date object.
     let operationClause = sql``
     if (operationKey) {
       operationClause = sql` AND key=${operationKey}`
     }
 
+    const dayMs = 86400000
+    const now = new Date()
+    if (!cursor) {
+      cursor = new Date(now - dayMs)
+    }
+
+    const gap = now - cursor
+    // we always have 100 "intervals in the series".
+    // probably a smart way to do this in postgres instead.
+    const intervalMin = Math.floor(gap / 1000 / 60 / 100) + ' minutes'
+
+    const nowMs = Math.round(now / 1000)
+    // we always generate a series of 100 points.
+    // So the first get the cursor and calculate the distance from now.
+    // Then use that to find the interval.
     const query = sql`
       with series as (
-        select interval from generate_series(date_round(NOW(), '15 minutes') - INTERVAL '1 DAY', date_round(NOW(), '15 minutes'), INTERVAL '15 minute') as interval
+        select interval from generate_series(date_round(${cursor.toUTCString()}, ${intervalMin}), date_round(${now.toUTCString()}, ${intervalMin}), INTERVAL '14 minute') as interval
       ),
-
       rpm as (
         select "startTime", "hasErrors" from traces
         WHERE "graphId"=${graphId}
@@ -180,7 +195,7 @@ module.exports = {
         count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
         interval as "startTime"
       FROM series
-        left outer JOIN rpm on date_round(rpm."startTime", '15 minutes') = interval
+        left outer JOIN rpm on date_round(rpm."startTime", ${intervalMin}) = interval
         group by interval
         order by interval;
       `

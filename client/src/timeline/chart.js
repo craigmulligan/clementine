@@ -1,27 +1,23 @@
 /* eslint react/prop-types: 0 */
-import React from 'react';
-import { timeParse, timeFormat } from 'd3-time-format';
+import React from 'react'
+import { timeParse, timeFormat } from 'd3-time-format'
 
-import { XYChart, theme, withScreenSize, withTheme } from '@data-ui/xy-chart';
+import { XYChart, theme, withScreenSize, withTheme } from '@data-ui/xy-chart'
 
 // test that withTheme works
-const XYChartWithTheme = withTheme(theme)(XYChart);
-
-export const parseDate = timeParse('%Y%m%d');
-export const formatDate = timeFormat('%b %d');
-export const formatYear = timeFormat('%Y');
-export const dateFormatter = date => formatDate(parseDate(date));
+const XYChartWithTheme = withTheme(theme)(XYChart)
 
 // this is a little messy to handle all cases across series types
 export function renderTooltip({ datum, seriesKey, color, data }) {
-  const { x, x0, y, value } = datum;
-  let xVal = x || x0;
+  const { x, x0, y, value } = datum
+  let xVal = x || x0
   if (typeof xVal === 'string') {
-    xVal = parseDate(xVal) === null ? xVal : dateFormatter(xVal);
+    // noop
   } else if (typeof xVal !== 'string' && Number(xVal) > 1000000) {
-    xVal = formatDate(xVal);
+    xVal = new Date(xVal).toUTCString()
   }
-  const yVal = seriesKey && datum[seriesKey] ? datum[seriesKey] : y || value || '--';
+  const yVal =
+    seriesKey && datum[seriesKey] ? datum[seriesKey] : y || value || '--'
 
   return (
     <div>
@@ -45,7 +41,7 @@ export function renderTooltip({ datum, seriesKey, color, data }) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 function ResponsiveXYChart({ screenWidth, children, ...rest }) {
@@ -58,7 +54,7 @@ function ResponsiveXYChart({ screenWidth, children, ...rest }) {
     >
       {children}
     </XYChartWithTheme>
-  );
+  )
 }
 
-export default withScreenSize(ResponsiveXYChart);
+export default withScreenSize(ResponsiveXYChart)
