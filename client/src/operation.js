@@ -6,7 +6,7 @@ import { Loading, ErrorBanner } from './utils'
 import { Link } from 'wouter'
 import KeyMetrics from './keyMetrics'
 import { print } from 'graphql/language/printer'
-import { TraceList } from './trace'
+import { TraceList, Filters } from './trace'
 
 function getOperationTypes(doc) {
   let operationTypes = []
@@ -34,8 +34,14 @@ const OPERATION_LIST = gql`
     $graphId: ID!
     $orderBy: OperationOrderBy
     $after: String
+    $traceFilters: [TraceFilter]
   ) {
-    operations(graphId: $graphId, orderBy: $orderBy, after: $after) {
+    operations(
+      graphId: $graphId
+      orderBy: $orderBy
+      after: $after
+      traceFilters: $traceFilters
+    ) {
       nodes {
         id
         key
@@ -101,13 +107,21 @@ export function OperationShow({ graphId, operationId }) {
 export function OperationList({ graphId }) {
   const [orderField, setOrderField] = useState('count')
   const [orderAsc, setOrderAsc] = useState(false)
+  const [filters, setFilters] = useState([
+    {
+      field: 'clientVersion',
+      operator: 'eq',
+      value: '0.2.0'
+    }
+  ])
   const { loading, error, data, fetchMore } = useQuery(OPERATION_LIST, {
     variables: {
       graphId,
       orderBy: {
         field: orderField,
         asc: orderAsc
-      }
+      },
+      traceFilters: filters
     }
   })
 
@@ -119,7 +133,8 @@ export function OperationList({ graphId }) {
   }
 
   return (
-    <ul>
+    <div>
+      <Filters graphId={graphId} onChange={setFilters} />
       <button
         onClick={() => {
           setOrderAsc(prev => !prev)
@@ -155,56 +170,58 @@ export function OperationList({ graphId }) {
       >
         Highest Error Rate
       </button>
-      {data.operations.nodes.map(op => {
-        const doc = gql`
-          ${op.key}
-        `
-        const name = getOperationName(doc)
-        const operationTypes = getOperationTypes(doc)
+      <ul>
+        {data.operations.nodes.map(op => {
+          const doc = gql`
+            ${op.key}
+          `
+          const name = getOperationName(doc)
+          const operationTypes = getOperationTypes(doc)
 
-        return (
-          <Link to={`/graph/${graphId}/operation/${op.id}`}>
-            <li key={op.id}>
-              <span>
-                <mark>{name ? name : op.id}</mark>
-              </span>
-              <KeyMetrics {...op.keyMetrics} />
-              <span>&nbsp;{operationTypes.join(' ')}</span>
-            </li>
-          </Link>
-        )
-      })}
-      <button
-        disabled={data.operations.cursor.length === 0}
-        onClick={() => {
-          fetchMore({
-            variables: {
-              graphId,
-              orderBy: {
-                field: orderField,
-                asc: orderAsc
+          return (
+            <Link to={`/graph/${graphId}/operation/${op.id}`}>
+              <li key={op.id}>
+                <span>
+                  <mark>{name ? name : op.id}</mark>
+                </span>
+                <KeyMetrics {...op.keyMetrics} />
+                <span>&nbsp;{operationTypes.join(' ')}</span>
+              </li>
+            </Link>
+          )
+        })}
+        <button
+          disabled={data.operations.cursor.length === 0}
+          onClick={() => {
+            fetchMore({
+              variables: {
+                graphId,
+                orderBy: {
+                  field: orderField,
+                  asc: orderAsc
+                },
+                after: data.operations.cursor
               },
-              after: data.operations.cursor
-            },
-            updateQuery: (previousResult, { fetchMoreResult }) => {
-              const prevOps = previousResult.operations.nodes
-              const newOps = fetchMoreResult.operations.nodes
-              const nodes = [...prevOps, ...newOps]
+              updateQuery: (previousResult, { fetchMoreResult }) => {
+                const prevOps = previousResult.operations.nodes
+                const newOps = fetchMoreResult.operations.nodes
+                const nodes = [...prevOps, ...newOps]
 
-              return {
-                operations: {
-                  // Put the new comments in the front of the list
-                  ...fetchMoreResult.operations,
-                  nodes
+                return {
+                  operations: {
+                    // Put the new comments in the front of the list
+                    ...fetchMoreResult.operations,
+                    nodes
+                  }
                 }
               }
-            }
-          })
-        }}
-      >
-        {data.operations.cursor.length === 0 ? 'no more' : 'more'}
-      </button>
-    </ul>
+            })
+          }}
+        >
+          {data.operations.cursor.length === 0 ? 'no more' : 'more'}
+        </button>
+      </ul>
+    </div>
   )
 }
 

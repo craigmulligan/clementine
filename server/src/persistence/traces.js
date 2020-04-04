@@ -3,6 +3,14 @@ const uuid = require('uuid/v4')
 const bcrypt = require('bcrypt')
 const db = require('./db')
 
+function compileTraceFilters(filters) {
+  const q = filters.map(f => {
+    return sql`${sql.identifier([f.field])} = ${f.value}`
+  })
+
+  return sql.join(q, sql` AND `)
+}
+
 module.exports = {
   async create(graphId, traces) {
     const values = traces.map(trace => {
@@ -27,12 +35,15 @@ module.exports = {
         startTime.toUTCString(),
         endTime.toUTCString(),
         JSON.stringify(root),
-        !!hasErrors
+        !!hasErrors,
+        clientName,
+        clientVersion,
+        schemaTag
       ]
     })
 
     const query = sql`
-      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors")
+      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors", "clientName", "clientVersion", "schemaTag")
       SELECT *
       FROM ${sql.unnest(values, [
         'uuid',
@@ -42,7 +53,10 @@ module.exports = {
         'timestamp',
         'timestamp',
         'jsonb',
-        'bool'
+        'bool',
+        'text',
+        'text',
+        'text'
       ])}
       RETURNING id
       ;
@@ -108,7 +122,8 @@ module.exports = {
     { graphId },
     orderBy = { field: 'count', asc: false },
     cursor,
-    limit
+    limit,
+    traceFilters = []
   ) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
@@ -128,19 +143,26 @@ module.exports = {
       orderDirection = sql` desc`
     }
 
+    const fs = compileTraceFilters(traceFilters)
+
     const query = sql`
     SELECT * from (
       SELECT *, (100 * "errorCount"/count) as "errorPercent" from
         (SELECT key, PERCENTILE_CONT(0.95)
           within group (order by duration asc) as duration,
           count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
-          count(id) as count FROM traces WHERE "graphId"=${graphId} group by key
+          count(id) as count FROM traces
+          WHERE "graphId"=${graphId}
+          AND ${fs}
+          group by key
         ) as ops order by ${sql.identifier([
           orderBy.field
         ])}${orderDirection}, key ${orderDirection}
     ) as orderedOps
     ${cursorClause}
     limit ${limit}`
+
+    console.log(query)
 
     const { rows } = await db.query(query)
     return rows
@@ -230,5 +252,19 @@ module.exports = {
 
     const { rows } = await db.query(query)
     return rows
+  },
+  async findFilterOptions({ graphId }) {
+    const query = sql`
+    with cte as (
+      select "schemaTag", "clientName", "clientVersion" from traces
+      where "graphId"=${graphId}
+    )
+
+    select ARRAY(select distinct "schemaTag" from cte) as "SchemaTag",
+      ARRAY(select distinct "clientName" from cte) as "clientName",
+      ARRAY(select distinct "clientVersion" from cte) as "clientVersion"
+    `
+
+    return db.one(query)
   }
 }
