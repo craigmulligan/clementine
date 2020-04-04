@@ -143,7 +143,10 @@ module.exports = {
       orderDirection = sql` desc`
     }
 
-    const fs = compileTraceFilters(traceFilters)
+    const fs = compileTraceFilters([
+      ...traceFilters,
+      { value: graphId, field: 'graphId' }
+    ])
 
     const query = sql`
     SELECT * from (
@@ -152,8 +155,7 @@ module.exports = {
           within group (order by duration asc) as duration,
           count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
           count(id) as count FROM traces
-          WHERE "graphId"=${graphId}
-          AND ${fs}
+          WHERE ${fs}
           group by key
         ) as ops order by ${sql.identifier([
           orderBy.field
