@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Rpm from './rpm'
 import LatencyDistribution from './latencyDistribution'
 

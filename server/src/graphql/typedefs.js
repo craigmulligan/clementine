@@ -4,11 +4,34 @@ module.exports = gql`
   scalar JSON
   scalar DateTime
 
+  enum FilterOperator {
+    eq
+    ne
+  }
+
+  enum TraceFilterField {
+    schemaTag
+    clientName
+    clientVersion
+  }
+
+  input TraceFilter {
+    operator: FilterOperator
+    field: TraceFilterField
+    value: String
+  }
+
   enum OperationOrderFields {
     duration
     count
     errorCount
     errorPercent
+  }
+
+  type TraceFilterOptions {
+    schemaTag: [String]
+    clientName: [String]
+    clientVersion: [String]
   }
 
   input OperationOrderBy {
@@ -117,6 +140,7 @@ module.exports = gql`
       graphId: ID!
       orderBy: OperationOrderBy
       after: String
+      traceFilters: [TraceFilter]
     ): OperationConnection
     latencyDistribution(
       graphId: ID!
@@ -128,6 +152,7 @@ module.exports = gql`
       from: DateTime
       to: DateTime
     ): RPMConnection!
+    traceFilterOptions(graphId: ID!): TraceFilterOptions
   }
 
   type Mutation {

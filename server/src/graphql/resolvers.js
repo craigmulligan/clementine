@@ -12,6 +12,10 @@ module.exports = {
   DateTime: DateTimeResolver,
   JSON: JSONResolver,
   Query: {
+    traceFilterOptions: (_, { graphId }, { req }) => {
+      // TODO permissions
+      return Trace.findFilterOptions({ graphId })
+    },
     user: (_, _args, { req }) => {
       // TODO permissions
       return User.findById(req.session.userId)
@@ -50,18 +54,25 @@ module.exports = {
         nodes
       }
     },
-    operations: async (_, { graphId, orderBy, after }, { req }) => {
+    operations: async (
+      _,
+      { graphId, orderBy, after, traceFilters },
+      { req }
+    ) => {
       // TODO permissions
       if (!orderBy) {
         orderBy = { field: 'count', asc: false }
       }
+
+      console.log(traceFilters)
       const limit = 7
       const [cursor] = Cursor.decode(after)
       const nodes = await Trace.findAllOperations(
         { graphId },
         orderBy,
         cursor,
-        limit
+        limit,
+        traceFilters
       )
 
       // we always fetch one more than we need to calculate hasNextPage
