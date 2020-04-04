@@ -3,9 +3,17 @@ const uuid = require('uuid/v4')
 const bcrypt = require('bcrypt')
 const db = require('./db')
 
+const Operators = {
+  eq: sql` = `,
+  ne: sql` <> `
+}
+
 function compileTraceFilters(filters) {
   const q = filters.map(f => {
-    return sql`${sql.identifier([f.field])} = ${f.value}`
+    return sql.join(
+      [sql`${sql.identifier([f.field])}`, sql`${f.value}`],
+      Operators[f.operator]
+    )
   })
 
   return sql.join(q, sql` AND `)
@@ -145,7 +153,7 @@ module.exports = {
 
     const fs = compileTraceFilters([
       ...traceFilters,
-      { value: graphId, field: 'graphId' }
+      { value: graphId, field: 'graphId', operator: 'eq' }
     ])
 
     const query = sql`
@@ -163,8 +171,6 @@ module.exports = {
     ) as orderedOps
     ${cursorClause}
     limit ${limit}`
-
-    console.log(query)
 
     const { rows } = await db.query(query)
     return rows
@@ -255,14 +261,15 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async findFilterOptions({ graphId }) {
+  findFilterOptions({ graphId }) {
     const query = sql`
     with cte as (
       select "schemaTag", "clientName", "clientVersion" from traces
       where "graphId"=${graphId}
     )
 
-    select ARRAY(select distinct "schemaTag" from cte) as "SchemaTag",
+    select
+      ARRAY(select distinct "schemaTag" from cte) as "schemaTag",
       ARRAY(select distinct "clientName" from cte) as "clientName",
       ARRAY(select distinct "clientVersion" from cte) as "clientVersion"
     `
