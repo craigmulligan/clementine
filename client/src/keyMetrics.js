@@ -1,6 +1,10 @@
 import React from 'react'
 
 function printDuration(nanoSeconds) {
+  if (!nanoSeconds) {
+    return ''
+  }
+
   const microSeconds = Math.round(nanoSeconds / 1000)
   if (microSeconds > 1000) {
     const ms = Math.round(microSeconds / 1000)

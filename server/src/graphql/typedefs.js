@@ -62,7 +62,7 @@ module.exports = gql`
     createdAt: DateTime!
     user: User
     keys: [Key]!
-    keyMetrics: KeyMetics
+    keyMetrics(traceFilters: [TraceFilter]): KeyMetics
   }
 
   type KeyMetics {
@@ -82,7 +82,7 @@ module.exports = gql`
   type Operation {
     id: String!
     key: String!
-    keyMetrics: KeyMetics!
+    keyMetrics(traceFilters: [TraceFilter]): KeyMetics
   }
 
   type OperationConnection {
@@ -135,6 +135,7 @@ module.exports = gql`
       operationId: ID
       orderBy: TraceOrderBy
       after: String
+      traceFilters: [TraceFilter]
     ): TraceConnection
     operations(
       graphId: ID!
@@ -145,12 +146,14 @@ module.exports = gql`
     latencyDistribution(
       graphId: ID!
       operationId: ID
+      traceFilters: [TraceFilter]
     ): LatencyDistributionConnection!
     rpm(
       graphId: ID!
       operationId: ID
       from: DateTime
       to: DateTime
+      traceFilters: [TraceFilter]
     ): RPMConnection!
     traceFilterOptions(graphId: ID!): TraceFilterOptions
   }
