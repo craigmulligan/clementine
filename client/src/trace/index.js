@@ -4,7 +4,7 @@ import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'wouter'
 import TracingReponse from './TracingReponse'
-import Filters from './filters'
+import Filters, { pruneFilters } from './filters'
 
 const TRACE_LIST = gql`
   query traceList(
@@ -97,4 +97,4 @@ export function TraceList({ graphId, operationId }) {
   )
 }
 
-export { Filters }
+export { Filters, pruneFilters }

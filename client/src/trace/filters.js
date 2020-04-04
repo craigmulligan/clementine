@@ -15,9 +15,15 @@ const TRACE_FILTER_OPTIONS = gql`
   }
 `
 
-function prepFilters(data) {}
+export function pruneFilters(data) {
+  return data.map(({ field, operator, value }) => ({
+    field,
+    operator,
+    value
+  }))
+}
 
-export default function TraceFilters({ graphId, onChange }) {
+export default function TraceFilters({ graphId, onChange, conditions }) {
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
       graphId
@@ -54,17 +60,10 @@ export default function TraceFilters({ graphId, onChange }) {
   return (
     <div className={styles.wrapper}>
       <VisualFilter
+        conditions={conditions}
         fields={fields}
         dateFormat="Y-M-D"
-        onChange={cons => {
-          const filters = cons.map(({ field, operator, value }) => ({
-            field,
-            operator,
-            value
-          }))
-
-          onChange(filters)
-        }}
+        onChange={onChange}
       />
     </div>
   )
