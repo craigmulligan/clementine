@@ -33,6 +33,7 @@ export default function TraceFilters({ graphId, onChange, conditions }) {
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
+  console.log(data.traceFilterOptions)
   const fields = Object.entries(data.traceFilterOptions)
     .filter(([k, v]) => {
       if (k === '__typename') {

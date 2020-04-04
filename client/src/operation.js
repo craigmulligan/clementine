@@ -174,8 +174,8 @@ export function OperationList({ graphId }) {
           const operationTypes = getOperationTypes(doc)
 
           return (
-            <Link to={`/graph/${graphId}/operation/${op.id}`}>
-              <li key={op.id}>
+            <Link key={op.id} to={`/graph/${graphId}/operation/${op.id}`}>
+              <li>
                 <span>
                   <mark>{name ? name : op.id}</mark>
                 </span>
