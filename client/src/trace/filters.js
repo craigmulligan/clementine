@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
+import FiltersContext from './filtersContext'
 
 const TRACE_FILTER_OPTIONS = gql`
   query traceFilterOptions($graphId: ID!) {
@@ -15,15 +16,8 @@ const TRACE_FILTER_OPTIONS = gql`
   }
 `
 
-export function pruneFilters(data) {
-  return data.map(({ field, operator, value }) => ({
-    field,
-    operator,
-    value
-  }))
-}
-
-export default function TraceFilters({ graphId, onChange, conditions }) {
+export default function TraceFilters({ graphId, onChange }) {
+  const { conditions, setFilters } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
       graphId
@@ -33,7 +27,6 @@ export default function TraceFilters({ graphId, onChange, conditions }) {
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
-  console.log(data.traceFilterOptions)
   const fields = Object.entries(data.traceFilterOptions)
     .filter(([k, v]) => {
       if (k === '__typename') {
@@ -64,7 +57,13 @@ export default function TraceFilters({ graphId, onChange, conditions }) {
         conditions={conditions}
         fields={fields}
         dateFormat="Y-M-D"
-        onChange={onChange}
+        onChange={data => {
+          setFilters(data)
+
+          if (typeof onChange === 'function') {
+            onChange(data)
+          }
+        }}
       />
     </div>
   )

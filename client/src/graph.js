@@ -1,11 +1,12 @@
 import { gql } from 'apollo-boost'
-import React, { useRef } from 'react'
+import React, { useRef, useContext } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
 import { KeyList, KeyCreate } from './key'
 import KeyMetics from './keyMetrics'
 import { ErrorBanner, Loading } from './utils'
 import { cloneDeep } from 'lodash'
+import { FiltersContext } from './trace'
 
 const GET_GRAPHS = gql`
   query GRAPH_LIST {
@@ -101,11 +102,11 @@ export function GraphCreate() {
 }
 
 const SHOW_GRAPH = gql`
-  query GRAPH_SHOW($graphId: ID!) {
+  query GRAPH_SHOW($graphId: ID!, $traceFilters: [TraceFilter]) {
     graph(graphId: $graphId) {
       id
       name
-      keyMetrics {
+      keyMetrics(traceFilters: $traceFilters) {
         count
         duration
         errorCount
@@ -116,8 +117,9 @@ const SHOW_GRAPH = gql`
 `
 
 export function GraphHeader({ graphId }) {
+  const { filters } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(SHOW_GRAPH, {
-    variables: { graphId }
+    variables: { graphId, traceFilters: filters }
   })
 
   if (loading) return <Loading />

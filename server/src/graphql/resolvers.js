@@ -20,7 +20,7 @@ module.exports = {
       // TODO permissions
       return User.findById(req.session.userId)
     },
-    graph: (_, { graphId }, { req }) => {
+    graph: (_, { graphId, ...rest }, { req }) => {
       // TODO permissions
       return Graph.findById(graphId)
     },
@@ -158,8 +158,12 @@ module.exports = {
     keys: ({ id }) => {
       return Key.findAll({ graphId: id })
     },
-    keyMetrics: ({ id }) => {
-      return Trace.findKeyMetrics({ graphId: id })
+    keyMetrics: ({ id, ...rest }, args) => {
+      console.log({ args }, rest)
+      return Trace.findKeyMetrics([
+        ...args.traceFilters,
+        { field: 'graphId', operator: 'eq', value: id }
+      ])
     }
   },
   User: {

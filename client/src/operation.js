@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { getOperationName } from 'apollo-utilities'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
@@ -6,7 +6,7 @@ import { Loading, ErrorBanner } from './utils'
 import { Link } from 'wouter'
 import KeyMetrics from './keyMetrics'
 import { print } from 'graphql/language/printer'
-import { TraceList, Filters, pruneFilters } from './trace'
+import { TraceList, Filters, FiltersContext } from './trace'
 
 function getOperationTypes(doc) {
   let operationTypes = []
@@ -105,9 +105,9 @@ export function OperationShow({ graphId, operationId }) {
 }
 
 export function OperationList({ graphId }) {
+  const { setFilters, filters } = useContext(FiltersContext)
   const [orderField, setOrderField] = useState('count')
   const [orderAsc, setOrderAsc] = useState(false)
-  const [filters, setFilters] = useState([])
 
   const { loading, error, data, fetchMore } = useQuery(OPERATION_LIST, {
     variables: {
@@ -116,7 +116,7 @@ export function OperationList({ graphId }) {
         field: orderField,
         asc: orderAsc
       },
-      traceFilters: pruneFilters(filters)
+      traceFilters: filters
     }
   })
 
@@ -129,7 +129,7 @@ export function OperationList({ graphId }) {
 
   return (
     <div>
-      <Filters conditions={filters} graphId={graphId} onChange={setFilters} />
+      <Filters graphId={graphId} />
       <button
         onClick={() => {
           setOrderAsc(prev => !prev)

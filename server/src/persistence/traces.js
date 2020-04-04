@@ -175,7 +175,7 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  findKeyMetrics({ graphId }) {
+  findKeyMetrics(traceFilters = []) {
     const query = sql`
           select *,
           (100 * "errorCount"/count) as "errorPercent"
@@ -183,7 +183,8 @@ module.exports = {
             select count(id) as count,
             count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
             PERCENTILE_CONT(0.95) within group (order by duration asc) as duration
-            FROM traces WHERE "graphId"=${graphId}
+            FROM traces
+            WHERE ${compileTraceFilters(traceFilters)}
           ) as graphKeyMetrics;`
 
     return db.one(query)
