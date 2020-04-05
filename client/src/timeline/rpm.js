@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
@@ -13,6 +13,7 @@ import {
   LineSeries,
   PointSeries
 } from '@data-ui/xy-chart'
+import { Filters, FiltersContext } from '../trace'
 
 const TRACE_LIST = gql`
   query RPM($graphId: ID!, $operationId: ID, $to: DateTime, $from: DateTime) {
@@ -28,12 +29,12 @@ const TRACE_LIST = gql`
 `
 
 export default function TimeLine({ graphId, operationId }) {
-  const [to, setTo] = useState(null)
-  const [from, setFrom] = useState(null)
+  const { filters, to, from } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(TRACE_LIST, {
     variables: {
       graphId,
       operationId,
+      to,
       from
     }
   })
@@ -53,16 +54,7 @@ export default function TimeLine({ graphId, operationId }) {
 
   return (
     <div>
-      <button
-        onClick={() => {
-          const monthMs = 86400000 * 30
-          const now = new Date()
-          const from = new Date(now - monthMs)
-          setFrom(from)
-        }}
-      >
-        Month
-      </button>
+      <Filters graphId={graphId} />
       <Chart
         ariaLabel="RPM"
         xScale={{ type: 'time' }}

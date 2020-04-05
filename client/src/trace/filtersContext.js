@@ -3,18 +3,15 @@ import { gql } from 'apollo-boost'
 
 const FiltersContext = React.createContext()
 
-function pruneFilters(data) {
-  return data.map(({ field, operator, value }) => ({
-    field,
-    operator,
-    value
-  }))
-}
+
 
 class FiltersProvider extends Component {
   // Context state
+  //
   state = {
-    filters: []
+    filters: [],
+    to: Date.now(),
+    from: Date.now() - 86400000
   }
 
   // Method to update state
@@ -22,16 +19,23 @@ class FiltersProvider extends Component {
     this.setState({ filters })
   }
 
+  setToFrom = ({ to, from }) => {
+    this.setState({ to, from })
+  }
+
   render() {
     const { children } = this.props
-    const { filters } = this.state
-    const { setFilters } = this
+    const { filters, to, from } = this.state
+    const { setFilters, setToFrom } = this
 
     return (
       <FiltersContext.Provider
         value={{
-          filters: pruneFilters(filters),
+          filters,
+          to,
+          from,
           setFilters,
+          setToFrom,
           conditions: filters
         }}
       >
