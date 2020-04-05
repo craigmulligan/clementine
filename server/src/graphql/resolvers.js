@@ -64,7 +64,6 @@ module.exports = {
         orderBy = { field: 'count', asc: false }
       }
 
-      console.log(traceFilters)
       const limit = 7
       const [cursor] = Cursor.decode(after)
       const nodes = await Trace.findAllOperations(
@@ -86,6 +85,7 @@ module.exports = {
       }
     },
     rpm: async (_, { graphId, operationId, to, from }, { req }) => {
+      console.log({ to, from })
       let operationKey
       if (operationId) {
         operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
@@ -159,7 +159,6 @@ module.exports = {
       return Key.findAll({ graphId: id })
     },
     keyMetrics: ({ id, ...rest }, args) => {
-      console.log({ args }, rest)
       return Trace.findKeyMetrics([
         ...args.traceFilters,
         { field: 'graphId', operator: 'eq', value: id }
