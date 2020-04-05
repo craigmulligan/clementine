@@ -35,7 +35,8 @@ export default function TimeLine({ graphId, operationId }) {
       graphId,
       operationId,
       to,
-      from
+      from,
+      traceFilters: filters
     }
   })
 

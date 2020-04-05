@@ -4,14 +4,13 @@ import { gql } from 'apollo-boost'
 const FiltersContext = React.createContext()
 
 
-
 class FiltersProvider extends Component {
   // Context state
-  //
   state = {
     filters: [],
     to: Date.now(),
-    from: Date.now() - 86400000
+    from: Date.now() - 86400000,
+    isVisible: false,
   }
 
   // Method to update state
@@ -23,10 +22,14 @@ class FiltersProvider extends Component {
     this.setState({ to, from })
   }
 
+  toggleVisibility = () => {
+    this.setState(({ isVisible }) => ({ isVisible: !isVisible }))
+  }
+
   render() {
     const { children } = this.props
     const { filters, to, from } = this.state
-    const { setFilters, setToFrom } = this
+    const { setFilters, setToFrom, toggleVisibility } = this
 
     return (
       <FiltersContext.Provider
@@ -34,6 +37,7 @@ class FiltersProvider extends Component {
           filters,
           to,
           from,
+          toggleVisibility,
           setFilters,
           setToFrom,
           conditions: filters
