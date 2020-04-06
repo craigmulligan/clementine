@@ -1,24 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'wouter'
 import Chart from './chart'
 import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
-
-function printDuration(nanoSeconds) {
-  const microSeconds = Math.round(nanoSeconds / 1000)
-  if (microSeconds > 1000) {
-    const ms = Math.round(microSeconds / 1000)
-    return `${ms} ms`
-  }
-
-  return `${microSeconds} µs`
-}
+import { FiltersContext } from '../trace'
+import { printDuration } from '../utils'
 
 const LATENCY_DISTRIBUTION = gql`
-  query latencyDistribution($graphId: ID!, $operationId: ID) {
-    latencyDistribution(graphId: $graphId, operationId: $operationId) {
+  query latencyDistribution($graphId: ID!, $operationId: ID, $traceFilters: [TraceFilter], $to: DateTime, $from: DateTime) {
+    latencyDistribution(graphId: $graphId, operationId: $operationId, traceFilters: $traceFilters, to: $to, from: $from) {
       nodes {
         duration
         count
@@ -38,10 +30,14 @@ const renderTooltip = (
 )
 
 export default function TimeLine({ graphId, operationId }) {
+  const { filters, to, from } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(LATENCY_DISTRIBUTION, {
     variables: {
       graphId,
-      operationId
+      operationId,
+      traceFilters: filters,
+      to,
+      from
     }
   })
 

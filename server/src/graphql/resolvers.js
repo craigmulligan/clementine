@@ -8,6 +8,22 @@ const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 const { Cursor } = require('./utils')
 
+
+function processDates(from, to) {
+  const dayMs = 86400000
+  if (!to) {
+    to = new Date()
+  }
+  if (!from) {
+    from = new Date(to - dayMs)
+  }
+
+  return {
+    from,
+    to
+  }
+}
+
 module.exports = {
   DateTime: DateTimeResolver,
   JSON: JSONResolver,
@@ -84,27 +100,43 @@ module.exports = {
         nodes
       }
     },
-    rpm: async (_, { graphId, operationId, to, from }, { req }) => {
-      console.log({ to, from })
+    rpm: async (_, { graphId, operationId, to, from, traceFilters }, { req }) => {
       let operationKey
       if (operationId) {
         operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
       }
 
-      const nodes = await Trace.findRPM({ graphId, operationKey }, to, from)
+      if (!traceFilters) {
+        traceFilters = []
+      }
+
+      const nodes = await Trace.findRPM([
+        ...traceFilters,
+        { field: 'graphId', operator: 'eq', value: graphId },
+        operationId && { field: 'operationKey', operator: 'eq', value: operationKey }
+      ], processDates(from, to))
 
       return {
         nodes,
         cursor: ''
       }
     },
-    latencyDistribution: async (_, { graphId, operationId }, { req }) => {
+    latencyDistribution: async (_, { graphId, operationId, traceFilters, to, from }, { req }) => {
       let operationKey
       if (operationId) {
         operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
       }
 
-      const nodes = await Trace.latencyDistribution({ graphId, operationKey })
+      if (!traceFilters) {
+        traceFilters = []
+      }
+
+
+      const nodes = await Trace.latencyDistribution([
+        ...traceFilters,
+        { field: 'graphId', operator: 'eq', value: graphId },
+        operationId && { field: 'operationKey', operator: 'eq', value: operationKey }
+      ], processDates(from, to))
 
       return {
         nodes,
@@ -158,9 +190,13 @@ module.exports = {
     keys: ({ id }) => {
       return Key.findAll({ graphId: id })
     },
-    keyMetrics: ({ id, ...rest }, args) => {
+    keyMetrics: ({ id }, { traceFilters }) => {
+      if (!traceFilters) {
+        traceFilters = []
+      }
+
       return Trace.findKeyMetrics([
-        ...args.traceFilters,
+        ...traceFilters,
         { field: 'graphId', operator: 'eq', value: id }
       ])
     }

@@ -9,7 +9,12 @@ const Operators = {
 }
 
 function compileTraceFilters(filters) {
-  const q = filters.map(f => {
+  const q = filters.filter(f => {
+    if (!f) {
+      return false
+    }
+    return !!(f.field && f.value && f.operator)
+  }).map(f => {
     return sql.join(
       [sql`${sql.identifier([f.field])}`, sql`${f.value}`],
       Operators[f.operator]
@@ -189,21 +194,7 @@ module.exports = {
 
     return db.one(query)
   },
-  async findRPM({ graphId, operationKey }, to, from, interval) {
-    // cursor is a expected to be a date object.
-    let operationClause = sql``
-    if (operationKey) {
-      operationClause = sql` AND key=${operationKey}`
-    }
-
-    const dayMs = 86400000
-    if (!to) {
-      to = new Date()
-    }
-    if (!from) {
-      from = new Date(to - dayMs)
-    }
-
+  async findRPM(traceFilters, { to, from }) {
     const gap = to - from
     // we always have 100 "intervals in the series".
     // probably a smart way to do this in postgres instead.
@@ -214,8 +205,8 @@ module.exports = {
       ),
       rpm as (
         select "startTime", "hasErrors" from traces
-        WHERE "graphId"=${graphId}
-        ${operationClause}
+        WHERE ${compileTraceFilters(traceFilters)}
+        AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
       )
 
       SELECT
@@ -231,20 +222,18 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  async latencyDistribution({ graphId, operationKey }) {
+  async latencyDistribution(traceFilters, { to, from }) {
     // this is not bound by time may have to do for bigger data sets.
-    let operationClause = sql``
-    if (operationKey) {
-      operationClause = sql` AND key=${operationKey}`
-    }
+    const tfs = compileTraceFilters(traceFilters)
+
     const query = sql`
       WITH min_max AS (
           SELECT
               min(duration) AS min_val,
               max(duration) AS max_val
           FROM traces
-          WHERE "graphId"=${graphId}
-          ${operationClause}
+          where ${tfs}
+          AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
           AND NOT "hasErrors"
       )
       SELECT
@@ -253,7 +242,8 @@ module.exports = {
           count(*),
           width_bucket(duration, min_val, max_val, 50) AS bucket
       FROM traces, min_max
-      WHERE "graphId"=${graphId}
+      WHERE ${tfs}
+      AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
       AND NOT "hasErrors"
       GROUP BY bucket
       ORDER BY bucket;

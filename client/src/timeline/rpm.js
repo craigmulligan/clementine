@@ -13,11 +13,11 @@ import {
   LineSeries,
   PointSeries
 } from '@data-ui/xy-chart'
-import { Filters, FiltersContext } from '../trace'
+import { FiltersContext } from '../trace'
 
 const TRACE_LIST = gql`
-  query RPM($graphId: ID!, $operationId: ID, $to: DateTime, $from: DateTime) {
-    rpm(graphId: $graphId, operationId: $operationId, to: $to, from: $from) {
+  query RPM($graphId: ID!, $operationId: ID, $to: DateTime, $from: DateTime, $traceFilters: [TraceFilter]) {
+    rpm(graphId: $graphId, operationId: $operationId, to: $to, from: $from, traceFilters: $traceFilters) {
       nodes {
         startTime
         count
@@ -55,7 +55,6 @@ export default function TimeLine({ graphId, operationId }) {
 
   return (
     <div>
-      <Filters graphId={graphId} />
       <Chart
         ariaLabel="RPM"
         xScale={{ type: 'time' }}
