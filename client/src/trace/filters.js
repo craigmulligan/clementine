@@ -5,6 +5,7 @@ import { Loading, ErrorBanner } from '../utils'
 import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
 import FiltersContext from './filtersContext'
+import DateTimeRangePicker from 'react-datetimerange-picker';
 
 const TRACE_FILTER_OPTIONS = gql`
   query traceFilterOptions($graphId: ID!) {
@@ -45,7 +46,7 @@ function processFilters(data) {
 }
 
 export default function TraceFilters({ graphId, onChange }) {
-  const { conditions, setFilters, setToFrom } = useContext(FiltersContext)
+  const { conditions, setFilters, setToFrom, } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
       graphId
@@ -56,23 +57,6 @@ export default function TraceFilters({ graphId, onChange }) {
   if (error) return <ErrorBanner error={error} />
 
   // Todo we should just have an arbitrary way to select to - from.
-  const defaultFields = [{
-    label: "interval",
-    name: "interval",
-    operators: ["eq"],
-    type: "list",
-    list: [{
-      label: "Last Month",
-      name: "month",
-    }, {
-      label: "Last Day",
-      name: "day"
-    }, {
-      label: "Last Hour",
-      name: "hour"
-    }]
-  }]
-
   const fields = Object.entries(data.traceFilterOptions)
     .filter(([k, v]) => {
       if (k === '__typename') {
@@ -101,18 +85,18 @@ export default function TraceFilters({ graphId, onChange }) {
 
   return (
     <div className={styles.wrapper}>
+      <span>From:
+      <DateTimeRangePicker
+        onChange={setToFrom}
+        value={[to, from]}
+        />
+     </span>
       <VisualFilter
         conditions={conditions}
-        fields={[...defaultFields, ...fields]}
+        fields={fields}
         dateFormat="Y-M-D"
         onChange={data => {
-          const { filters, to, from } = processFilters(data)
-          setFilters(filters)
-          setToFrom({ to, from })
-
-          if (typeof onChange === 'function') {
-            onChange(data)
-          }
+          setFilters(data)
         }}
       />
     </div>

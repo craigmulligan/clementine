@@ -14,33 +14,29 @@ class FiltersProvider extends Component {
     isVisible: false,
   }
 
-  // Method to update state
-  setFilters = filters => {
-    this.setState({ filters }, () => {
-       localStorage.setItem("__filters__", JSON.stringify(this.state));
-    })
+  backUp = () => {
+    localStorage.setItem("__filters__", JSON.stringify(this.state));
   }
 
-  setToFrom = ({ to, from }) => {
-    this.setState({ to, from }, () => {
-       localStorage.setItem("__filters__", JSON.stringify(this.state));
-    })
+  // Method to update state
+  setFilters = filters => {
+    this.setState({ filters }, this.backUp)
+  }
+
+  setToFrom = ([ to, from ]) => {
+    this.setState({ to, from }, this.backUp)
   }
 
   toggleVisibility = () => {
-    this.setState(({ isVisible }) => ({ isVisible: !isVisible }), () => {
-       localStorage.setItem("__filters__", JSON.stringify(this.state));
-    })
+    this.setState(({ isVisible }) => ({ isVisible: !isVisible }), this.backUp)
   }
 
   componentDidMount = () => {
     try {
       const newState = localStorage.getItem("__filters__")
       const hydratedState = JSON.parse(newState)
-      console.log({ hydratedState })
       this.setState(hydratedState)
     } catch (e) {
-      console.log(e)
       logger.warn("Could not parse saved filters")
     }
   }
