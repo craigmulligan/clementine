@@ -134,6 +134,8 @@ module.exports = gql`
       graphId: ID!
       operationId: ID
       orderBy: TraceOrderBy
+      from: DateTime
+      to: DateTime
       after: String
       traceFilters: [TraceFilter]
     ): TraceConnection
@@ -141,11 +143,15 @@ module.exports = gql`
       graphId: ID!
       orderBy: OperationOrderBy
       after: String
+      from: DateTime
+      to: DateTime
       traceFilters: [TraceFilter]
     ): OperationConnection
     latencyDistribution(
       graphId: ID!
       operationId: ID
+      from: DateTime
+      to: DateTime
       traceFilters: [TraceFilter]
     ): LatencyDistributionConnection!
     rpm(

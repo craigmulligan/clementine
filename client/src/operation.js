@@ -6,7 +6,7 @@ import { Loading, ErrorBanner } from './utils'
 import { Link } from 'wouter'
 import KeyMetrics from './keyMetrics'
 import { print } from 'graphql/language/printer'
-import { TraceList, Filters, FiltersContext } from './trace'
+import { TraceList, FiltersContext } from './trace'
 
 function getOperationTypes(doc) {
   let operationTypes = []
@@ -129,7 +129,6 @@ export function OperationList({ graphId }) {
 
   return (
     <div>
-      <Filters graphId={graphId} />
       <button
         onClick={() => {
           setOrderAsc(prev => !prev)

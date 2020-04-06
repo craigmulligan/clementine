@@ -41,7 +41,7 @@ function processFilters(data) {
     }
 
     return acc
-  }, { filters:[], to: null, from: null })
+  }, { filters: [], to: null, from: null })
 }
 
 export default function TraceFilters({ graphId, onChange }) {

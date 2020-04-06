@@ -1,5 +1,6 @@
 import React, { Component, useContext } from 'react'
 import { gql } from 'apollo-boost'
+import logger from 'loglevel'
 
 const FiltersContext = React.createContext()
 
@@ -15,15 +16,33 @@ class FiltersProvider extends Component {
 
   // Method to update state
   setFilters = filters => {
-    this.setState({ filters })
+    this.setState({ filters }, () => {
+       localStorage.setItem("__filters__", JSON.stringify(this.state));
+    })
   }
 
   setToFrom = ({ to, from }) => {
-    this.setState({ to, from })
+    this.setState({ to, from }, () => {
+       localStorage.setItem("__filters__", JSON.stringify(this.state));
+    })
   }
 
   toggleVisibility = () => {
-    this.setState(({ isVisible }) => ({ isVisible: !isVisible }))
+    this.setState(({ isVisible }) => ({ isVisible: !isVisible }), () => {
+       localStorage.setItem("__filters__", JSON.stringify(this.state));
+    })
+  }
+
+  componentDidMount = () => {
+    try {
+      const newState = localStorage.getItem("__filters__")
+      const hydratedState = JSON.parse(newState)
+      console.log({ hydratedState })
+      this.setState(hydratedState)
+    } catch (e) {
+      console.log(e)
+      logger.warn("Could not parse saved filters")
+    }
   }
 
   render() {
