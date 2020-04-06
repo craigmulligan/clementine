@@ -8,6 +8,7 @@ module.exports.up = async function(next) {
       id uuid PRIMARY KEY,
       "graphId" uuid REFERENCES graphs (id) ON DELETE CASCADE NOT NULL,
       key text NOT NULL,
+      "operationId" uuid NOT NULL,
       duration float NOT NULL,
       "startTime" timestamp with time zone NOT NULL,
       "endTime" timestamp with time zone NOT NULL,
@@ -20,7 +21,7 @@ module.exports.up = async function(next) {
       "hasErrors" boolean NOT NULL
     );
 
-    
+
   `)
 
   await db.query(sql`

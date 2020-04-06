@@ -34,6 +34,8 @@ const OPERATION_LIST = gql`
     $graphId: ID!
     $orderBy: OperationOrderBy
     $after: String
+    $to: DateTime
+    $from: DateTime
     $traceFilters: [TraceFilter]
   ) {
     operations(
@@ -41,6 +43,8 @@ const OPERATION_LIST = gql`
       orderBy: $orderBy
       after: $after
       traceFilters: $traceFilters
+      to: $to
+      from: $from
     ) {
       nodes {
         id
@@ -57,7 +61,7 @@ const OPERATION_LIST = gql`
   }
 `
 
-export function OperationHeader({ graphId, operationId }) {
+export function OperationHeader({ graphId, operationId, keyMetrics }) {
   return (
     <div>
       <header>
@@ -105,7 +109,7 @@ export function OperationShow({ graphId, operationId }) {
 }
 
 export function OperationList({ graphId }) {
-  const { setFilters, filters } = useContext(FiltersContext)
+  const { setFilters, filters, to, from } = useContext(FiltersContext)
   const [orderField, setOrderField] = useState('count')
   const [orderAsc, setOrderAsc] = useState(false)
 
@@ -114,8 +118,10 @@ export function OperationList({ graphId }) {
       graphId,
       orderBy: {
         field: orderField,
-        asc: orderAsc
+        asc: orderAsc,
       },
+      to,
+      from,
       traceFilters: filters
     }
   })
@@ -206,7 +212,7 @@ export function OperationList({ graphId }) {
                     // Put the new comments in the front of the list
                     ...fetchMoreResult.operations,
                     nodes
-                  }
+                  },
                 }
               }
             })

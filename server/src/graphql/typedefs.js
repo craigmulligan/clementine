@@ -62,7 +62,7 @@ module.exports = gql`
     createdAt: DateTime!
     user: User
     keys: [Key]!
-    keyMetrics(traceFilters: [TraceFilter]): KeyMetics
+    keyMetrics(traceFilters: [TraceFilter], from: DateTime, to: DateTime): KeyMetics
   }
 
   type KeyMetics {
@@ -82,7 +82,7 @@ module.exports = gql`
   type Operation {
     id: String!
     key: String!
-    keyMetrics(traceFilters: [TraceFilter]): KeyMetics
+    keyMetrics(traceFilters: [TraceFilter], from: DateTime, to: DateTime): KeyMetics
   }
 
   type OperationConnection {

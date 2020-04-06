@@ -1,3 +1,5 @@
+const uuidByString = require('uuid-by-string')
+
 const extractErrors = (node, acc = []) => {
   if (node.error.length > 0) {
     acc.push(...node.error)
@@ -24,6 +26,7 @@ function prepareTraces(report) {
         return {
           schemaTag: report.header.schemaTag,
           key,
+          operationId: uuidByString(key),
           ...trace,
           startTime: parseTS(trace.endTime),
           endTime: parseTS(trace.startTime),

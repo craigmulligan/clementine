@@ -102,11 +102,11 @@ export function GraphCreate() {
 }
 
 const SHOW_GRAPH = gql`
-  query GRAPH_SHOW($graphId: ID!, $traceFilters: [TraceFilter]) {
+  query GRAPH_SHOW($graphId: ID!, $traceFilters: [TraceFilter], $from: DateTime, $to: DateTime) {
     graph(graphId: $graphId) {
       id
       name
-      keyMetrics(traceFilters: $traceFilters) {
+      keyMetrics(traceFilters: $traceFilters, from: $from, to: $to) {
         count
         duration
         errorCount
@@ -117,9 +117,9 @@ const SHOW_GRAPH = gql`
 `
 
 export function GraphHeader({ graphId }) {
-  const { filters } = useContext(FiltersContext)
+  const { filters, from, to } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(SHOW_GRAPH, {
-    variables: { graphId, traceFilters: filters }
+    variables: { graphId, traceFilters: filters, from, to }
   })
 
   if (loading) return <Loading />
@@ -201,7 +201,7 @@ export function GraphSettings({ graphId }) {
     <div>
       <h2>{data.graph.name}</h2>
       <p>API Keys</p>
-
+      <KeyCreate graphId={data.graph.id} />
       <KeyList keys={data.graph.keys} />
     </div>
   )

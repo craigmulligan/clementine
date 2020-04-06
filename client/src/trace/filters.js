@@ -5,7 +5,6 @@ import { Loading, ErrorBanner } from '../utils'
 import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
 import FiltersContext from './filtersContext'
-import DateTimeRangePicker from 'react-datetimerange-picker';
 
 const TRACE_FILTER_OPTIONS = gql`
   query traceFilterOptions($graphId: ID!) {
@@ -17,36 +16,8 @@ const TRACE_FILTER_OPTIONS = gql`
   }
 `
 
-function processFilters(data) {
-  return data.map(({ field, operator, value }) => ({
-    field,
-    operator,
-    value
-  })).reduce((acc, v) => {
-    if (v.field === "interval") {
-      const to = Date.now()
-      acc.to = to
-      if (v.value === 'hour') {
-        acc.from = to - (1000 * 60 * 60)
-      }
-
-      if (v.value === 'day') {
-        acc.from = to - (1000 * 60 * 60 * 24)
-      }
-
-      if (v.value === 'month') {
-        acc.from = to - (1000 * 60 * 60 * 24 * 30)
-      }
-    } else {
-      acc.filters.push(v)
-    }
-
-    return acc
-  }, { filters: [], to: null, from: null })
-}
-
 export default function TraceFilters({ graphId, onChange }) {
-  const { conditions, setFilters, setToFrom, } = useContext(FiltersContext)
+  const { conditions, setFilters, setFilterInterval, filterInterval } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
       graphId
@@ -85,16 +56,16 @@ export default function TraceFilters({ graphId, onChange }) {
 
   return (
     <div className={styles.wrapper}>
-      <span>From:
-      <DateTimeRangePicker
-        onChange={setToFrom}
-        value={[to, from]}
-        />
-     </span>
+    <select value={filterInterval} onChange={(v) => {
+        setFilterInterval(v.target.value)
+      }}>
+        <option value="hour">Last hour</option>
+        <option value="day">Last day</option>
+        <option value="month">Last month</option>
+      </select>
       <VisualFilter
         conditions={conditions}
         fields={fields}
-        dateFormat="Y-M-D"
         onChange={data => {
           setFilters(data)
         }}

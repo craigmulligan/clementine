@@ -26,10 +26,13 @@ function compileTraceFilters(filters) {
 
 module.exports = {
   async create(graphId, traces) {
+    // TODO
+    // Add details, cacheHits
     const values = traces.map(trace => {
       const {
         durationNs,
         key,
+        operationId,
         startTime,
         endTime,
         root,
@@ -51,12 +54,13 @@ module.exports = {
         !!hasErrors,
         clientName,
         clientVersion,
-        schemaTag
+        schemaTag,
+        operationId
       ]
     })
 
     const query = sql`
-      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors", "clientName", "clientVersion", "schemaTag")
+      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors", "clientName", "clientVersion", "schemaTag", "operationId")
       SELECT *
       FROM ${sql.unnest(values, [
         'uuid',
@@ -69,34 +73,26 @@ module.exports = {
         'bool',
         'text',
         'text',
-        'text'
+        'text',
+        'uuid'
       ])}
       RETURNING id
       ;
     `
 
-    // const query = format(
-    // `
-    // INSERT INTO traces (id, key, "graphId", duration, "startTime", "endTime", root, "schemaTag", details, "hasErrors")
-    // VALUES %L
-    // RETURNING id;
-    // `,
-    // values
-    // )
-
     const { rows } = await db.query(query)
     return rows
   },
   async findAll(
-    { graphId, operationKey },
+    traceFilters = [],
     orderBy = { field: 'duration', asc: false },
     cursor,
+    { to, from },
     limit = 7
   ) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
     let orderDirection = sql``
-    let operationClause = sql``
 
     if (cursor) {
       if (orderBy.asc) {
@@ -112,15 +108,11 @@ module.exports = {
       orderDirection = sql` desc`
     }
 
-    if (operationKey) {
-      operationClause = sql` AND key=${operationKey}`
-    }
-
     const query = sql`
     SELECT * from (
       SELECT * FROM traces
-      WHERE "graphId"=${graphId}
-      ${operationClause}
+      WHERE ${compileTraceFilters(traceFilters)}
+      AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
       order by ${sql.identifier([
         orderBy.field
       ])}${orderDirection}, key ${orderDirection}
@@ -132,11 +124,11 @@ module.exports = {
     return rows
   },
   async findAllOperations(
-    { graphId },
+    traceFilters = [],
     orderBy = { field: 'count', asc: false },
     cursor,
+    { to, from },
     limit,
-    traceFilters = []
   ) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
@@ -156,20 +148,17 @@ module.exports = {
       orderDirection = sql` desc`
     }
 
-    const fs = compileTraceFilters([
-      ...traceFilters,
-      { value: graphId, field: 'graphId', operator: 'eq' }
-    ])
-
     const query = sql`
     SELECT * from (
-      SELECT *, (100 * "errorCount"/count) as "errorPercent" from
-        (SELECT key, PERCENTILE_CONT(0.95)
+      SELECT *, (CASE WHEN count = 0 THEN 0 ELSE (100 * "errorCount"/count) END) as "errorPercent"
+        from
+        (SELECT key, "operationId" as id, PERCENTILE_CONT(0.95)
           within group (order by duration asc) as duration,
           count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
           count(id) as count FROM traces
-          WHERE ${fs}
-          group by key
+          WHERE ${compileTraceFilters(traceFilters)}
+          AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
+          group by key, "operationId"
         ) as ops order by ${sql.identifier([
           orderBy.field
         ])}${orderDirection}, key ${orderDirection}
@@ -180,16 +169,18 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  findKeyMetrics(traceFilters = []) {
+  findKeyMetrics(traceFilters = [], { to, from }) {
     const query = sql`
           select *,
-          (100 * "errorCount"/count) as "errorPercent"
+          (CASE WHEN duration IS NULL then 0 ELSE duration END) as "duration",
+          (CASE WHEN count = 0 THEN 0 ELSE (100 * "errorCount"/count) END) as "errorPercent"
           from (
             select count(id) as count,
             count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
             PERCENTILE_CONT(0.95) within group (order by duration asc) as duration
             FROM traces
             WHERE ${compileTraceFilters(traceFilters)}
+            AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
           ) as graphKeyMetrics;`
 
     return db.one(query)
@@ -198,7 +189,9 @@ module.exports = {
     const gap = to - from
     // we always have 100 "intervals in the series".
     // probably a smart way to do this in postgres instead.
-    const intervalMin = Math.floor(gap / 1000 / 60 / 100) + ' minute'
+    const interval = Math.floor(gap / 1000 / 60 / 100) || 1
+    const intervalMin = interval + ' minute'
+
     const query = sql`
       with series as (
         select interval from generate_series(date_round(${from.toUTCString()}, ${intervalMin}), date_round(${to.toUTCString()}, ${intervalMin}), (${intervalMin})::INTERVAL) as interval

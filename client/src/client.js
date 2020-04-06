@@ -4,7 +4,7 @@ const client = new ApolloClient({
   uri: 'http://localhost:3000/api/graphql',
   credentials: 'include',
   name: 'webApp',
-  version: '0.2.0'
+  version: '0.0.2'
 })
 
 export default client
