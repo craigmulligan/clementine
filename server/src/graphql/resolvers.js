@@ -40,23 +40,27 @@ module.exports = {
       // TODO permissions
       return Graph.findById(graphId)
     },
-    traces: async (_, { graphId, after, operationId, orderBy }, { req }) => {
+    traces: async (_, { graphId, after, operationId, orderBy, to, from, traceFilters }, { req }) => {
       // TODO permissions
-      let operationKey
+      //
+      if (!traceFilters) {
+        traceFilters = []
+      }
       if (!orderBy) {
         orderBy = { field: 'duration', asc: false }
       }
 
-      if (operationId) {
-        operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
-      }
       const limit = 10
       const [cursor] = Cursor.decode(after)
-
       const nodes = await Trace.findAll(
-        { graphId, operationKey },
+         [
+          ...traceFilters,
+          { field: 'graphId', operator: 'eq', value: graphId },
+          operationId && { field: 'operationId', operator: 'eq', value: operationId }
+        ],
         orderBy,
         cursor,
+        processDates(from, to),
         limit
       )
 
@@ -72,7 +76,7 @@ module.exports = {
     },
     operations: async (
       _,
-      { graphId, orderBy, after, traceFilters },
+      { graphId, orderBy, after, traceFilters, to, from },
       { req }
     ) => {
       // TODO permissions
@@ -80,14 +84,20 @@ module.exports = {
         orderBy = { field: 'count', asc: false }
       }
 
+      if (!traceFilters) {
+        traceFilters = []
+      }
+
       const limit = 7
       const [cursor] = Cursor.decode(after)
-      const nodes = await Trace.findAllOperations(
-        { graphId },
+      const nodes = await Trace.findAllOperations([
+          ...traceFilters,
+          { field: 'graphId', operator: 'eq', value: graphId },
+        ],
         orderBy,
         cursor,
+        processDates(from, to),
         limit,
-        traceFilters
       )
 
       // we always fetch one more than we need to calculate hasNextPage
@@ -101,11 +111,6 @@ module.exports = {
       }
     },
     rpm: async (_, { graphId, operationId, to, from, traceFilters }, { req }) => {
-      let operationKey
-      if (operationId) {
-        operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
-      }
-
       if (!traceFilters) {
         traceFilters = []
       }
@@ -113,7 +118,7 @@ module.exports = {
       const nodes = await Trace.findRPM([
         ...traceFilters,
         { field: 'graphId', operator: 'eq', value: graphId },
-        operationId && { field: 'operationKey', operator: 'eq', value: operationKey }
+        operationId && { field: 'operationId', operator: 'eq', value: operationId }
       ], processDates(from, to))
 
       return {
@@ -122,11 +127,6 @@ module.exports = {
       }
     },
     latencyDistribution: async (_, { graphId, operationId, traceFilters, to, from }, { req }) => {
-      let operationKey
-      if (operationId) {
-        operationKey = Buffer.from(operationId, 'base64').toString('utf-8')
-      }
-
       if (!traceFilters) {
         traceFilters = []
       }
@@ -135,7 +135,7 @@ module.exports = {
       const nodes = await Trace.latencyDistribution([
         ...traceFilters,
         { field: 'graphId', operator: 'eq', value: graphId },
-        operationId && { field: 'operationKey', operator: 'eq', value: operationKey }
+        operationId && { field: 'operationId', operator: 'eq', value: operationId }
       ], processDates(from, to))
 
       return {
@@ -190,7 +190,7 @@ module.exports = {
     keys: ({ id }) => {
       return Key.findAll({ graphId: id })
     },
-    keyMetrics: ({ id }, { traceFilters }) => {
+    keyMetrics: ({ id }, { traceFilters, from, to }) => {
       if (!traceFilters) {
         traceFilters = []
       }
@@ -198,7 +198,7 @@ module.exports = {
       return Trace.findKeyMetrics([
         ...traceFilters,
         { field: 'graphId', operator: 'eq', value: id }
-      ])
+      ], processDates(from, to))
     }
   },
   User: {
@@ -215,9 +215,6 @@ module.exports = {
     }
   },
   Operation: {
-    id: ({ key }) => {
-      return Buffer.from(key).toString('base64')
-    },
     keyMetrics: ({ duration, count, errorCount, errorPercent }) => {
       return { duration, count, errorCount, errorPercent }
     }
