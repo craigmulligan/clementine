@@ -182,6 +182,9 @@ export function OperationList({ graphId }) {
             <Link key={op.id} to={`/graph/${graphId}/operation/${op.id}`}>
               <li>
                 <span>
+                  {op.id.substring(0, 5)}{' '}
+                </span>
+                <span>
                   <mark>{name ? name : op.id}</mark>
                 </span>
                 <KeyMetrics {...op.keyMetrics} />
