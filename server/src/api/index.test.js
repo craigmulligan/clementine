@@ -33,8 +33,21 @@ describe('/api/ingress', () => {
       .expect(403)
   })
 
-  test('uncompressed', () => {
-    // should handle uncompressed payloads too
+  test('uncompressed', async () => {
+    const request = require('supertest').agent(app)
+    const messageJSON = require('./__data__/traces.json')
+    const message = proto.FullTracesReport.fromObject(messageJSON)
+    const buffer = proto.FullTracesReport.encode(message).finish()
+
+    const user = await User.create('email@email.com', '123')
+    const graph = await Graph.create('myGraph', user.id)
+
+    // TODO create graph
+    await request
+      .post('/api/ingress/traces')
+      .set('x-api-key', graph.id + ':123')
+      .send(buffer)
+      .expect(201)
   })
 
   test('Happy path', async () => {
@@ -52,7 +65,13 @@ describe('/api/ingress', () => {
       .send(compressed)
       .expect(201)
 
-    const traces = await Trace.findAll({ graphId: graph.id })
+    const to = new Date('2020-04-20')
+    const from = new Date('2020-03-20')
+
+    const traces = await Trace.findAll(
+      [{ field: 'graphId', operator: 'eq', value: graph.id }],
+      { to, from }
+    )
     expect(traces.length).toBe(2)
     const t = traces[0]
     expect(t).toHaveProperty('id')
@@ -80,7 +99,13 @@ describe('/api/ingress', () => {
       .send(compressed)
       .expect(201)
 
-    const traces = await Trace.findAll({ graphId: graph.id })
+    const to = new Date('2020-04-20')
+    const from = new Date('2020-03-20')
+
+    const traces = await Trace.findAll(
+      [{ field: 'graphId', operator: 'eq', value: graph.id }],
+      { to, from }
+    )
     expect(traces.length).toBe(2)
     const t = traces[0]
     expect(t).toHaveProperty('id')
