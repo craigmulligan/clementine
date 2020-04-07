@@ -87,9 +87,9 @@ module.exports = {
   },
   async findAll(
     traceFilters = [],
+    { to, from },
     orderBy = { field: 'duration', asc: false },
     cursor,
-    { to, from },
     limit = 7
   ) {
     // get slowest by 95 percentile, count and group by key.
@@ -98,9 +98,9 @@ module.exports = {
 
     if (cursor) {
       if (orderBy.asc) {
-        cursorClause = sql` where key >= ${cursor}`
+        cursorClause = sql` where id >= ${cursor}`
       } else {
-        cursorClause = sql` where key <= ${cursor}`
+        cursorClause = sql` where id <= ${cursor}`
       }
     }
 
@@ -140,16 +140,14 @@ module.exports = {
     cursor,
     limit = 1
   ) {
+    // TODO clean up this query had to use row_number for pagination because sort by uuid + other order was
+    // giving inconsistent results
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
     let orderDirection = sql``
 
-    if (cursor) {
-      if (orderBy.asc) {
-        cursorClause = sql` where key >= ${cursor}`
-      } else {
-        cursorClause = sql` where key <= ${cursor}`
-      }
+    if (cursor.length > 0) {
+      cursorClause = sql` where ${sql.identifier([cursor[1]])} >= ${cursor[0]}`
     }
 
     if (orderBy.asc) {
@@ -159,19 +157,29 @@ module.exports = {
     }
 
     const query = sql`
-    SELECT * from (
-      SELECT *, (CASE WHEN count = 0 THEN 0 ELSE (100 * "errorCount"/count) END) as "errorPercent"
-        from
-        (SELECT key, "operationId" as id, PERCENTILE_CONT(0.95)
+    with ops as (
+        select *, 
+        (CASE WHEN count = 0 THEN 0 ELSE (100 * "errorCount"/count) END) as "errorPercent"
+        from (
+          SELECT  key, "operationId" as id, PERCENTILE_CONT(0.95)
           within group (order by duration asc) as duration,
           count(CASE WHEN "hasErrors" THEN 1 END) as "errorCount",
           count(id) as count FROM traces
           WHERE ${compileTraceFilters(traceFilters)}
           AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
           group by key, "operationId"
-        ) as ops order by ${sql.identifier([
-          orderBy.field
-        ])}${orderDirection}, key ${orderDirection}
+        ) opsWithErrorRate
+    )
+
+    SELECT * from (
+      SELECT
+        *,
+        row_number() over (
+          order by ${sql.identifier(['ops', orderBy.field])}${orderDirection}
+        ) as "rowNumber",
+        (CASE WHEN count = 0 THEN 0 ELSE (100 * "errorCount"/count) END) as "errorPercent"
+      from ops
+      order by ${sql.identifier(['ops', orderBy.field])}${orderDirection}
     ) as orderedOps
     ${cursorClause}
     limit ${limit}`
@@ -269,5 +277,5 @@ module.exports = {
     `
 
     return db.one(query)
-  },
+  }
 }

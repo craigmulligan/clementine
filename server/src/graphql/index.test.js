@@ -299,26 +299,30 @@ describe('keys', () => {
 })
 
 describe('operations', () => {
-  test('can list by graph', async () => {
-    const request = require('supertest').agent(app)
-    const email = 'xx@gmail.com',
-      password = 'yy'
-    const user = await User.create(email, password)
-    await userLogin(request)
-    const graph = await Graph.create('myGraph', user.id)
+  beforeEach(async () => {
+    await exec(
+      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
+    )
+  })
 
-    const messageJSON = require('../api/__data__/traces.json')
-    const message = proto.FullTracesReport.fromObject(messageJSON)
-    const traces = prepareTraces(message)
-    const results = await Trace.create(graph.id, traces)
+  test('can list by graph', async () => {
+    await exec(
+      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
+    )
+    const request = require('supertest').agent(app)
+    const graphId = '770101a9-c787-406c-8ce1-9b22f3349d0a'
+    await userLogin(request, 'x@x.com', '123')
+
+    from = new Date('2020-04-04')
+    to = new Date('2020-04-07')
 
     const query = `
       query cg {
-        operations(graphId: "${graph.id}") {
+        operations(graphId: "${graphId}", to: "${to}" from: "${from}") {
           nodes {
             id
             key
-            keyMetrics {
+            stats {
               count
               duration
             }
@@ -337,38 +341,22 @@ describe('operations', () => {
       .then(async res => {
         const nodes = res.body.data.operations.nodes
         const firstNode = nodes[0]
-        expect(nodes.length).toBe(1)
-        expect(firstNode).toHaveProperty(
-          'key',
-          Buffer.from(firstNode.id, 'base64').toString()
-        )
-        expect(firstNode.keyMetrics).toHaveProperty('count', 2)
-        expect(firstNode.keyMetrics).toHaveProperty('duration')
+        expect(nodes.length).toBe(6)
+        expect(firstNode).toHaveProperty('key')
+        expect(firstNode.stats).toHaveProperty('count', 63)
+        expect(firstNode.stats).toHaveProperty('duration')
       })
   })
 
-  async function createTraces(graph, objs) {
-    for (obj of objs) {
-      const message = proto.FullTracesReport.fromObject(obj)
-      const traces = prepareTraces(message)
-      await Trace.create(graph.id, traces)
-    }
-  }
-
   test('can order by duration', async () => {
-    const request = require('supertest').agent(app)
-    const email = 'xx@gmail.com',
-      password = 'yy'
-    const user = await User.create(email, password)
-    await userLogin(request)
-    const graph = await Graph.create('myGraph', user.id)
-    await createTraces(
-      graph,
-      [
-        '../api/__data__/traces.json',
-        '../api/__data__/traces-with-error.json'
-      ].map(require)
+    await exec(
+      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
     )
+    const request = require('supertest').agent(app)
+    const graphId = '770101a9-c787-406c-8ce1-9b22f3349d0a'
+    await userLogin(request, 'x@x.com', '123')
+    from = new Date('2020-04-04')
+    to = new Date('2020-04-07')
 
     const orderBy = {
       field: 'duration',
@@ -377,11 +365,11 @@ describe('operations', () => {
 
     const query = `
       query cg {
-        operations(graphId: "${graph.id}", orderBy: { field: duration, asc: false }) {
+        operations(graphId: "${graphId}", to: "${to}", from: "${from}" orderBy: { field: duration, asc: false }) {
           nodes {
             id
             key
-            keyMetrics {
+            stats {
               count
               duration
             }
@@ -389,7 +377,7 @@ describe('operations', () => {
           cursor
         }
       }
-    `
+      `
 
     await request
       .post('/api/graphql')
@@ -399,127 +387,66 @@ describe('operations', () => {
       .then(raiseGqlErr)
       .then(async res => {
         const nodes = res.body.data.operations.nodes
-        expect(nodes.length).toBe(3)
-        expect(nodes[0].keyMetrics.duration).toBeGreaterThan(
-          nodes[1].keyMetrics.duration
-        )
-        expect(nodes[1].keyMetrics.duration).toBeGreaterThan(
-          nodes[2].keyMetrics.duration
-        )
+        expect(nodes.length).toBe(6)
+        expect(nodes[0].stats.duration).toBeGreaterThan(nodes[1].stats.duration)
+        expect(nodes[1].stats.duration).toBeGreaterThan(nodes[2].stats.duration)
       })
   })
 
   test('can paginate with Cursor', async () => {
+    await exec(
+      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
+    )
     const request = require('supertest').agent(app)
-    const email = 'xx@gmail.com',
-      password = 'yy'
-    const user = await User.create(email, password)
-    await userLogin(request)
-    const graph = await Graph.create('myGraph', user.id)
-    // load alot of traces (does not matter that they are dupes)
-    const queryKeys = [...Array(50).keys()].map(() => uuid())
+    const graphId = '770101a9-c787-406c-8ce1-9b22f3349d0a'
+    await userLogin(request, 'x@x.com', '123')
+    from = new Date('2020-04-04')
+    to = new Date('2020-04-07')
 
-    const traceObjs = queryKeys.map(k => {
-      const template = require('../api/__data__/traces.json')
-      // here we just assign all the current traces to a new opId (uuid)
-      template.tracesPerQuery[k] =
-        template.tracesPerQuery['# GET_USER\nquery GET_USER{user{email id}}']
-      return template
-    })
-
-    await createTraces(graph, traceObjs)
-
-    const query = `
-      query cg {
-        operations(graphId: "${graph.id}") {
-          nodes {
-            id
-            key
-            keyMetrics {
-              count
-              duration
-            }
-          }
-          cursor
-        }
-      }
-    `
-
-    const res = await request
-      .post('/api/graphql')
-      .send({ query })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .then(raiseGqlErr)
-
-    expect(res.body.data.operations.nodes.length).toBe(6)
-
-    const queryWithCursor = `
-      query cg {
-        operations(graphId: "${graph.id}", after: "${res.body.data.operations.cursor}") {
-          nodes {
-            id
-            key
-            keyMetrics {
-              count
-              duration
-            }
-          }
-          cursor
-        }
-      }
-    `
-
-    const resWithCursor = await request
-      .post('/api/graphql')
-      .send({ query: queryWithCursor })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .then(raiseGqlErr)
-
-    expect(resWithCursor.body.data.operations.nodes.length).toBe(6)
-    // check that nothing from the first response is in the second.
-    for (node of resWithCursor.body.data.operations.nodes) {
-      expect(res.body.data.operations.nodes).not.toContainEqual(node)
-    }
-  })
-
-  describe('timeline', () => {
-    beforeEach(async () => {
-      await exec(
-        `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/db_dump.psql`
-      )
-    })
-
-    test.only('can query timeline by graph', async () => {
-      const request = require('supertest').agent(app)
-      await userLogin(request, 'x@x.com', '123')
-      const graphId = '03a74877-ccc1-402d-984c-6ff170ab4690'
-
+    const runQuery = cursor => {
       const query = `
-        query tl {
-          timeline(graphId: "${graphId}") {
+        query cg {
+          operations(graphId: "${graphId}", to: "${to}" from:"${from}" after: "${cursor}") {
             nodes {
-              id
-              bins {
-                id
-                count
-              }
+            id
+            key
+            stats {
+            count
+            duration
             }
+          }
+          cursor
           }
         }
       `
 
-      await request
+      return request
         .post('/api/graphql')
-        .send({ query })
+        .send({ query: query })
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json')
         .then(raiseGqlErr)
-        .then(async res => {
-          const nodes = res.body.data.timeline.nodes
-          expect(nodes.length).toBe(7)
-        })
+    }
+
+    let done = false
+    let cursor = ''
+    let results = []
+
+    while (!done) {
+      const res = await runQuery(cursor)
+      results.concat(res.body.data.operations.nodes)
+      if (res.body.data.operations.cursor === '') {
+        done = true
+      } else {
+        cursor = res.body.data.operations.cursor
+      }
+    }
+
+    results.map(op => {
+      // make sure there are no duplicates in our results
+      const isDupe = results.filter(o => o.id === op.id).map(({ id }) => id)
+        .length
+      expect(isDupe).toBeFalsy()
     })
   })
 })

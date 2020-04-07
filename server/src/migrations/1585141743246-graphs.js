@@ -21,7 +21,7 @@ module.exports.up = async function(next) {
 
 module.exports.down = async function(next) {
   await db.query(sql`
-  DROP TABLE graphs;
+  DROP TABLE graphs CASCADE;
   `)
 
   next()

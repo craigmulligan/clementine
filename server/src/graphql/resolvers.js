@@ -65,9 +65,9 @@ module.exports = {
             value: operationId
           }
         ],
+        processDates(from, to),
         orderBy,
         cursor,
-        processDates(from, to),
         limit
       )
 
@@ -76,16 +76,12 @@ module.exports = {
 
       return {
         cursor: hasNextPage
-          ? Cursor.encode(nodes.pop(), 'key', orderBy.asc)
+          ? Cursor.encode(nodes.pop(), 'id', orderBy.asc)
           : '',
         nodes
       }
     },
-    trace: async (
-      _,
-      { traceId },
-      { req }
-    ) => {
+    trace: async (_, { traceId }, { req }) => {
       return Trace.findById(traceId)
     },
     operations: async (
@@ -103,7 +99,7 @@ module.exports = {
       }
 
       const limit = 7
-      const [cursor] = Cursor.decode(after)
+      const cursor = Cursor.decode(after)
       const nodes = await Trace.findAllOperations(
         [...traceFilters, { field: 'graphId', operator: 'eq', value: graphId }],
         processDates(from, to),
@@ -117,7 +113,7 @@ module.exports = {
 
       return {
         cursor: hasNextPage
-          ? Cursor.encode(nodes.pop(), 'key', orderBy.asc)
+          ? Cursor.encode(nodes.pop(), 'rowNumber', orderBy.asc)
           : '',
         nodes
       }
