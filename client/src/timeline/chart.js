@@ -1,7 +1,5 @@
 /* eslint react/prop-types: 0 */
 import React from 'react'
-import { timeParse, timeFormat } from 'd3-time-format'
-
 import { XYChart, theme, withScreenSize, withTheme } from '@data-ui/xy-chart'
 
 // test that withTheme works

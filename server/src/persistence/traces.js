@@ -9,17 +9,19 @@ const Operators = {
 }
 
 function compileTraceFilters(filters) {
-  const q = filters.filter(f => {
-    if (!f) {
-      return false
-    }
-    return !!(f.field && f.value && f.operator)
-  }).map(f => {
-    return sql.join(
-      [sql`${sql.identifier([f.field])}`, sql`${f.value}`],
-      Operators[f.operator]
-    )
-  })
+  const q = filters
+    .filter(f => {
+      if (!f) {
+        return false
+      }
+      return !!(f.field && f.value && f.operator)
+    })
+    .map(f => {
+      return sql.join(
+        [sql`${sql.identifier([f.field])}`, sql`${f.value}`],
+        Operators[f.operator]
+      )
+    })
 
   return sql.join(q, sql` AND `)
 }
@@ -123,12 +125,20 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
+  findById(traceId) {
+    const query = sql`
+      SELECT * FROM traces
+      where "id" = ${traceId}
+    `
+
+    return db.one(query)
+  },
   async findAllOperations(
     traceFilters = [],
+    { to, from },
     orderBy = { field: 'count', asc: false },
     cursor,
-    { to, from },
-    limit,
+    limit = 1
   ) {
     // get slowest by 95 percentile, count and group by key.
     let cursorClause = sql``
@@ -169,7 +179,7 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
-  findKeyMetrics(traceFilters = [], { to, from }) {
+  findStats(traceFilters = [], { to, from }) {
     const query = sql`
           select *,
           (CASE WHEN duration IS NULL then 0 ELSE duration END) as "duration",
@@ -181,7 +191,7 @@ module.exports = {
             FROM traces
             WHERE ${compileTraceFilters(traceFilters)}
             AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
-          ) as graphKeyMetrics;`
+          ) as graphStats;`
 
     return db.one(query)
   },
@@ -259,5 +269,5 @@ module.exports = {
     `
 
     return db.one(query)
-  }
+  },
 }

@@ -5,8 +5,7 @@ import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from './utils'
 import { Link } from 'wouter'
 import KeyMetrics from './keyMetrics'
-import { print } from 'graphql/language/printer'
-import { TraceList, FiltersContext } from './trace'
+import { FiltersContext } from './trace'
 
 function getOperationTypes(doc) {
   let operationTypes = []
@@ -49,7 +48,7 @@ const OPERATION_LIST = gql`
       nodes {
         id
         key
-        keyMetrics {
+        stats {
           count
           errorCount
           errorPercent
@@ -61,12 +60,53 @@ const OPERATION_LIST = gql`
   }
 `
 
-export function OperationHeader({ graphId, operationId, keyMetrics }) {
+const OPERATION_HEADER = gql`
+  query operationHeader(
+    $graphId: ID!
+    $operationId: ID!
+    $to: DateTime
+    $from: DateTime
+    $traceFilters: [TraceFilter]
+  ) {
+    operation(
+      graphId: $graphId
+      operationId: $operationId
+      traceFilters: $traceFilters
+      to: $to
+      from: $from
+    ) {
+        id
+        key
+        stats {
+          count
+          errorCount
+          errorPercent
+          duration
+        }
+      }
+  }
+`
+
+export function OperationHeader({ graphId, operationId, stats }) {
+  const { filters, to, from } = useContext(FiltersContext)
+  const { loading, error, data } = useQuery(OPERATION_HEADER, {
+    variables: {
+      graphId,
+      operationId,
+      to,
+      from,
+      traceFilters: filters
+    }
+  })
+
+  if (loading) return <Loading />
+  if (error) return <ErrorBanner error={error} />
+
   return (
     <div>
       <header>
         <h2>{operationId}</h2>
-        <p>KeyMetrics will go here</p>
+        <KeyMetrics {...data.operation.stats} />
       </header>
       <hr />
     </div>
@@ -77,12 +117,6 @@ export function OperationShow({ graphId, operationId }) {
   return (
     <div>
       <ul>
-        <Link to={`/graph/${graphId}/operation/${operationId}/source`}>
-          <li>
-            <h4>Source</h4>
-            <small>View the full query string</small>
-          </li>
-        </Link>
         <Link to={`/graph/${graphId}/operation/${operationId}/trace`}>
           <li>
             <h4>Traces</h4>
@@ -109,7 +143,7 @@ export function OperationShow({ graphId, operationId }) {
 }
 
 export function OperationList({ graphId }) {
-  const { setFilters, filters, to, from } = useContext(FiltersContext)
+  const { filters, to, from } = useContext(FiltersContext)
   const [orderField, setOrderField] = useState('count')
   const [orderAsc, setOrderAsc] = useState(false)
 
@@ -118,7 +152,7 @@ export function OperationList({ graphId }) {
       graphId,
       orderBy: {
         field: orderField,
-        asc: orderAsc,
+        asc: orderAsc
       },
       to,
       from,
@@ -181,13 +215,11 @@ export function OperationList({ graphId }) {
           return (
             <Link key={op.id} to={`/graph/${graphId}/operation/${op.id}`}>
               <li>
-                <span>
-                  {op.id.substring(0, 5)}{' '}
-                </span>
+                <span>{op.id.substring(0, 5)} </span>
                 <span>
                   <mark>{name ? name : op.id}</mark>
                 </span>
-                <KeyMetrics {...op.keyMetrics} />
+                <KeyMetrics {...op.stats} />
                 <span>&nbsp;{operationTypes.join(' ')}</span>
               </li>
             </Link>
@@ -215,7 +247,7 @@ export function OperationList({ graphId }) {
                     // Put the new comments in the front of the list
                     ...fetchMoreResult.operations,
                     nodes
-                  },
+                  }
                 }
               }
             })
@@ -224,22 +256,6 @@ export function OperationList({ graphId }) {
           {data.operations.cursor.length === 0 ? 'no more' : 'more'}
         </button>
       </ul>
-    </div>
-  )
-}
-
-export function OperationSource({ children }) {
-  return (
-    <div>
-      <pre>
-        <code>
-          {print(
-            gql`
-              ${children}
-            `
-          )}
-        </code>
-      </pre>
     </div>
   )
 }

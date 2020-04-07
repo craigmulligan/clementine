@@ -62,10 +62,10 @@ module.exports = gql`
     createdAt: DateTime!
     user: User
     keys: [Key]!
-    keyMetrics(traceFilters: [TraceFilter], from: DateTime, to: DateTime): KeyMetics
+    stats(traceFilters: [TraceFilter], from: DateTime, to: DateTime): Stats
   }
 
-  type KeyMetics {
+  type Stats {
     count: Int!
     errorCount: Int!
     errorPercent: Int!
@@ -82,7 +82,7 @@ module.exports = gql`
   type Operation {
     id: String!
     key: String!
-    keyMetrics(traceFilters: [TraceFilter], from: DateTime, to: DateTime): KeyMetics
+    stats: Stats
   }
 
   type OperationConnection {
@@ -162,6 +162,21 @@ module.exports = gql`
       traceFilters: [TraceFilter]
     ): RPMConnection!
     traceFilterOptions(graphId: ID!): TraceFilterOptions
+    stats(
+      graphId: ID!
+      operationId: ID
+      from: DateTime
+      to: DateTime
+      traceFilters: [TraceFilter]
+    ): Stats
+    operation(
+      graphId: ID!
+      operationId: ID
+      from: DateTime
+      to: DateTime
+      traceFilters: [TraceFilter]
+    ): Operation
+    trace(traceId: ID!): Trace
   }
 
   type Mutation {

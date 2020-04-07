@@ -102,11 +102,16 @@ export function GraphCreate() {
 }
 
 const SHOW_GRAPH = gql`
-  query GRAPH_SHOW($graphId: ID!, $traceFilters: [TraceFilter], $from: DateTime, $to: DateTime) {
+  query GRAPH_SHOW(
+    $graphId: ID!
+    $traceFilters: [TraceFilter]
+    $from: DateTime
+    $to: DateTime
+  ) {
     graph(graphId: $graphId) {
       id
       name
-      keyMetrics(traceFilters: $traceFilters, from: $from, to: $to) {
+      stats(traceFilters: $traceFilters, from: $from, to: $to) {
         count
         duration
         errorCount
@@ -134,7 +139,7 @@ export function GraphHeader({ graphId }) {
       <header>
         <h2>{data.graph.name}</h2>
         <div>
-          <KeyMetics {...data.graph.keyMetrics} />
+          <KeyMetics {...data.graph.stats} />
         </div>
       </header>
       <hr />
