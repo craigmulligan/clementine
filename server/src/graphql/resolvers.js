@@ -8,7 +8,6 @@ const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 const { Cursor } = require('./utils')
 
-
 function processDates(from, to) {
   const dayMs = 86400000
   if (!to) {
@@ -40,7 +39,11 @@ module.exports = {
       // TODO permissions
       return Graph.findById(graphId)
     },
-    traces: async (_, { graphId, after, operationId, orderBy, to, from, traceFilters }, { req }) => {
+    traces: async (
+      _,
+      { graphId, after, operationId, orderBy, to, from, traceFilters },
+      { req }
+    ) => {
       // TODO permissions
       //
       if (!traceFilters) {
@@ -53,10 +56,14 @@ module.exports = {
       const limit = 10
       const [cursor] = Cursor.decode(after)
       const nodes = await Trace.findAll(
-         [
+        [
           ...traceFilters,
           { field: 'graphId', operator: 'eq', value: graphId },
-          operationId && { field: 'operationId', operator: 'eq', value: operationId }
+          operationId && {
+            field: 'operationId',
+            operator: 'eq',
+            value: operationId
+          }
         ],
         orderBy,
         cursor,
@@ -74,6 +81,13 @@ module.exports = {
         nodes
       }
     },
+    trace: async (
+      _,
+      { traceId },
+      { req }
+    ) => {
+      return Trace.findById(traceId)
+    },
     operations: async (
       _,
       { graphId, orderBy, after, traceFilters, to, from },
@@ -90,14 +104,12 @@ module.exports = {
 
       const limit = 7
       const [cursor] = Cursor.decode(after)
-      const nodes = await Trace.findAllOperations([
-          ...traceFilters,
-          { field: 'graphId', operator: 'eq', value: graphId },
-        ],
+      const nodes = await Trace.findAllOperations(
+        [...traceFilters, { field: 'graphId', operator: 'eq', value: graphId }],
+        processDates(from, to),
         orderBy,
         cursor,
-        processDates(from, to),
-        limit,
+        limit
       )
 
       // we always fetch one more than we need to calculate hasNextPage
@@ -110,38 +122,105 @@ module.exports = {
         nodes
       }
     },
-    rpm: async (_, { graphId, operationId, to, from, traceFilters }, { req }) => {
+    rpm: async (
+      _,
+      { graphId, operationId, to, from, traceFilters },
+      { req }
+    ) => {
       if (!traceFilters) {
         traceFilters = []
       }
 
-      const nodes = await Trace.findRPM([
-        ...traceFilters,
-        { field: 'graphId', operator: 'eq', value: graphId },
-        operationId && { field: 'operationId', operator: 'eq', value: operationId }
-      ], processDates(from, to))
+      const nodes = await Trace.findRPM(
+        [
+          ...traceFilters,
+          { field: 'graphId', operator: 'eq', value: graphId },
+          operationId && {
+            field: 'operationId',
+            operator: 'eq',
+            value: operationId
+          }
+        ],
+        processDates(from, to)
+      )
 
       return {
         nodes,
         cursor: ''
       }
     },
-    latencyDistribution: async (_, { graphId, operationId, traceFilters, to, from }, { req }) => {
+    latencyDistribution: async (
+      _,
+      { graphId, operationId, traceFilters, to, from },
+      { req }
+    ) => {
       if (!traceFilters) {
         traceFilters = []
       }
 
-
-      const nodes = await Trace.latencyDistribution([
-        ...traceFilters,
-        { field: 'graphId', operator: 'eq', value: graphId },
-        operationId && { field: 'operationId', operator: 'eq', value: operationId }
-      ], processDates(from, to))
+      const nodes = await Trace.latencyDistribution(
+        [
+          ...traceFilters,
+          { field: 'graphId', operator: 'eq', value: graphId },
+          operationId && {
+            field: 'operationId',
+            operator: 'eq',
+            value: operationId
+          }
+        ],
+        processDates(from, to)
+      )
 
       return {
         nodes,
         cursor: ''
       }
+    },
+    stats: async (
+      _,
+      { graphId, operationId, traceFilters, to, from },
+      { req }
+    ) => {
+      if (!traceFilters) {
+        traceFilters = []
+      }
+
+      return Trace.findStats(
+        [
+          ...traceFilters,
+          { field: 'graphId', operator: 'eq', value: graphId },
+          operationId && {
+            field: 'operationId',
+            operator: 'eq',
+            value: operationId
+          }
+        ],
+        processDates(from, to)
+      )
+    },
+    operation: async (
+      _,
+      { graphId, operationId, traceFilters, to, from },
+      { req }
+    ) => {
+      if (!traceFilters) {
+        traceFilters = []
+      }
+
+      const rows = await Trace.findAllOperations(
+        [
+          ...traceFilters,
+          { field: 'graphId', operator: 'eq', value: graphId },
+          operationId && {
+            field: 'operationId',
+            operator: 'eq',
+            value: operationId
+          }
+        ],
+        processDates(from, to)
+      )
+
+      return rows[0]
     }
   },
   Mutation: {
@@ -190,15 +269,15 @@ module.exports = {
     keys: ({ id }) => {
       return Key.findAll({ graphId: id })
     },
-    keyMetrics: ({ id }, { traceFilters, from, to }) => {
+    stats: ({ id }, { traceFilters, from, to }) => {
       if (!traceFilters) {
         traceFilters = []
       }
 
-      return Trace.findKeyMetrics([
-        ...traceFilters,
-        { field: 'graphId', operator: 'eq', value: id }
-      ], processDates(from, to))
+      return Trace.findStats(
+        [...traceFilters, { field: 'graphId', operator: 'eq', value: id }],
+        processDates(from, to)
+      )
     }
   },
   User: {
@@ -215,7 +294,7 @@ module.exports = {
     }
   },
   Operation: {
-    keyMetrics: ({ duration, count, errorCount, errorPercent }) => {
+    stats: ({ duration, count, errorCount, errorPercent }) => {
       return { duration, count, errorCount, errorPercent }
     }
   }

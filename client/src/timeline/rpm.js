@@ -1,17 +1,13 @@
-import React, { useState, useContext } from 'react'
+import React, { useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
-import { Link } from 'wouter'
 import Chart from './chart'
 import {
-  XYChart,
   CrossHair,
   XAxis,
   YAxis,
-  LinearGradient,
   LineSeries,
-  PointSeries
 } from '@data-ui/xy-chart'
 import { FiltersContext } from '../trace'
 

@@ -11,15 +11,14 @@ import {
 import {
   OperationShow,
   OperationList,
-  OperationSource,
   OperationHeader
 } from './operation'
 import client from './client'
 import { Route, Switch, Router } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
 import Menu from './menu'
-import { TraceList, FiltersProvider, Filters } from './trace'
-import { TimeLine, Rpm, LatencyDistribution } from './timeline'
+import { TraceList, FiltersProvider, Filters, TraceShow } from './trace'
+import { Rpm, LatencyDistribution } from './timeline'
 
 function App() {
   return (
@@ -107,12 +106,6 @@ function App() {
                   )}
                 />
                 <Route
-                  path="/graph/:graphId/operation/:operationId/source"
-                  component={({ params }) => (
-                    <OperationSource>{atob(params.operationId)}</OperationSource>
-                  )}
-                />
-                <Route
                   path="/graph/:graphId/operation/:operationId/trace"
                   component={({ params }) => (
                     <TraceList
@@ -136,6 +129,15 @@ function App() {
                     <LatencyDistribution
                       graphId={params.graphId}
                       operationId={params.operationId}
+                    />
+                  )}
+                />
+
+                <Route
+                  path="/graph/:graphId/operation/:operationId/trace/:traceId"
+                  component={({ params }) => (
+                    <TraceShow
+                      traceId={params.traceId}
                     />
                   )}
                 />

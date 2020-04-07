@@ -1,12 +1,10 @@
-import React, { useState, useContext } from 'react'
+import React, { useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
-import { Link } from 'wouter'
 import Chart from './chart'
 import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
 import { FiltersContext } from '../trace'
-import { printDuration } from '../utils'
 
 const LATENCY_DISTRIBUTION = gql`
   query latencyDistribution($graphId: ID!, $operationId: ID, $traceFilters: [TraceFilter], $to: DateTime, $from: DateTime) {
@@ -19,15 +17,6 @@ const LATENCY_DISTRIBUTION = gql`
     }
   }
 `
-
-const renderTooltip = (
-  { datum } // eslint-disable-line react/prop-types
-) => (
-  <div>
-    {datum.count && <div>{datum.count}</div>}
-    <div>{datum.duration ? printDuration(datum.duration) : '--'}</div>
-  </div>
-)
 
 export default function TimeLine({ graphId, operationId }) {
   const { filters, to, from } = useContext(FiltersContext)

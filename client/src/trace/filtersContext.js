@@ -1,5 +1,4 @@
-import React, { Component, useContext } from 'react'
-import { gql } from 'apollo-boost'
+import React, { Component } from 'react'
 import logger from 'loglevel'
 
 const FiltersContext = React.createContext()
@@ -52,10 +51,6 @@ class FiltersProvider extends Component {
     this.setState({ filterInterval }, this.backUp)
   }
 
-  setToFrom = ([ to, from ]) => {
-    this.setState({ to, from }, this.backUp)
-  }
-
   toggleVisibility = () => {
     this.setState(({ isVisible }) => ({ isVisible: !isVisible }), this.backUp)
   }
@@ -73,7 +68,7 @@ class FiltersProvider extends Component {
   render() {
     const { children } = this.props
     const { filters, filterInterval } = this.state
-    const { setFilters, setToFrom, toggleVisibility, setFilterInterval } = this
+    const { setFilters, toggleVisibility, setFilterInterval } = this
     const { to, from } = this.processInterval(filterInterval)
 
     return (
