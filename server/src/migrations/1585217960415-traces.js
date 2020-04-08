@@ -50,6 +50,9 @@ module.exports.up = async function(next) {
 module.exports.down = async function(next) {
   await db.query(sql`
     DROP TABLE traces;
+  `)
+
+  await db.query(sql`
     DROP FUNCTION IF EXISTS date_round(timestamptz, interval);
   `)
 

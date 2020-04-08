@@ -1,32 +1,14 @@
 import React, { useState, useContext } from 'react'
-import { getOperationName } from 'apollo-utilities'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { Loading, ErrorBanner } from './utils'
+import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'wouter'
-import KeyMetrics from './keyMetrics'
-import { FiltersContext } from './trace'
-
-function getOperationTypes(doc) {
-  let operationTypes = []
-
-  const definitions = doc.definitions.filter(
-    definition => definition.kind === 'OperationDefinition'
-  )
-
-  const isQuery = definitions.some(def => def.operation === 'query')
-  const isMutation = definitions.some(def => def.operation === 'mutation')
-
-  if (isQuery) {
-    operationTypes.push('query')
-  }
-
-  if (isMutation) {
-    operationTypes.push('mutation')
-  }
-
-  return operationTypes
-}
+import KeyMetrics from '../keyMetrics'
+import { FiltersContext } from '../trace'
+import Pill from '../pill'
+import Nav from '../nav'
+import { getOperationName, getOperationTypes } from './utils'
+import styles from './list.module.css'
 
 const OPERATION_LIST = gql`
   query operationList(
@@ -60,89 +42,7 @@ const OPERATION_LIST = gql`
   }
 `
 
-const OPERATION_HEADER = gql`
-  query operationHeader(
-    $graphId: ID!
-    $operationId: ID!
-    $to: DateTime
-    $from: DateTime
-    $traceFilters: [TraceFilter]
-  ) {
-    operation(
-      graphId: $graphId
-      operationId: $operationId
-      traceFilters: $traceFilters
-      to: $to
-      from: $from
-    ) {
-        id
-        key
-        stats {
-          count
-          errorCount
-          errorPercent
-          duration
-        }
-      }
-  }
-`
-
-export function OperationHeader({ graphId, operationId, stats }) {
-  const { filters, to, from } = useContext(FiltersContext)
-  const { loading, error, data } = useQuery(OPERATION_HEADER, {
-    variables: {
-      graphId,
-      operationId,
-      to,
-      from,
-      traceFilters: filters
-    }
-  })
-
-  if (loading) return <Loading />
-  if (error) return <ErrorBanner error={error} />
-
-  return (
-    <div>
-      <header>
-        <h2>{operationId}</h2>
-        <KeyMetrics {...data.operation.stats} />
-      </header>
-      <hr />
-    </div>
-  )
-}
-
-export function OperationShow({ graphId, operationId }) {
-  return (
-    <div>
-      <ul>
-        <Link to={`/graph/${graphId}/operation/${operationId}/trace`}>
-          <li>
-            <h4>Traces</h4>
-            <small>
-              Drill down into individual traces to find slow resolvers.
-            </small>
-          </li>
-        </Link>
-        <Link to={`/graph/${graphId}/operation/${operationId}/rpm`}>
-          <li>
-            <h4>RPM</h4>
-            <small>Get a feel for your traffic over time</small>
-          </li>
-        </Link>
-        <Link to={`/graph/${graphId}/operation/${operationId}/ld`}>
-          <li>
-            <h4>Latency Distribution</h4>
-            <small>What it says on the tin</small>
-          </li>
-        </Link>
-      </ul>
-    </div>
-  )
-}
-
-export function OperationList({ graphId }) {
+export default function OperationList({ graphId }) {
   const { filters, to, from } = useContext(FiltersContext)
   const [orderField, setOrderField] = useState('count')
   const [orderAsc, setOrderAsc] = useState(false)
@@ -169,42 +69,47 @@ export function OperationList({ graphId }) {
 
   return (
     <div>
-      <button
+      <Pill
+        isActive={true}
         onClick={() => {
           setOrderAsc(prev => !prev)
         }}
       >
         {orderAsc ? 'desc' : 'asc'}
-      </button>
-      <button
+      </Pill>
+      <Pill
+        isActive={orderField === 'count'}
         onClick={() => {
           setOrderField('count')
         }}
       >
         popular
-      </button>
-      <button
+      </Pill>
+      <Pill
+        isActive={orderField === 'duration'}
         onClick={() => {
           setOrderField('duration')
         }}
       >
         slowest
-      </button>
-      <button
+      </Pill>
+      <Pill
+        isActive={orderField === 'errorCount'}
         onClick={() => {
           setOrderField('errorCount')
         }}
       >
         Most Errors
-      </button>
-      <button
+      </Pill>
+      <Pill
+        isActive={orderField === 'errorPercent'}
         onClick={() => {
           setOrderField('errorPercent')
         }}
       >
         Highest Error Rate
-      </button>
-      <ul>
+      </Pill>
+      <div>
         {data.operations.nodes.map(op => {
           const doc = gql`
             ${op.key}
@@ -214,14 +119,15 @@ export function OperationList({ graphId }) {
 
           return (
             <Link key={op.id} to={`/graph/${graphId}/operation/${op.id}`}>
-              <li>
-                <span>{op.id.substring(0, 5)} </span>
-                <span>
-                  <mark>{name ? name : op.id}</mark>
-                </span>
+              <div className={styles.row}>
+                <div>{op.id.substring(0, 5)} </div>
+                <div>
+                  <code>{name ? name : op.id}</code>
+                </div>
                 <KeyMetrics {...op.stats} />
-                <span>&nbsp;{operationTypes.join(' ')}</span>
-              </li>
+                <Pill>{operationTypes.join(' ')}</Pill>
+              </div>
+              <hr />
             </Link>
           )
         })}
@@ -255,7 +161,7 @@ export function OperationList({ graphId }) {
         >
           {data.operations.cursor.length === 0 ? 'no more' : 'more'}
         </button>
-      </ul>
+      </div>
     </div>
   )
 }

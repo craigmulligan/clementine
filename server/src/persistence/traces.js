@@ -57,12 +57,13 @@ module.exports = {
         clientName,
         clientVersion,
         schemaTag,
-        operationId
+        operationId,
+        JSON.stringify(details)
       ]
     })
 
     const query = sql`
-      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors", "clientName", "clientVersion", "schemaTag", "operationId")
+      INSERT INTO traces (id, key, "graphId", "duration", "startTime", "endTime", "root", "hasErrors", "clientName", "clientVersion", "schemaTag", "operationId", "details")
       SELECT *
       FROM ${sql.unnest(values, [
         'uuid',
@@ -76,7 +77,8 @@ module.exports = {
         'text',
         'text',
         'text',
-        'uuid'
+        'uuid',
+        'jsonb'
       ])}
       RETURNING id
       ;
@@ -137,7 +139,7 @@ module.exports = {
     traceFilters = [],
     { to, from },
     orderBy = { field: 'count', asc: false },
-    cursor,
+    cursor = [],
     limit = 1
   ) {
     // TODO clean up this query had to use row_number for pagination because sort by uuid + other order was

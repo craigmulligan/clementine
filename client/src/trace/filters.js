@@ -17,7 +17,12 @@ const TRACE_FILTER_OPTIONS = gql`
 `
 
 export default function TraceFilters({ graphId, onChange }) {
-  const { conditions, setFilters, setFilterInterval, filterInterval } = useContext(FiltersContext)
+  const {
+    conditions,
+    setFilters,
+    setFilterInterval,
+    filterInterval
+  } = useContext(FiltersContext)
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
       graphId
@@ -52,13 +57,14 @@ export default function TraceFilters({ graphId, onChange }) {
       }
     })
 
-
-
   return (
     <div className={styles.wrapper}>
-    <select value={filterInterval} onChange={(v) => {
-        setFilterInterval(v.target.value)
-      }}>
+      <select
+        value={filterInterval}
+        onChange={v => {
+          setFilterInterval(v.target.value)
+        }}
+      >
         <option value="hour">Last hour</option>
         <option value="day">Last day</option>
         <option value="month">Last month</option>

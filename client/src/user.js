@@ -2,6 +2,7 @@ import React, { Component, useContext } from 'react'
 import { gql } from 'apollo-boost'
 import { Redirect } from 'wouter'
 import client from './client'
+import logger from 'loglevel'
 
 const GET_USER = gql`
   {
@@ -27,10 +28,14 @@ class UserProvider extends Component {
   }
 
   componentDidMount = async () => {
-    const {
-      data: { user }
-    } = await client.query({ query: GET_USER })
-    this.setUser(user)
+    try {
+      const {
+        data: { user }
+      } = await client.query({ query: GET_USER })
+      this.setUser(user)
+    } catch (e) {
+      logger.warn('could find current user')
+    }
   }
 
   render() {

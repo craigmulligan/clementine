@@ -8,13 +8,9 @@ import {
   GraphList,
   GraphHeader
 } from './graph'
-import {
-  OperationShow,
-  OperationList,
-  OperationHeader
-} from './operation'
+import { OperationList, OperationHeader } from './operation'
 import client from './client'
-import { Route, Switch, Router } from 'wouter'
+import { Route, Switch, Router, Redirect } from 'wouter'
 import { UserProvider, UserRedirect } from './user'
 import Menu from './menu'
 import { TraceList, FiltersProvider, Filters, TraceShow } from './trace'
@@ -23,37 +19,27 @@ import { Rpm, LatencyDistribution } from './timeline'
 function App() {
   return (
     <ApolloProvider client={client}>
-    <Router>
-    <UserProvider>
-        <main>
-          <FiltersProvider>
-            <Menu />
-            <Route path="/signup" component={Signup} />
-            <Route path="/login" component={Login} />
-            <UserRedirect>
+      <Router>
+        <UserProvider>
+          <main>
+            <FiltersProvider>
+              <Menu />
+              <Route path="/signup" component={Signup} />
+              <Route path="/login" component={Login} />
+              <UserRedirect>
                 <Route path="/graph" component={GraphList} />
-                <Route path="/graph/:graphId*" component={({ params }) => {
-                  if (!params.graphId) {
-                    return <div/>
-                  }
-
-                  return (<Filters graphId={params.graphId.split('/')[0]} />)
-                }} />
                 <Switch>
                   <Route
                     path="/graph/create"
                     component={({ params }) => <GraphCreate />}
                   />
-                  <Route
-                    path="/graph/:graphId"
-                    component={({ params }) => (
-                      <Fragment>
-                        <GraphHeader graphId={params.graphId} />
-                        <GraphShow graphId={params.graphId} />
-                      </Fragment>
-                    )}
-                  />
                 </Switch>
+                <Route
+                  path="/graph/:graphId"
+                  component={({ params }) => (
+                    <Redirect to={`/graph/${params.graphId}/operation`} />
+                  )}
+                />
                 <Route
                   path="/graph/:graphId/settings"
                   component={({ params }) => (
@@ -93,12 +79,20 @@ function App() {
                 <Route
                   path="/graph/:graphId/operation/:operationId"
                   component={({ params }) => (
+                    <Redirect
+                      to={`/graph/${params.graphId}/operation/${params.operationId}/trace`}
+                    />
+                  )}
+                />
+                <Route
+                  path="/graph/:graphId/operation/:operationId/trace"
+                  component={({ params }) => (
                     <Fragment>
                       <OperationHeader
                         graphId={params.graphId}
                         operationId={params.operationId}
                       />
-                      <OperationShow
+                      <TraceList
                         graphId={params.graphId}
                         operationId={params.operationId}
                       />
@@ -106,46 +100,47 @@ function App() {
                   )}
                 />
                 <Route
-                  path="/graph/:graphId/operation/:operationId/trace"
-                  component={({ params }) => (
-                    <TraceList
-                      graphId={params.graphId}
-                      operationId={params.operationId}
-                    />
-                  )}
-                />
-                <Route
                   path="/graph/:graphId/operation/:operationId/rpm"
                   component={({ params }) => (
-                    <Rpm
-                      graphId={params.graphId}
-                      operationId={params.operationId}
-                    />
+                    <Fragment>
+                      <OperationHeader
+                        graphId={params.graphId}
+                        operationId={params.operationId}
+                      />
+                      <Rpm
+                        graphId={params.graphId}
+                        operationId={params.operationId}
+                      />
+                    </Fragment>
                   )}
                 />
                 <Route
                   path="/graph/:graphId/operation/:operationId/ld"
                   component={({ params }) => (
-                    <LatencyDistribution
-                      graphId={params.graphId}
-                      operationId={params.operationId}
-                    />
+                    <Fragment>
+                      <OperationHeader
+                        graphId={params.graphId}
+                        operationId={params.operationId}
+                      />
+                      <LatencyDistribution
+                        graphId={params.graphId}
+                        operationId={params.operationId}
+                      />
+                    </Fragment>
                   )}
                 />
 
                 <Route
                   path="/graph/:graphId/operation/:operationId/trace/:traceId"
                   component={({ params }) => (
-                    <TraceShow
-                      traceId={params.traceId}
-                    />
+                    <TraceShow traceId={params.traceId} />
                   )}
                 />
-            </UserRedirect>
-          </FiltersProvider>
+              </UserRedirect>
+            </FiltersProvider>
           </main>
-      </UserProvider>
-    </Router>
+        </UserProvider>
+      </Router>
     </ApolloProvider>
   )
 }

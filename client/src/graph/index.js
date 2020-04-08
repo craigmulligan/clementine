@@ -2,11 +2,12 @@ import { gql } from 'apollo-boost'
 import React, { useRef, useContext } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
-import { KeyList, KeyCreate } from './key'
-import KeyMetics from './keyMetrics'
-import { ErrorBanner, Loading } from './utils'
 import { cloneDeep } from 'lodash'
-import { FiltersContext } from './trace'
+import { FiltersContext, Filters } from '../trace'
+import { ErrorBanner, Loading } from '../utils'
+import Nav from '../nav'
+import { KeyList, KeyCreate } from '../key'
+import KeyMetics from '../keyMetrics'
 
 const GET_GRAPHS = gql`
   query GRAPH_LIST {
@@ -33,13 +34,17 @@ export function GraphList() {
         <button>Create Graph</button>
       </Link>
       <ul>
-        {data.user.graphs.map(graph => {
-          return (
-            <li key={graph.id}>
-              <Link to={`/graph/${graph.id}`}>{graph.name}</Link>
-            </li>
-          )
-        })}
+        {data.user.graphs.length > 0 ? (
+          data.user.graphs.map(graph => {
+            return (
+              <li key={graph.id}>
+                <Link to={`/graph/${graph.id}`}>{graph.name}</Link>
+              </li>
+            )
+          })
+        ) : (
+          <p>No graphs - create one!</p>
+        )}
       </ul>
     </div>
   )
@@ -79,6 +84,9 @@ export function GraphCreate() {
                 // cloneDeep is necessary for the cache to pickup the change
                 // and have the observable components rerender
                 const data = cloneDeep(prevData)
+                if (!data.user.graphs) {
+                  data.user.graphs = []
+                }
                 data.user.graphs.push(graphCreate)
 
                 cache.writeQuery({
@@ -127,6 +135,25 @@ export function GraphHeader({ graphId }) {
     variables: { graphId, traceFilters: filters, from, to }
   })
 
+  const items = [
+    {
+      to: `/graph/${graphId}/operation`,
+      title: 'Operations'
+    },
+    {
+      to: `/graph/${graphId}/rpm`,
+      title: 'Requests over time'
+    },
+    {
+      to: `/graph/${graphId}/ld`,
+      title: 'Latency Distribution'
+    },
+    {
+      to: `/graph/${graphId}/settings`,
+      title: 'Settings'
+    }
+  ]
+
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
@@ -139,40 +166,12 @@ export function GraphHeader({ graphId }) {
       <header>
         <h2>{data.graph.name}</h2>
         <div>
+          <Filters graphId={graphId} />
           <KeyMetics {...data.graph.stats} />
         </div>
       </header>
       <hr />
-    </div>
-  )
-}
-
-export function GraphShow({ graphId }) {
-  return (
-    <div>
-      <Link to={`/graph/${graphId}/settings`}>Settings</Link>
-      <ul>
-        <Link to={`/graph/${graphId}/operation`}>
-          <li>
-            <h4>Operations</h4>
-            <small>
-              Slice you data by operation and find low hanging fruit
-            </small>
-          </li>
-        </Link>
-        <Link to={`/graph/${graphId}/rpm`}>
-          <li>
-            <h4>RPM</h4>
-            <small>Get a feel for your traffic over time</small>
-          </li>
-        </Link>
-        <Link to={`/graph/${graphId}/ld`}>
-          <li>
-            <h4>Latency Distribution</h4>
-            <small>What it says on the tin</small>
-          </li>
-        </Link>
-      </ul>
+      <Nav items={items} />
     </div>
   )
 }
