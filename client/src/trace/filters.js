@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
@@ -21,7 +21,6 @@ const autoComplete = ({ setSuggestions, fields }) => value => {
 
   const matches = value.match(/\w+:?(\S*)?/g)
   if (matches) {
-    console.log(matches)
     const lastMatch = matches.pop()
     if (!lastMatch.includes(trigger)) {
       setSuggestions(fields.map(x => x.label).filter(x => x.includes(lastMatch)))
@@ -34,8 +33,7 @@ const autoComplete = ({ setSuggestions, fields }) => value => {
         })
 
         if (isComplete) {
-          console.log(fields)
-          setSuggestions(fields.values.map(x => x.label))
+          setSuggestions(fields.map(x => x.label))
         } else {
           setSuggestions(field.values.map(x => x.label).filter(x => {
             return x.startsWith(valueName)
@@ -44,7 +42,7 @@ const autoComplete = ({ setSuggestions, fields }) => value => {
       }
     }
   } else {
-    setSuggestions(fields.values.map(x => x.label))
+    setSuggestions(fields.map(x => x.label))
   }
 }
 
@@ -102,11 +100,15 @@ export default function TraceFilters({ graphId, onChange }) {
       }
     })
 
+
+  const completer = autoComplete({ setSuggestions, fields: [intervalField, ...fields] })
+
+
   return (
     <div className={styles.wrapper}>
     <div><input type="text" value={value} onChange={(evt) => {
       setValue(evt.target.value)
-      autoComplete({ setSuggestions, fields: [intervalField, ...fields] })(evt.target.value)
+      completer(evt.target.value)
     }} /></div>
       <div className={styles.suggestions}>{
       suggestions.map((suggestion) => {
@@ -115,9 +117,12 @@ export default function TraceFilters({ graphId, onChange }) {
         let v
         const matches = value.match(/\w+:?(\S*)?/g)
           if (matches) {
+            // TODO double selecting suggestion there is a bug.
+            console.log(matches)
             const lastMatch = matches.pop()
+            console.log(lastMatch)
             if (lastMatch.includes(trigger)) {
-              v = [...matches, lastMatch.split(':')[0] +  ":" + suggestion].join(' ')
+              v = [...matches, lastMatch.split(':')[0] +  ":" + suggestion + " "].join(' ')
             } else {
               v = [matches, suggestion + ":"].join(' ')
             }
@@ -125,7 +130,8 @@ export default function TraceFilters({ graphId, onChange }) {
             v = suggestion
           }
           setValue(v)
-          autoComplete(v)
+          completer(v)
+
         }} key={suggestion}>{suggestion}</div>)
       })
       }</div>
