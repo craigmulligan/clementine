@@ -1,4 +1,16 @@
 .wrapper {
   display: flex;
   padding-bottom: 50px;
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.wrapper input {
+  width: 100%;
+}
+
+.suggestions {
+  width: 100%;
+  text-align: left;
 }

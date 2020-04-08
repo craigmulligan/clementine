@@ -16,20 +16,35 @@ const TRACE_FILTER_OPTIONS = gql`
   }
 `
 
-const autoComplete = ({ setSuggestions, fields }) => evt => {
-  const value = evt.target.value
+const autoComplete = ({ setSuggestions, fields }) => value => {
   const trigger = ':'
 
-  const matches = value.match(/\w+:?(\w+)?/g)
-
+  const matches = value.match(/\w+:?(\S*)?/g)
   if (matches) {
+    console.log(matches)
     const lastMatch = matches.pop()
-
     if (!lastMatch.includes(trigger)) {
       setSuggestions(fields.map(x => x.label).filter(x => x.includes(lastMatch)))
     } else {
-      setSuggestions([])
+      const [fieldLabel, valueName] = lastMatch.split(':')
+      const field = fields.find(f => f.label === fieldLabel)
+      if (field) {
+        const isComplete =  field.values.map(x => x.label).find(x => {
+          return x === valueName
+        })
+
+        if (isComplete) {
+          console.log(fields)
+          setSuggestions(fields.values.map(x => x.label))
+        } else {
+          setSuggestions(field.values.map(x => x.label).filter(x => {
+            return x.startsWith(valueName)
+          }))
+        }
+      }
     }
+  } else {
+    setSuggestions(fields.values.map(x => x.label))
   }
 }
 
@@ -41,6 +56,7 @@ export default function TraceFilters({ graphId, onChange }) {
     filterInterval
   } = useContext(FiltersContext)
   const [suggestions, setSuggestions] = useState([])
+  const [value, setValue] = useState('')
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
       graphId
@@ -49,6 +65,19 @@ export default function TraceFilters({ graphId, onChange }) {
 
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
+
+    const intervalField = {
+      name: 'interval', label: 'last', values: [{
+        name: 'hour',
+        label: 'hour'
+      }, {
+        name: 'day',
+        label: 'day'
+      }, {
+        name: 'month',
+        label: 'month'
+      }]
+    }
 
   // Todo we should just have an arbitrary way to select to - from.
   const fields = Object.entries(data.traceFilterOptions)
@@ -75,30 +104,31 @@ export default function TraceFilters({ graphId, onChange }) {
 
   return (
     <div className={styles.wrapper}>
-      <input type="text" onChange={autoComplete({ setSuggestions, fields })} />
-      <div>{
+    <div><input type="text" value={value} onChange={(evt) => {
+      setValue(evt.target.value)
+      autoComplete({ setSuggestions, fields: [intervalField, ...fields] })(evt.target.value)
+    }} /></div>
+      <div className={styles.suggestions}>{
       suggestions.map((suggestion) => {
-        return (<li key={suggestion}>{suggestion}</li>)
+        return (<div className={styles.suggestion} onClick={() => {
+        const trigger = ':'
+        let v
+        const matches = value.match(/\w+:?(\S*)?/g)
+          if (matches) {
+            const lastMatch = matches.pop()
+            if (lastMatch.includes(trigger)) {
+              v = [...matches, lastMatch.split(':')[0] +  ":" + suggestion].join(' ')
+            } else {
+              v = [matches, suggestion + ":"].join(' ')
+            }
+          } else {
+            v = suggestion
+          }
+          setValue(v)
+          autoComplete(v)
+        }} key={suggestion}>{suggestion}</div>)
       })
       }</div>
     </div>
   )
 }
-
-// <select
-// value={filterInterval}
-// onChange={v => {
-// setFilterInterval(v.target.value)
-// }}
-// >
-// <option value="hour">Last hour</option>
-// <option value="day">Last day</option>
-// <option value="month">Last month</option>
-// </select>
-// <VisualFilter
-// conditions={conditions}
-// fields={fields}
-// onChange={data => {
-// setFilters(data)
-// }}
-// />
