@@ -12,8 +12,12 @@ code {
     monospace;
 }
 
+a {
+  cursor: pointer;
+}
+
 :root {
-  --border-radius: 5px;
+  --border-radius: 3px;
   --box-shadow: 2px 2px 10px;
   --color: #118bee;
   --color-accent: #118bee0b;
@@ -203,9 +207,13 @@ sup {
 
 /* Links */
 a {
-  color: var(--color-secondary);
+  color: var(--color-text-secondary);
   font-weight: bold;
-  text-decoration: none;
+  text-decoration: underline;
+}
+
+a.active {
+  color: var(--color-text);
 }
 
 a:hover {

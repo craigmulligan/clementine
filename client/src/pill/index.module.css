@@ -1,0 +1,14 @@
+.pill {
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-secondary);
+  border: 1px solid;
+  border-radius: var(--border-radius);
+  margin-right: 20px;
+  text-align: center;
+  padding: 5px;
+}
+
+.active {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}

@@ -1,0 +1,21 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+  text-align: center;
+  justify-items: center;
+}
+
+.statNumber {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.statTitle {
+  color: var(--color-text-secondary);
+}

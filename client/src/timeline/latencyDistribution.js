@@ -7,8 +7,20 @@ import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
 import { FiltersContext } from '../trace'
 
 const LATENCY_DISTRIBUTION = gql`
-  query latencyDistribution($graphId: ID!, $operationId: ID, $traceFilters: [TraceFilter], $to: DateTime, $from: DateTime) {
-    latencyDistribution(graphId: $graphId, operationId: $operationId, traceFilters: $traceFilters, to: $to, from: $from) {
+  query latencyDistribution(
+    $graphId: ID!
+    $operationId: ID
+    $traceFilters: [TraceFilter]
+    $to: DateTime
+    $from: DateTime
+  ) {
+    latencyDistribution(
+      graphId: $graphId
+      operationId: $operationId
+      traceFilters: $traceFilters
+      to: $to
+      from: $from
+    ) {
       nodes {
         duration
         count
@@ -41,7 +53,7 @@ export default function TimeLine({ graphId, operationId }) {
   return (
     <Chart
       ariaLabel="LatencyDistribution"
-      xScale={{ type: 'linear' }}
+      xScale={{ type: 'band' }}
       yScale={{ type: 'linear' }}
       snapTooltipToDataX
     >
