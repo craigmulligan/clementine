@@ -16,14 +16,12 @@ const TRACE_FILTER_OPTIONS = gql`
   }
 `
 
-const autoComplete = ({ setSuggestions, fields }) => value => {
-  const trigger = ':'
-
+const autoComplete = ({ setSuggestions, fields, trigger }) => value => {
   const matches = value.match(/\w+:?(\S*)?/g)
   if (matches) {
     const lastMatch = matches.pop()
     if (!lastMatch.includes(trigger)) {
-      setSuggestions(fields.map(x => x.label).filter(x => x.includes(lastMatch)))
+      setSuggestions(fields.map(x => x.label).filter(x => x.startsWith(lastMatch)))
     } else {
       const [fieldLabel, valueName] = lastMatch.split(':')
       const field = fields.find(f => f.label === fieldLabel)
@@ -45,6 +43,7 @@ const autoComplete = ({ setSuggestions, fields }) => value => {
     setSuggestions(fields.map(x => x.label))
   }
 }
+
 
 export default function TraceFilters({ graphId, onChange }) {
   const {
@@ -78,7 +77,7 @@ export default function TraceFilters({ graphId, onChange }) {
     }
 
   // Todo we should just have an arbitrary way to select to - from.
-  const fields = Object.entries(data.traceFilterOptions)
+  const apiFields = Object.entries(data.traceFilterOptions)
     .filter(([k, v]) => {
       if (k === '__typename') {
         return false
@@ -101,12 +100,13 @@ export default function TraceFilters({ graphId, onChange }) {
     })
 
 
-  const completer = autoComplete({ setSuggestions, fields: [intervalField, ...fields] })
-
+  const fields = [intervalField, ...apiFields]
+  const trigger = ':'
+  const completer = autoComplete({ setSuggestions, fields, trigger })
 
   return (
     <div className={styles.wrapper}>
-    <div><input type="text" value={value} onChange={(evt) => {
+    <div><textarea type="text" value={value} onChange={(evt) => {
       setValue(evt.target.value)
       completer(evt.target.value)
     }} /></div>
@@ -118,20 +118,33 @@ export default function TraceFilters({ graphId, onChange }) {
         const matches = value.match(/\w+:?(\S*)?/g)
           if (matches) {
             // TODO double selecting suggestion there is a bug.
-            console.log(matches)
             const lastMatch = matches.pop()
-            console.log(lastMatch)
             if (lastMatch.includes(trigger)) {
-              v = [...matches, lastMatch.split(':')[0] +  ":" + suggestion + " "].join(' ')
+              const [fieldLabel, valueName] = lastMatch.split(':')
+              const field = fields.find(f => f.label === fieldLabel)
+
+              if (field) {
+                const isComplete =  field.values.map(x => x.label).find(x => {
+                  return x === valueName
+                })
+                if (isComplete) {
+                  // full match move on to next field
+                  v = [...matches, lastMatch, suggestion + ":"].join(' ')
+                } else {
+                  // not full match replace suggesion
+                  v = [...matches, fieldLabel +  ":" + suggestion + " "].join(' ')
+                }
+              }
+
             } else {
               v = [matches, suggestion + ":"].join(' ')
             }
           } else {
             v = suggestion
           }
+
           setValue(v)
           completer(v)
-
         }} key={suggestion}>{suggestion}</div>)
       })
       }</div>
