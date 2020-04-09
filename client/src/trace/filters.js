@@ -17,7 +17,11 @@ const TRACE_FILTER_OPTIONS = gql`
 const autoComplete = ({ setSuggestions, fields, trigger, setValue }) => {
   const matcher = value => value.match(/\w+:?(\S*)?/g)
 
-  const completer = value => {
+  const completer = (value, cursorPosition) => {
+    if (cursorPosition) {
+      value = value.substring(0, cursorPosition)
+    }
+
     const matches = matcher(value)
     if (matches) {
       const lastMatch = matches.pop()
@@ -53,8 +57,12 @@ const autoComplete = ({ setSuggestions, fields, trigger, setValue }) => {
     }
   }
 
-  const selector = (value, suggestion) => {
+  const selector = (value, suggestion, cursorPosition) => {
     let v
+
+    const tail = value.substring(cursorPosition, value.length).trim()
+    value = value.substring(0, cursorPosition)
+
     const matches = matcher(value)
     if (matches) {
       // TODO double selecting suggestion there is a bug.
@@ -84,8 +92,8 @@ const autoComplete = ({ setSuggestions, fields, trigger, setValue }) => {
       v = suggestion + ':'
     }
 
-    setValue(v)
-    completer(v)
+    setValue(v + tail)
+    completer(v + tail)
   }
 
   const completeMatches = value => {
@@ -131,7 +139,9 @@ export default function TraceFilters({ graphId, onChange }) {
     filterInterval,
     rawFilters: filters
   } = useContext(FiltersContext)
-  const [suggestions, setSuggestions] = useState([])
+  const [suggestions, setSuggestions] = useState([
+    "Search!"
+  ])
   const [isSuggestionsVisible, setSuggestionsVisible] = useState(false)
   const [activeSuggestion, setActiveSuggestion] = useState(0)
   const [fields, setFields] = useState([])
@@ -145,9 +155,10 @@ export default function TraceFilters({ graphId, onChange }) {
   }
 
   const [value, setValue] = useState(toString(filters))
+  const [cursorPosition, setCursorPosition] = useState(0)
   const trigger = ':'
   const [completer, select, matcher] = autoComplete({
-    setSuggestions,
+    setSuggestions: (x) => setSuggestions([...x, 'Search']),
     setValue,
     fields,
     trigger,
@@ -162,12 +173,24 @@ export default function TraceFilters({ graphId, onChange }) {
       e.preventDefault()
 
       const matches = matcher(value)
-      setFilters(matches)
-      setSuggestionsVisible(false)
+      const suggestion = suggestions[activeSuggestion]
+      select(value, suggestion, cursorPosition)
+      setActiveSuggestion(0)
+
+      if (suggestion === 'Search') {
+        setFilters(matches)
+        setSuggestionsVisible(false)
+      }
     }
 
-    if (e.keyCode == 0) {
+    if (e.keyCode == 9) {
+      e.preventDefault()
       // handle tab logic
+      if (activeSuggestion + 1 === suggestions.length) {
+        setActiveSuggestion(0)
+      } else {
+        setActiveSuggestion(activeSuggestion + 1)
+      }
     }
   }
 
@@ -232,28 +255,39 @@ export default function TraceFilters({ graphId, onChange }) {
   return (
     <div className={styles.wrapper}>
       <div>
-        <textarea
+        <input
           onKeyDown={keyDown}
           onSelect={evt => {
             setSuggestionsVisible(true)
-            completer(value)
+            completer(value, cursorPosition)
           }}
           type="text"
           value={value}
           onChange={evt => {
             setValue(evt.target.value)
-            completer(evt.target.value)
+            setCursorPosition(evt.target.selectionStart)
+            completer(evt.target.value, cursorPosition)
           }}
         />
       </div>
       <div className={styles.suggestions}>
         {isSuggestionsVisible &&
-          suggestions.map(suggestion => {
+          suggestions.map((suggestion, i) => {
+            const classNames = [styles.suggestion]
+
+            if (i === activeSuggestion) {
+              classNames.push(styles.active)
+            }
+
+            if (suggestion === 'Search') {
+              classNames.push(styles.searchGo)
+            }
+
             return (
               <div
-                className={styles.suggestion}
+                className={classNames.join(' ')}
                 onClick={() => {
-                  select(value, suggestion)
+                  select(value, suggestion, cursorPosition)
                 }}
                 key={suggestion}
               >
