@@ -6,7 +6,7 @@
   max-width: 500px;
 }
 
-.wrapper textarea {
+.wrapper input {
   width: 100%;
 }
 
@@ -14,3 +14,13 @@
   width: 100%;
   text-align: left;
 }
+
+.searchGo {
+  background: blue;
+}
+
+.active {
+  background: red;
+}
+
+

@@ -7,7 +7,7 @@ import { FiltersContext } from './trace'
 
 function Menu() {
   const { user } = useContext(UserContext)
-  const { toggleVisibility, filters } = useContext(FiltersContext)
+  const { toggleVisibility, rawFilters: filters } = useContext(FiltersContext)
 
   if (user) {
     return (
