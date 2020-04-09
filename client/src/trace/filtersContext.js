@@ -10,13 +10,22 @@ class FiltersProvider extends Component {
     filters: [],
     filterInterval: 'day',
     isVisible: false,
+    value: '',
   }
 
   backUp = () => {
     localStorage.setItem("__filters__", JSON.stringify(this.state));
   }
 
-  processInterval = (value) => {
+  processInterval = (filters) => {
+      const filter = filters.find(f => f.field === 'interval')
+
+      let value
+      if (filter) {
+        value = filter.value
+      }
+
+
       let from
       const to = Date.now()
       if (value === 'hour') {
@@ -34,21 +43,9 @@ class FiltersProvider extends Component {
       return { to, from }
   }
 
-  cleanFilters = (data) => {
-    return data.map(f => ({
-      value: f.value,
-      field: f.field,
-      operator: f.operator
-    }))
-  }
-
   // Method to update state
   setFilters = filters => {
     this.setState({ filters }, this.backUp)
-  }
-
-  setFilterInterval = (filterInterval) => {
-    this.setState({ filterInterval }, this.backUp)
   }
 
   toggleVisibility = () => {
@@ -67,21 +64,19 @@ class FiltersProvider extends Component {
 
   render() {
     const { children } = this.props
-    const { filters, filterInterval } = this.state
-    const { setFilters, toggleVisibility, setFilterInterval } = this
-    const { to, from } = this.processInterval(filterInterval)
+    const { filters, filterInterval, value } = this.state
+    const { setFilters, toggleVisibility, setValue } = this
+    const { to, from } = this.processInterval(filters)
 
     return (
       <FiltersContext.Provider
         value={{
-          filters: this.cleanFilters(filters),
+          filters: filters.filter(x => x.field !== 'interval'),
+          rawFilters: filters,
           to,
           from,
           toggleVisibility,
           setFilters,
-          setFilterInterval,
-          filterInterval,
-          conditions: filters
         }}
       >
         {children}
