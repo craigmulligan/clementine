@@ -121,7 +121,7 @@ export default function TraceFilters({ graphId, onChange }) {
     setFilters,
     setFilterInterval,
     filterInterval,
-    filters,
+    rawFilters: filters,
   } = useContext(FiltersContext)
   const [suggestions, setSuggestions] = useState([])
   const [fields, setFields] = useState([])
@@ -135,28 +135,21 @@ export default function TraceFilters({ graphId, onChange }) {
   const [value, setValue] = useState(toString(filters))
   const trigger = ':'
   const [completer, select, matcher] = autoComplete({ setSuggestions, setValue, fields, trigger, filters })
-  const completeMatches = matcher(value)
   // completer returns two functions one for
   // updating suggestions based on value
   // one for updating the value based on a selected value.
+  //
+  const keyDown = (e) => {
+    if(e.keyCode == 13 && e.shiftKey == false) {
+      e.preventDefault();
+      const matches = matcher(value)
+      setFilters(matches)
+    }
+  }
 
   useEffect(() => {
     completer(value)
   }, [value])
-
-  useEffect(() => {
-    if (suggestions.length === 0) {
-      return
-    }
-    const interval = suggestions.filter(f => f.field === 'interval').pop()
-
-    if (interval) {
-      setFilterInterval(interval.value)
-    }
-
-    const stdFilters = completeMatches.filter(f => f.field !== 'interval')
-    setFilters(stdFilters)
-  }, [completeMatches.length])
 
   useEffect(() => {
     client.query({ query: TRACE_FILTER_OPTIONS,
@@ -205,7 +198,8 @@ export default function TraceFilters({ graphId, onChange }) {
 
   return (
     <div className={styles.wrapper}>
-    <div><textarea onSelect={(evt) => {
+    <div>
+    <textarea onKeyDown={keyDown} onSelect={(evt) => {
       completer(value)
     }} type="text" value={value} onChange={(evt) => {
       setValue(evt.target.value)
