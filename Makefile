@@ -1,7 +1,7 @@
 ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
 
 test:
-	MAX_DB_CONNECTIONS=1 docker-compose run server npm test
+	docker-compose run server npm test
 
 ci:
 	docker-compose run server npm ci
