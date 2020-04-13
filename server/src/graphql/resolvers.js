@@ -8,6 +8,7 @@ const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 const { Cursor } = require('./utils')
 
+// todo this should be injected for testing.
 function processDates(from, to) {
   const dayMs = 86400000
   if (!to) {
@@ -238,6 +239,28 @@ module.exports = {
 
       req.session.userId = user.id
 
+      return user
+    },
+    userLoginV2: async (_, { email }, { req, magicLink }) => {
+      let user = await User.find(email)
+
+      if (!user) {
+        try {
+          user = await User.createPasswordless(email)
+        } catch (e) {
+          throw new ForbiddenError()
+        }
+      }
+
+      await magicLink.send(user)
+      return true
+    },
+    tokenVerify: async (_, { token }, { req, magicLink }) => {
+      const user = await magicLink.verify(token)
+      req.session.userId = user.id
+      req.session.userEmail = user.email
+
+      console.log(user)
       return user
     },
     userLogout: async (_, {}, { req }) => {

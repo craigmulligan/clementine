@@ -14,20 +14,47 @@ const GET_USER = gql`
   }
 `
 
+const VERIFY_TOKEN = gql`
+  mutation tokenVerify($token: String) {
+    tokenVerify(token: $token) {
+      id
+      email
+      createdAt
+    }
+  }
+`
+
 const UserContext = React.createContext()
 
 class UserProvider extends Component {
-  // Context state
   state = {
     user: {}
   }
 
-  // Method to update state
   setUser = user => {
     this.setState(prevState => ({ user }))
   }
 
   componentDidMount = async () => {
+    const url = new URL(window.location.href)
+    const token = url.searchParams.get('token')
+
+    if (token) {
+      try {
+        const {
+          data: { tokenVerify: user }
+        } = await client.mutate({
+          mutation: VERIFY_TOKEN,
+          variables: { token }
+        })
+
+        this.setUser(user)
+      } catch (e) {
+        logger.error(e)
+        logger.warn('could find current user')
+      }
+    }
+
     try {
       const {
         data: { user }
@@ -63,6 +90,7 @@ export default UserContext
 export function UserRedirect({ children }) {
   const { user } = useContext(UserContext)
 
+  console.log(user)
   if (!user) {
     return <Redirect to="/login" />
   }

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
-import { Signup, Login } from './auth'
+import { Signup, Login, CheckEmail } from './auth'
 import {
   GraphShow,
   GraphSettings,
@@ -31,6 +31,7 @@ function App() {
               <Menu />
               <Route path="/signup" component={Signup} />
               <Route path="/login" component={Login} />
+              <Route path="/magic" component={CheckEmail} />
               <UserRedirect>
                 <Route exact path="/graph" component={GraphList} />
                 <Route
@@ -51,6 +52,12 @@ function App() {
                   <Route
                     path="/graph/create"
                     component={({ match: { params } }) => <GraphCreate />}
+                  />
+                  <Route
+                    path="/graph/:graphId"
+                    component={({ params }) => (
+                      <Redirect to={`/graph/${params.graphId}/operation`} />
+                    )}
                   />
                 </Switch>
                 <Route

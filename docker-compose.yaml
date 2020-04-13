@@ -13,6 +13,9 @@ services:
       MAX_DB_CONNECTIONS: ${MAX_DB_CONNECTIONS}
       SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
       KEY_SECRET: ${KEY_SECRET:-"super-secret"}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
     ports:
       - "3000:3000"
     command: npm run dev
