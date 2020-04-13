@@ -5,10 +5,19 @@ const { typeDefs, resolvers } = require('./graphql')
 const { ApolloServer } = require('apollo-server-express')
 const { SESSION_SECRET } = require('./config')
 const cors = require('cors')
-const redis = require('redis')
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
+const redis = require('redis').createClient({ host: 'redis' })
 const logger = require('loglevel')
+const emailjs = require('emailjs')
+const magicLink = require('./magicLink')
+
+const email = emailjs.server.connect({
+  user: process.env.SMTP_EMAIL,
+  password: process.env.SMTP_PASSWORD,
+  host: process.env.SMTP_HOST,
+  ssl: true
+})
 
 const app = express()
 const api = require('./api')
@@ -22,9 +31,9 @@ const gql = new ApolloServer({
   engine: {
     endpointUrl: 'http://localhost:3000',
     apiKey:
-      '16a0dbfd-8675-4439-8be5-1100c374acb8:7f921ca7-3d35-40f8-ba29-4a08cb0a650e',
+      '5ec2bf9c-a5c7-4845-8b96-2b1c3e6cb2f7:33931407-f48d-492b-9cfd-3774225dc0de',
     debugPrintReports: true,
-    schemaTag: 'development',
+    schemaTag: 'test',
     reportErrorFunction: err => {
       logger.error(err)
       return err
@@ -37,17 +46,20 @@ const gql = new ApolloServer({
   },
   context: async ({ req, res }) => {
     return {
+      magicLink: magicLink({
+        redis,
+        email,
+        host: 'http://localhost:5000'
+      }),
       req,
       res
     }
   }
 })
 
-const redisClient = redis.createClient({ host: 'redis' })
-
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    store: new RedisStore({ client: redis }),
     secret: SESSION_SECRET,
     saveUninitialized: false,
     rolling: true,

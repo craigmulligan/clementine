@@ -187,5 +187,7 @@ module.exports = gql`
     userLogout: Boolean!
     userCreate(email: String, password: String): User!
     userLogin(email: String, password: String): User!
+    userLoginV2(email: String): String
+    tokenVerify(token: String): User!
   }
 `

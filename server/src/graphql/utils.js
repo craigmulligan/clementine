@@ -1,7 +1,9 @@
-const decodeCursor = (cursor) => {
+const decodeCursor = cursor => {
   // returns [ <value>, field, isAsc ]
   if (cursor) {
-    return Buffer.from(cursor, 'base64').toString('utf-8').split(':')
+    return Buffer.from(cursor, 'base64')
+      .toString('utf-8')
+      .split(':')
   }
 
   return []

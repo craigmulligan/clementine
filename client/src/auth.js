@@ -40,7 +40,6 @@ export function Signup() {
             setUser(user)
             setLocation('/graph')
           } catch (e) {
-            // alert(e.message)
             console.log(e)
           }
         }}
@@ -54,11 +53,8 @@ export function Signup() {
 }
 
 const LOGIN = gql`
-  mutation login($email: String!, $password: String!) {
-    userLogin(email: $email, password: $password) {
-      email
-      id
-    }
+  mutation login($email: String!) {
+    userLoginV2(email: $email)
   }
 `
 
@@ -66,8 +62,6 @@ export function Login() {
   const [, setLocation] = useLocation()
   const { setUser } = useContext(UserContext)
   const emailRef = useRef()
-  const passwordRef = useRef()
-
   const [login] = useMutation(LOGIN)
 
   return (
@@ -79,23 +73,32 @@ export function Login() {
           try {
             const user = await login({
               variables: {
-                email: emailRef.current.value,
-                password: passwordRef.current.value
+                email: emailRef.current.value
               }
             })
 
             await client.resetStore()
-            setUser(user)
-            setLocation('/graph')
+            setLocation('/magic')
           } catch (e) {
             alert(e.message)
           }
         }}
       >
         <input type="email" ref={emailRef} />
-        <input type="password" ref={passwordRef} />
         <button type="submit">Login</button>
       </form>
+    </div>
+  )
+}
+
+export function CheckEmail() {
+  return (
+    <div>
+      <Header />
+      <p>Check you inbox</p>
+      <p>
+        No email? <Link to="/login">Try again</Link>
+      </p>
     </div>
   )
 }

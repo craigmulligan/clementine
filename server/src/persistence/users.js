@@ -4,6 +4,20 @@ const bcrypt = require('bcrypt')
 const db = require('./db')
 
 module.exports = {
+  async createPasswordless(email) {
+    try {
+      const { rows } = await db.query(sql`
+      INSERT INTO users (id, email)
+        VALUES (${uuid()}, ${email})
+        RETURNING id, email;
+      `)
+
+      const [user] = rows
+      return user
+    } catch (error) {
+      throw error
+    }
+  },
   async create(email, password) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10)

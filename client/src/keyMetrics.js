@@ -36,7 +36,7 @@ export default function keyMetrics({
         <div className={styles.statTitle}>Error Rate</div>
       </div>
       <div className={styles.stat}>
-        <div className={styles.statNumber}>{printDuration(duration)}</div>
+        <div className={styles.statNumber}>{printDuration(duration) || 0}</div>
         <div className={styles.statTitle}>95 percentile</div>
       </div>
     </div>
