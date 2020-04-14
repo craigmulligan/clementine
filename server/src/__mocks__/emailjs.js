@@ -1,5 +1,4 @@
 const mockSend = (args, cb) => {
-  console.log('SENT')
   cb()
 }
 
