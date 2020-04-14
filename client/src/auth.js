@@ -6,55 +6,9 @@ import client from './client'
 import UserContext from './user'
 import { Header } from './header'
 
-const SIGNUP = gql`
-  mutation signup($email: String!, $password: String!) {
-    userCreate(email: $email, password: $password) {
-      id
-      email
-    }
-  }
-`
-
-export function Signup() {
-  const [, setLocation] = useLocation()
-  const { setUser } = useContext(UserContext)
-  const emailRef = useRef()
-  const passwordRef = useRef()
-
-  const [signup] = useMutation(SIGNUP)
-
-  return (
-    <div>
-      <Header />
-      <form
-        onSubmit={async e => {
-          e.preventDefault()
-          try {
-            const user = await signup({
-              variables: {
-                email: emailRef.current.value,
-                password: passwordRef.current.value
-              }
-            })
-
-            setUser(user)
-            setLocation('/graph')
-          } catch (e) {
-            console.log(e)
-          }
-        }}
-      >
-        <input type="email" ref={emailRef} />
-        <input type="password" ref={passwordRef} />
-        <button type="submit">Signup</button>
-      </form>
-    </div>
-  )
-}
-
 const LOGIN = gql`
   mutation login($email: String!) {
-    userLoginV2(email: $email)
+    userLogin(email: $email)
   }
 `
 

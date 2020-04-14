@@ -8,6 +8,7 @@ import Filters from './filters'
 import FiltersContext, { FiltersProvider } from './filtersContext'
 import Source from './source'
 import TraceList from './list'
+import Details from './details'
 
 const TRACE_SHOW = gql`
   query trace($traceId: ID!) {
@@ -18,6 +19,7 @@ const TRACE_SHOW = gql`
       startTime
       endTime
       root
+      details
     }
   }
 `
@@ -46,6 +48,7 @@ export function TraceShow({ traceId }) {
       <details>
         <summary>View Query</summary>
         <Source>{trace.key}</Source>
+        <Details>{trace.details}</Details>
       </details>
       <TracingReponse
         tracing={trace.root}

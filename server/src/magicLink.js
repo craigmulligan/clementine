@@ -7,12 +7,12 @@ const set = promisify(redis.set).bind(redis)
 const sendEmail = promisify(email.send).bind(email)
 const prefix = 'magicLink'
 
-const host = process.env.EXTERNAL_HOST || 'http://localhost:3000'
+const domain = process.env.domain || 'http://localhost:5000'
 
 async function generate(data) {
   const token = uuid()
   await set(`${prefix}:${token}`, JSON.stringify(data))
-  return [token, `${host}/graph?token=${token}`]
+  return [token, `${domain}/graph?token=${token}`]
 }
 
 async function verify(token) {

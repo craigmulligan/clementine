@@ -32,61 +32,11 @@ psql postgres://user:pass@localhost:5432/db
 - Add permissions [server]
 - Add apiKey checks + rate limiting on ingress endpoint [server]
 - Ability to remove/revoke a key [Server & Client]
-- Switch to preprocess queries [Client]
-- Proxy requests in dev mode to api [Client]
+- Serve client from server (both in dev + prod)
+- Fix filters
+- Add extra filters for cache hits etc.
 
 # NOTES
 
 - API_KEY needs to be in format `service_id:<api_key>`.
 - API_KEY needs to be in format `service_id:<api_key>`.
-
-# Queries
-
-# Request Distribution
-
-```
-select rounded, count(id) from (
- select round(duration/1000/1000) as rounded, id from traces
-) as tracesDurations
-group by rounded
-order by count;
-```
-
-# Round date fn
-
-```
-CREATE FUNCTION date_round(base_date timestamptz, round_interval interval)
-    RETURNS timestamptz AS $BODY$
-SELECT '1970-01-01'::timestamptz
-    + (EXTRACT(epoch FROM $1)::integer + EXTRACT(epoch FROM $2)::integer / 2)
-    / EXTRACT(epoch FROM $2)::integer
-    * EXTRACT(epoch FROM $2)::integer * interval '1 second';
-$BODY$ LANGUAGE SQL STABLE;
-```
-
-# Request latency over time
-
-```
-TODO
-with generate_series(NOW() - INTERVAL '1 DAY', NOW(), INTERVAL '15 minute') as timestamps
-select rounded, count(id) from (
- select date_round("startTime", '15 minutes') as rounded, id from traces
-  join timestamps on timestamps = date_round
-) as tracesDurations
-group by rounded
-order by count;
-```
-
-# Request rate over time (RPM)
-
-```
-with series as (
-  select interval from generate_series(date_round(NOW(), '15 minutes') - INTERVAL '1 DAY', date_round(NOW(), '15 minutes'), INTERVAL '15 minute') as interval
-)
-
-SELECT count(*), interval
-FROM series
-left outer JOIN traces on date_round("startTime", '15 minutes') = interval
-group by interval
-order by interval;
-```
