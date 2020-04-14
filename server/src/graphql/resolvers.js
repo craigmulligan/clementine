@@ -88,7 +88,9 @@ module.exports = {
       }
     },
     trace: async (_, { traceId }, { req }) => {
-      return Trace.findById(traceId)
+      const t = await Trace.findById(traceId)
+      console.log(t)
+      return t
     },
     operations: async (
       _,

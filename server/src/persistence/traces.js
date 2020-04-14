@@ -45,6 +45,8 @@ module.exports = {
         hasErrors
       } = trace
 
+      console.log(details)
+
       return [
         uuid(),
         key,

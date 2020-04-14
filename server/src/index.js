@@ -22,11 +22,13 @@ const gql = new ApolloServer({
   playground: true,
   introspection: true,
   engine: {
+    logger,
     endpointUrl: 'http://localhost:3000',
-    apiKey:
-      '5ec2bf9c-a5c7-4845-8b96-2b1c3e6cb2f7:33931407-f48d-492b-9cfd-3774225dc0de',
+    apiKey: process.env.ENGINE_API_KEY,
     debugPrintReports: true,
     schemaTag: 'test',
+    sendHeaders: { all: true },
+    sendVariableValues: { all: true },
     reportErrorFunction: err => {
       logger.error(err)
       return err

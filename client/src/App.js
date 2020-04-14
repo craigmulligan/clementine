@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
-import { Signup, Login, CheckEmail } from './auth'
+import { Login, CheckEmail } from './auth'
 import {
   GraphShow,
   GraphSettings,
@@ -29,7 +29,6 @@ function App() {
           <main>
             <FiltersProvider>
               <Menu />
-              <Route path="/signup" component={Signup} />
               <Route path="/login" component={Login} />
               <Route path="/magic" component={CheckEmail} />
               <UserRedirect>
@@ -172,7 +171,6 @@ function App() {
                     <TraceShow traceId={params.traceId} />
                   )}
                 />
-                <Route path="/" component={() => <Redirect to={`/graph`} />} />
               </UserRedirect>
             </FiltersProvider>
           </main>

@@ -90,7 +90,6 @@ export default UserContext
 export function UserRedirect({ children }) {
   const { user } = useContext(UserContext)
 
-  console.log(user)
   if (!user) {
     return <Redirect to="/login" />
   }

@@ -16,6 +16,7 @@ services:
       SMTP_HOST: ${SMTP_HOST}
       SMTP_EMAIL: ${SMTP_EMAIL}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
+      ENGINE_API_KEY: ${ENGINE_API_KEY}
     ports:
       - "3000:3000"
     command: npm run dev

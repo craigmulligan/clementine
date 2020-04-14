@@ -2,7 +2,6 @@ const { Router } = require('express')
 const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const { Trace } = require('../persistence')
-const fs = require('fs')
 const { prepareTraces } = require('./utils')
 
 const router = Router()
@@ -25,11 +24,6 @@ router.post(
 
     // verifyKey
     const graphId = apiKey.split(':')[0]
-
-    // fs.writeFileSync(
-    // `${__dirname}/trace-with-error.json`,
-    // JSON.stringify(instance.toJSON())
-    // )
 
     const report = proto.FullTracesReport.toObject(instance, {
       enums: String, // enums as string names

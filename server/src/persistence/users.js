@@ -33,7 +33,7 @@ module.exports = {
       return null
     }
 
-    return db.one(sql`
+    return db.maybeOne(sql`
     SELECT * FROM users WHERE id=${id};
     `)
   }

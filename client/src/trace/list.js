@@ -59,6 +59,7 @@ export default function TraceList({ graphId, operationId }) {
   }
 
   const dataSeries = data.traces.nodes.map(d => ({
+    label: 'hi',
     x: d.id,
     y: d.duration / 1000 / 1000
   }))
@@ -95,10 +96,14 @@ export default function TraceList({ graphId, operationId }) {
           xScale={{ type: 'band' }}
           yScale={{ type: 'linear' }}
         >
-          <XAxis label="Time" />
+          <XAxis label="Traces" />
           <YAxis label="Duration" />
           <BarSeries
             data={dataSeries}
+            renderLabel={({ datum, labelProps, index: i }) => {
+              console.log(datum)
+              return
+            }}
             fill="blue"
             onClick={({ datum }) => {
               setLocation(`${location}/${datum.x}`)
@@ -110,15 +115,3 @@ export default function TraceList({ graphId, operationId }) {
     </div>
   )
 }
-
-// {data.traces.nodes.map(trace => {
-// return (
-// <div className={styles.row} key={trace.id}>
-// <Link
-// to={`/graph/${graphId}/operation/${operationId}/trace/${trace.id}`}
-// >
-// {trace.id}
-// </Link>
-// </div>
-// )
-// })}

@@ -27,6 +27,10 @@ export function GraphList() {
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
 
+  if (!data.user) {
+    return <div>Not Found</div>
+  }
+
   return (
     <div>
       <p>Graph list</p>
