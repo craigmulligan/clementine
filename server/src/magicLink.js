@@ -28,13 +28,12 @@ const magicLink = ({
       return
     }
 
-    console.log('WARNING SENDING EMAIL')
-    // return sendEmail({
-    // text: `Follow this link to login ${link}`,
-    // subject: 'Clementine signin',
-    // from: 'hobochildster@gmail.com',
-    // to: user.email
-    // })
+    return sendEmail({
+      text: `Follow this link to login ${link}`,
+      subject: 'Clementine signin',
+      from: 'hobochildster@gmail.com',
+      to: user.email
+    })
   }
 
   return {
