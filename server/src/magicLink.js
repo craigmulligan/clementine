@@ -14,7 +14,7 @@ const magicLink = ({
   async function generate(data) {
     const token = uuid()
     await set(`${prefix}:${token}`, JSON.stringify(data))
-    return `${host}/graph?token=${token}`
+    return [token, `${host}/graph?token=${token}`]
   }
 
   async function verify(token) {
@@ -23,13 +23,18 @@ const magicLink = ({
   }
 
   async function send(user) {
-    const link = await generate(user)
-    return sendEmail({
-      text: `Follow this link to login ${link}`,
-      subject: 'Clementine signin',
-      from: 'hobochildster@gmail.com',
-      to: user.email
-    })
+    const [token, link] = await generate(user)
+    if (process.env.NODE_ENV === 'test') {
+      return
+    }
+
+    console.log('WARNING SENDING EMAIL')
+    // return sendEmail({
+    // text: `Follow this link to login ${link}`,
+    // subject: 'Clementine signin',
+    // from: 'hobochildster@gmail.com',
+    // to: user.email
+    // })
   }
 
   return {

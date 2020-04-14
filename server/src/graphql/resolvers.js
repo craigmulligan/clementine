@@ -226,27 +226,12 @@ module.exports = {
     }
   },
   Mutation: {
-    userCreate: async (_, { email, password }, { req }) => {
-      const user = await User.create(email, password)
-      req.session.userId = user.id
-      return user
-    },
-    userLogin: async (_, { email, password }, { req }) => {
-      const user = await User.find(email)
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        throw new ForbiddenError('Invalid password or user')
-      }
-
-      req.session.userId = user.id
-
-      return user
-    },
-    userLoginV2: async (_, { email }, { req, magicLink }) => {
+    userLogin: async (_, { email }, { req, magicLink }) => {
       let user = await User.find(email)
 
       if (!user) {
         try {
-          user = await User.createPasswordless(email)
+          user = await User.create(email)
         } catch (e) {
           throw new ForbiddenError()
         }

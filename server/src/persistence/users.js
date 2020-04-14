@@ -4,28 +4,12 @@ const bcrypt = require('bcrypt')
 const db = require('./db')
 
 module.exports = {
-  async createPasswordless(email) {
+  async create(email, password) {
     try {
       const { rows } = await db.query(sql`
       INSERT INTO users (id, email)
         VALUES (${uuid()}, ${email})
-        RETURNING id, email;
-      `)
-
-      const [user] = rows
-      return user
-    } catch (error) {
-      throw error
-    }
-  },
-  async create(email, password) {
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10)
-
-      const { rows } = await db.query(sql`
-      INSERT INTO users (id, email, password)
-        VALUES (${uuid()}, ${email}, ${hashedPassword})
-        RETURNING id, email;
+        RETURNING id, email, "isVerified";
       `)
 
       const [user] = rows
@@ -35,19 +19,22 @@ module.exports = {
     }
   },
   async find(email) {
-    const { rows } = await db.query(sql`
-    SELECT * FROM users WHERE email=${email} LIMIT 1;
+    return await db.maybeOne(sql`
+    SELECT * FROM users WHERE email=${email};
     `)
-    return rows[0]
+  },
+  async markVerified(id) {
+    return await db.query(sql`
+    UPDATE users SET "isVerified" = true WHERE id=${id};
+    `)
   },
   async findById(id) {
     if (!id) {
       return null
     }
 
-    const { rows } = await db.query(sql`
-    SELECT * FROM users WHERE id=${id} LIMIT 1;
+    return db.one(sql`
+    SELECT * FROM users WHERE id=${id};
     `)
-    return rows[0]
   }
 }

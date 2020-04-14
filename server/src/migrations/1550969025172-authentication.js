@@ -6,12 +6,12 @@ module.exports.up = async function(next) {
     id uuid PRIMARY KEY,
     email text UNIQUE,
     "createdAt" timestamp with time zone default (now() at time zone 'utc') NOT NULL,
-    password text
+    "isVerified" boolean default FALSE
   );
   `)
 
   // await db.query(sql`
-    // CREATE INDEX "usersEmail" on users (email);
+  // CREATE INDEX "usersEmail" on users (email);
   // `)
 
   next()
@@ -19,7 +19,7 @@ module.exports.up = async function(next) {
 
 module.exports.down = async function(next) {
   await db.query(sql`
-  DROP TABLE users;
+    DROP TABLE users;
   `)
   next()
 }

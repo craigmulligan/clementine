@@ -1,10 +1,11 @@
-const { app } = require('../index')
+const app = require('../index')
 const proto = require('apollo-engine-reporting-protobuf')
 const zlib = require('zlib')
 const promisify = require('util').promisify
 const gzip = promisify(zlib.gzip)
 const { Trace, Graph, User, sql, db } = require('../persistence')
 const { runMigration } = require('../persistence/migrator')
+const supertest = require('supertest')
 
 beforeEach(async () => {
   await runMigration('up')
@@ -23,7 +24,7 @@ function formatProto(path) {
 describe('/api/ingress', () => {
   test('No ApiKey', async () => {
     const compressed = await formatProto('./__data__/traces.json')
-    const request = require('supertest').agent(app)
+    const request = supertest.agent(app())
 
     // TODO create graph
     await request
@@ -34,7 +35,7 @@ describe('/api/ingress', () => {
   })
 
   test('uncompressed', async () => {
-    const request = require('supertest').agent(app)
+    const request = supertest.agent(app())
     const messageJSON = require('./__data__/traces.json')
     const message = proto.FullTracesReport.fromObject(messageJSON)
     const buffer = proto.FullTracesReport.encode(message).finish()
@@ -52,7 +53,7 @@ describe('/api/ingress', () => {
 
   test('Happy path', async () => {
     const compressed = await formatProto('./__data__/traces.json')
-    const request = require('supertest').agent(app)
+    const request = supertest.agent(app())
 
     const user = await User.create('email@email.com', '123')
     const graph = await Graph.create('myGraph', user.id)
@@ -86,7 +87,7 @@ describe('/api/ingress', () => {
 
   test('happy path - with errors', async () => {
     const compressed = await formatProto('./__data__/traces.json')
-    const request = require('supertest').agent(app)
+    const request = supertest.agent(app())
 
     const user = await User.create('email@email.com', '123')
     const graph = await Graph.create('myGraph', user.id)

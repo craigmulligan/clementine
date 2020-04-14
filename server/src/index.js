@@ -10,13 +10,20 @@ const RedisStore = require('connect-redis')(session)
 const redis = require('redis').createClient({ host: 'redis' })
 const logger = require('loglevel')
 const emailjs = require('emailjs')
-const magicLink = require('./magicLink')
+const magicLinkFactory = require('./magicLink')
+const { User } = require('./persistence')
 
 const email = emailjs.server.connect({
   user: process.env.SMTP_EMAIL,
   password: process.env.SMTP_PASSWORD,
   host: process.env.SMTP_HOST,
   ssl: true
+})
+
+const magicLink = magicLinkFactory({
+  redis,
+  email,
+  host: 'http://localhost:5000'
 })
 
 const app = express()
@@ -46,11 +53,7 @@ const gql = new ApolloServer({
   },
   context: async ({ req, res }) => {
     return {
-      magicLink: magicLink({
-        redis,
-        email,
-        host: 'http://localhost:5000'
-      }),
+      magicLink,
       req,
       res
     }
@@ -68,6 +71,20 @@ app.use(
 )
 app.get('/', (req, res) => res.sendStatus(200))
 app.get('/health', (req, res) => res.sendStatus(200))
+app.get('/magic', async (req, res) => {
+  const token = req.query.token
+  const data = await magicLink.verify(token)
+
+  if (data) {
+    req.session.userId = data.id
+    req.session.userEmail = data.email
+  }
+
+  User.markVerified(data.id)
+  // Todo add verification flag to user.
+
+  res.redirect(302, 'http://localhost:3000')
+})
 
 app.use(morgan('short'))
 app.use(helmet())
@@ -80,16 +97,7 @@ gql.applyMiddleware({
   }
 })
 
-let server
 module.exports = {
   app,
-  start(port) {
-    server = app.listen(port, () => {
-      console.log(`App started on port ${port}`)
-    })
-    return app
-  },
-  stop() {
-    server.close()
-  }
+  magicLink
 }
