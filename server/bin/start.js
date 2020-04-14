@@ -1,2 +1,5 @@
-const Server = require('../src/index')
-Server.start(process.env.PORT)
+const { app } = require('app')
+
+app.listen(process.env.PORT, () => {
+  console.log(`App started on port ${port}`)
+})

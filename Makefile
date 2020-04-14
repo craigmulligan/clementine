@@ -1,7 +1,7 @@
 ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
 
 test:
-	docker-compose run server npm test
+	docker-compose run server npm test ./src/graphql
 
 ci:
 	docker-compose run server npm ci

@@ -172,6 +172,7 @@ function App() {
                     <TraceShow traceId={params.traceId} />
                   )}
                 />
+                <Route path="/" component={() => <Redirect to={`/graph`} />} />
               </UserRedirect>
             </FiltersProvider>
           </main>

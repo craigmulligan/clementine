@@ -55,6 +55,7 @@ module.exports = gql`
     id: ID!
     email: String!
     createdAt: DateTime!
+    isVerified: Boolean!
     graphs: [Graph]
   }
 
@@ -185,9 +186,7 @@ module.exports = gql`
     graphCreate(name: String!): Graph!
     keyCreate(graphId: ID!): Key!
     userLogout: Boolean!
-    userCreate(email: String, password: String): User!
-    userLogin(email: String, password: String): User!
-    userLoginV2(email: String): String
+    userLogin(email: String): Boolean!
     tokenVerify(token: String): User!
   }
 `
