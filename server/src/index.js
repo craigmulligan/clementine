@@ -9,22 +9,8 @@ const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
 const redis = require('redis').createClient({ host: 'redis' })
 const logger = require('loglevel')
-const emailjs = require('emailjs')
-const magicLinkFactory = require('./magicLink')
+const magicLink = require('./magicLink')
 const { User } = require('./persistence')
-
-const email = emailjs.server.connect({
-  user: process.env.SMTP_EMAIL,
-  password: process.env.SMTP_PASSWORD,
-  host: process.env.SMTP_HOST,
-  ssl: true
-})
-
-const magicLink = magicLinkFactory({
-  redis,
-  email,
-  host: 'http://localhost:5000'
-})
 
 const app = express()
 const api = require('./api')
