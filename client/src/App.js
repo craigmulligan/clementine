@@ -26,11 +26,12 @@ function App() {
     <ApolloProvider client={client}>
       <Router>
         <UserProvider>
-          <main>
             <FiltersProvider>
-              <Menu />
-              <Route path="/login" component={Login} />
-              <Route path="/magic" component={CheckEmail} />
+              <main>
+                <Menu />
+                <Route path="/magic" component={CheckEmail} />
+                <Route path="/login" component={Login} />
+              </main>
               <UserRedirect>
                 <Route exact path="/graph" component={GraphList} />
                 <Route
@@ -47,6 +48,9 @@ function App() {
                     )
                   }}
                 />
+                <main>
+                <Route path="/graph" component={GraphList} />
+                </main>
                 <Switch>
                   <Route
                     path="/graph/create"
@@ -173,7 +177,6 @@ function App() {
                 />
               </UserRedirect>
             </FiltersProvider>
-          </main>
         </UserProvider>
       </Router>
     </ApolloProvider>

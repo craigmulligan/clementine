@@ -5,7 +5,7 @@ export function ErrorBanner({ error }) {
 }
 
 export function Loading() {
-  return <div>Loading...</div>
+  return <div style={{'textAlign': 'center'}}>Loading...</div>
 }
 
 export function printDuration(nanoSeconds) {

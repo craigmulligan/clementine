@@ -33,7 +33,6 @@ export function GraphList() {
 
   return (
     <div>
-      <p>Graph list</p>
       <Link to={'/graph/create'}>
         <button>Create Graph</button>
       </Link>
@@ -167,13 +166,14 @@ export function GraphHeader({ graphId }) {
 
   return (
     <div>
+      <main>
       <header>
         <h2>{data.graph.name}</h2>
         <div>
           <KeyMetics {...data.graph.stats} />
         </div>
       </header>
-      <hr />
+      </main>
       <Nav items={items} />
     </div>
   )
@@ -205,11 +205,11 @@ export function GraphSettings({ graphId }) {
   }
 
   return (
-    <div>
+    <main>
       <h2>{data.graph.name}</h2>
       <p>API Keys</p>
       <KeyCreate graphId={data.graph.id} />
       <KeyList keys={data.graph.keys} />
-    </div>
+    </main>
   )
 }

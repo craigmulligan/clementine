@@ -67,47 +67,57 @@ export default function OperationList({ graphId }) {
     return <div>Not Found</div>
   }
 
+  const symbol = orderAsc ? '&#9662;' : '&#9652;'
+
   return (
+    <main>
     <div>
-      <Pill
-        isActive={true}
-        onClick={() => {
-          setOrderAsc(prev => !prev)
-        }}
-      >
-        {orderAsc ? 'desc' : 'asc'}
-      </Pill>
       <Pill
         isActive={orderField === 'count'}
         onClick={() => {
+          if (orderField === 'count') {
+            setOrderAsc(prev => !prev)
+          }
           setOrderField('count')
         }}
       >
-        popular
+        popular {symbol}
       </Pill>
       <Pill
         isActive={orderField === 'duration'}
         onClick={() => {
+          if (orderField === 'duration') {
+            setOrderAsc(prev => !prev)
+          }
+
           setOrderField('duration')
         }}
       >
-        slowest
+        slowest {symbol}
       </Pill>
       <Pill
         isActive={orderField === 'errorCount'}
         onClick={() => {
+          if (orderField === 'errorCount') {
+            setOrderAsc(prev => !prev)
+          }
+
           setOrderField('errorCount')
         }}
       >
-        Most Errors
+        Most Errors {symbol}
       </Pill>
       <Pill
         isActive={orderField === 'errorPercent'}
         onClick={() => {
+          if (orderField === 'errorPercent') {
+            setOrderAsc(prev => !prev)
+          }
+
           setOrderField('errorPercent')
         }}
       >
-        Highest Error Rate
+        Highest Error Rate {symbol}
       </Pill>
       <div>
         {data.operations.nodes.map(op => {
@@ -163,5 +173,6 @@ export default function OperationList({ graphId }) {
         </button>
       </div>
     </div>
+    </main>
   )
 }

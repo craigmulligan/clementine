@@ -45,8 +45,6 @@ module.exports = {
         hasErrors
       } = trace
 
-      console.log(details)
-
       return [
         uuid(),
         key,
@@ -249,7 +247,6 @@ module.exports = {
           FROM traces
           where ${tfs}
           AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
-          AND NOT "hasErrors"
       )
       SELECT
           min(duration) as min_duration,
@@ -259,7 +256,6 @@ module.exports = {
       FROM traces, min_max
       WHERE ${tfs}
       AND "startTime" between ${from.toUTCString()} and ${to.toUTCString()}
-      AND NOT "hasErrors"
       GROUP BY bucket
       ORDER BY bucket;
     `

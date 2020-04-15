@@ -1,5 +1,6 @@
 import * as React from 'react'
 import TracingRow from './TracingRow'
+import { withParentSize } from '@data-ui/xy-chart'
 import styles from './TracingResponse.module.css'
 
 function prepareTracing(node, acc = []) {
@@ -23,28 +24,29 @@ function prepareTracing(node, acc = []) {
   return acc
 }
 
-export default class ResponseTracing extends React.PureComponent {
-  render() {
-    const { tracing, duration } = this.props
-
-    return (
-      <div className={styles.wrapper}>
-        <div>
+export default withParentSize(({ parentWidth, tracing, duration }) => {
+  console.log(parentWidth)
+  return (
+    <div className={styles.wrapper}>
+      <div>
+        <TracingRow
+          path={['Operation']}
+          startOffset={0}
+          duration={duration}
+          totalDuration={duration}
+          screenWidth={parentWidth * 0.85}
+        />
+        {prepareTracing(tracing).map((res, i) => (
           <TracingRow
-            path={['Operation']}
-            startOffset={0}
-            duration={duration}
+            key={[i, ...res.path].join('.')}
+            path={res.path}
+            startOffset={res.startTime}
+            duration={res.endTime - res.startTime}
+            totalDuration={duration}
+            screenWidth={parentWidth * 0.85}
           />
-          {prepareTracing(tracing).map((res, i) => (
-            <TracingRow
-              key={[i, ...res.path].join('.')}
-              path={res.path}
-              startOffset={res.startTime}
-              duration={res.endTime - res.startTime}
-            />
-          ))}
-        </div>
+        ))}
       </div>
-    )
-  }
-}
+    </div>
+  )
+})
