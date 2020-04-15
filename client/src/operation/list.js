@@ -67,7 +67,7 @@ export default function OperationList({ graphId }) {
     return <div>Not Found</div>
   }
 
-  const symbol = orderAsc ? '&#9662;' : '&#9652;'
+  const symbol = orderAsc ? String.fromCharCode(9662) : String.fromCharCode(9652)
 
   return (
     <main>
@@ -81,7 +81,7 @@ export default function OperationList({ graphId }) {
           setOrderField('count')
         }}
       >
-        popular {symbol}
+        popular {orderField === 'count' && symbol}
       </Pill>
       <Pill
         isActive={orderField === 'duration'}
@@ -93,7 +93,7 @@ export default function OperationList({ graphId }) {
           setOrderField('duration')
         }}
       >
-        slowest {symbol}
+        slowest {orderField === 'duration' && symbol}
       </Pill>
       <Pill
         isActive={orderField === 'errorCount'}
@@ -105,7 +105,7 @@ export default function OperationList({ graphId }) {
           setOrderField('errorCount')
         }}
       >
-        Most Errors {symbol}
+        Most Errors {orderField === 'errorCount' && symbol}
       </Pill>
       <Pill
         isActive={orderField === 'errorPercent'}
@@ -117,7 +117,7 @@ export default function OperationList({ graphId }) {
           setOrderField('errorPercent')
         }}
       >
-        Highest Error Rate {symbol}
+        Highest Error Rate {orderField === 'errorPercent' && symbol}
       </Pill>
       <div>
         {data.operations.nodes.map(op => {
