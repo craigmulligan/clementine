@@ -1,16 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import { useLocation, Link } from 'react-router-dom'
 import TracingReponse from './TracingReponse'
-import Filters from './filters'
-import FiltersContext, { FiltersProvider } from './filtersContext'
+import FiltersContext from './filtersContext'
 import Source from './source'
 import Pill from '../pill'
 import styles from './list.module.css'
 import Chart from '../timeline/chart'
 import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
+import { printDuration } from '../utils'
 
 const TRACE_LIST = gql`
   query traceList(
@@ -18,12 +18,18 @@ const TRACE_LIST = gql`
     $operationId: ID!
     $after: String
     $orderBy: TraceOrderBy
+    $to: DateTime
+    $from: DateTime
+    $traceFilters: [TraceFilter]
   ) {
     traces(
       graphId: $graphId
       operationId: $operationId
       after: $after
       orderBy: $orderBy
+      traceFilters: $traceFilters
+      to: $to
+      from: $from
     ) {
       nodes {
         id
@@ -36,14 +42,47 @@ const TRACE_LIST = gql`
   }
 `
 
+export function renderTooltip({ datum, seriesKey, color, data }) {
+  const { x, y, value, startTime } = datum
+
+  return (
+    <div>
+      {seriesKey && (
+        <div>
+          <strong style={{ color }}>{seriesKey}</strong>
+        </div>
+      )}
+      <div>
+        <strong style={{ color }}>TraceId </strong>
+        {x}
+      </div>
+      <div>
+        <strong style={{ color }}>Duration </strong>
+        {y}
+      </div>
+      {data && (
+        <div>
+          <strong style={{ color }}>time </strong>
+          {new Date(startTime).toString()}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TraceList({ graphId, operationId }) {
   const [location, setLocation] = useLocation()
   const [orderField, setOrderField] = useState('duration')
   const [orderAsc, setOrderAsc] = useState(false)
+  const { filters, to, from } = useContext(FiltersContext)
+
   const { loading, error, data } = useQuery(TRACE_LIST, {
     variables: {
       graphId,
       operationId,
+      traceFilters: filters,
+      to: to,
+      from: from,
       orderBy: {
         field: orderField,
         asc: orderAsc
@@ -59,13 +98,14 @@ export default function TraceList({ graphId, operationId }) {
   }
 
   const dataSeries = data.traces.nodes.map(d => ({
-    label: 'hi',
+    startTime: d.startTime,
+    label: printDuration(d.duration),
     x: d.id,
     y: d.duration / 1000 / 1000
   }))
 
   return (
-    <div>
+    <main>
       <Pill
         isActive={true}
         onClick={() => {
@@ -93,17 +133,14 @@ export default function TraceList({ graphId, operationId }) {
       <div>
         <Chart
           ariaLabel="TraceList"
+          renderTooltip={renderTooltip}
           xScale={{ type: 'band' }}
           yScale={{ type: 'linear' }}
         >
-          <XAxis label="Traces" />
+          <XAxis tickFormat={tick => tick.slice(0, 4) + '...'} label="Traces" />
           <YAxis label="Duration" />
           <BarSeries
             data={dataSeries}
-            renderLabel={({ datum, labelProps, index: i }) => {
-              console.log(datum)
-              return
-            }}
             fill="blue"
             onClick={({ datum }) => {
               setLocation(`${location}/${datum.x}`)
@@ -112,6 +149,6 @@ export default function TraceList({ graphId, operationId }) {
           <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
         </Chart>
       </div>
-    </div>
+    </main>
   )
 }

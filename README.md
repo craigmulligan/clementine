@@ -30,11 +30,20 @@ psql postgres://user:pass@localhost:5432/db
 # TODO:
 
 - Add permissions [server]
-- Add apiKey checks + rate limiting on ingress endpoint [server]
+- Add apiKey checks on ingress endpoint [server]
 - Ability to remove/revoke a key [Server & Client]
 - Serve client from server (both in dev + prod)
 - Fix filters
+- Final styling
+- Forward to apollo-engine
+- Use redis for queues
+
+# RoadMap
+
 - Add extra filters for cache hits etc.
+- Filter by different percentiles.
+- Team/Org support.
+- Add error distribution views.
 
 # NOTES
 

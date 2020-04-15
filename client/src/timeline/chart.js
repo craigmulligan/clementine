@@ -5,7 +5,6 @@ import { XYChart, theme, withScreenSize, withTheme } from '@data-ui/xy-chart'
 // test that withTheme works
 const XYChartWithTheme = withTheme(theme)(XYChart)
 
-// this is a little messy to handle all cases across series types
 export function renderTooltip({ datum, seriesKey, color, data }) {
   const { x, x0, y, value } = datum
   let xVal = x || x0
@@ -32,12 +31,6 @@ export function renderTooltip({ datum, seriesKey, color, data }) {
         <strong style={{ color }}>y </strong>
         {yVal && yVal.toFixed ? yVal.toFixed(2) : yVal}
       </div>
-      {data && (
-        <div>
-          <strong style={{ color }}>index </strong>
-          {data.indexOf(datum)}
-        </div>
-      )}
     </div>
   )
 }
@@ -45,7 +38,7 @@ export function renderTooltip({ datum, seriesKey, color, data }) {
 function ResponsiveXYChart({ screenWidth, children, ...rest }) {
   return (
     <XYChartWithTheme
-      width={Math.min(700, screenWidth / 1.5)}
+      width={Math.min(1080, screenWidth / 1.5)}
       height={Math.min(700 / 2, screenWidth / 1.5 / 2)}
       renderTooltip={renderTooltip}
       {...rest}

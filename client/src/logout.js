@@ -6,7 +6,7 @@ import UserContext from './user'
 import { Link } from 'react-router-dom'
 
 const LOGOUT = gql`
-  mutation logut {
+  mutation logout {
     userLogout
   }
 `

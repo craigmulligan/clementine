@@ -1,21 +1,18 @@
 import * as React from 'react'
 import styles from './TracingRow.module.css'
+import { printDuration } from '../utils'
 
-function printDuration(nanoSeconds) {
-  const microSeconds = Math.round(nanoSeconds / 1000)
-  if (microSeconds > 1000) {
-    const ms = Math.round(microSeconds / 1000)
-    return `${ms} ms`
-  }
+export default function TracingRow({
+  path,
+  startOffset,
+  duration,
+  totalDuration,
+  screenWidth
+}) {
+  console.log(screenWidth)
+  const offsetLeft = (startOffset / totalDuration) * screenWidth
+  const barWidth = (duration / totalDuration) * screenWidth
 
-  return `${microSeconds} µs`
-}
-
-export default function TracingRow(props) {
-  const { path, startOffset, duration } = props
-  const factor = 1000 * 1000
-  const offsetLeft = startOffset / factor
-  const barWidth = duration / factor
   return (
     <div
       className={styles.row}
