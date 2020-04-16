@@ -41,7 +41,7 @@ export function TraceShow({ traceId }) {
   }
 
   return (
-    <div>
+    <main>
       <h2>
         {trace.id} - {trace.startTime} - {trace.duration}
       </h2>
@@ -55,7 +55,7 @@ export function TraceShow({ traceId }) {
         duration={trace.duration}
         startTime={trace.startTime}
       />
-    </div>
+    </main>
   )
 }
 

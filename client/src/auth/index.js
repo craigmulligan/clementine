@@ -5,7 +5,6 @@ import { gql } from 'apollo-boost'
 import client from '../client'
 import UserContext from '../user'
 import { Header } from '../header'
-import styles from './index.module.css'
 
 const LOGIN = gql`
   mutation login($email: String!) {
@@ -20,10 +19,10 @@ export function Login() {
   const [login] = useMutation(LOGIN)
 
   return (
-    <div>
+    <div className="center">
       <Header />
       <form
-        className={styles.form}
+        className="form-inline center"
         onSubmit={async e => {
           e.preventDefault()
           try {

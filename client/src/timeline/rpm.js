@@ -88,9 +88,9 @@ export default function TimeLine({ graphId, operationId }) {
       >
         <XAxis label="Time" />
         <YAxis label="Requests" />
-        <LineSeries data={dataCount} strokeWidth={3} stroke="blue" />
-        <LineSeries data={dataErrorCount} strokeWidth={3} stroke="red" />
-        <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
+        <LineSeries data={dataCount} strokeWidth={3} stroke="black" />
+        <LineSeries data={dataErrorCount} strokeWidth={3} stroke="orange" />
+        <CrossHair showHorizontalLine={true} fullHeight stroke="orange" />
       </Chart>
     </main>
   )

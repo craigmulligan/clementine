@@ -20,13 +20,9 @@
 
 .link {
   flex-grow: 1;
-  text-decoration: none;
+  text-decoration: none !important;
   text-align: center;
   padding: 25px 0;
-}
-
-.link a:hover {
-  text-decoration: none;
 }
 
 .active {
