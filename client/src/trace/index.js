@@ -9,6 +9,9 @@ import FiltersContext, { FiltersProvider } from './filtersContext'
 import Source from './source'
 import TraceList from './list'
 import Details from './details'
+import { printDuration } from '../utils'
+import styles from './index.module.css'
+import { getOperationName, getOperationTypes } from '../operation/utils'
 
 const TRACE_SHOW = gql`
   query trace($traceId: ID!) {
@@ -42,9 +45,17 @@ export function TraceShow({ traceId }) {
 
   return (
     <main>
-      <h2>
-        {trace.id} - {trace.startTime} - {trace.duration}
-      </h2>
+      <div className={styles.wrapper}>
+        <div className={styles.stat}>
+          <div className={styles.statNumber}>
+            {printDuration(trace.duration)}
+          </div>
+          <div className={styles.statTitle}>Duration</div>
+        </div>
+        <h2>{trace.id}</h2>
+        <i className={styles.subtitle}>{getOperationName(gql(trace.key))} {String.fromCharCode(255)} </i>
+        <i className={styles.subtitle}>{trace.startTime.toString()}</i>
+      </div>
       <details>
         <summary>View Query</summary>
         <Source>{trace.key}</Source>

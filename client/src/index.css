@@ -22,6 +22,8 @@ a {
   --color-black: #000;
   --color-white: #fff;
   --color-grey: #e9e9e9;
+  --color-orange: #f5a623;
+  --color-cyan: #50e3c2;
   --color: #118bee;
   --color-accent: #118bee0b;
   --color-bg: #fff;
@@ -152,6 +154,12 @@ code {
   display: inline-block;
   margin: 0 0.1rem;
   padding: 0rem 0.5rem;
+}
+
+.code-block {
+  display: block;
+  padding: 1.5rem;
+  overflow: auto;
 }
 
 code,
@@ -309,6 +317,7 @@ textarea {
   display: block;
   font-size: inherit;
   max-width: var(--width-card-wide);
+  padding: 0.75rem;
 }
 
 input,
@@ -388,3 +397,7 @@ blockquote footer {
 }
 
 /* Custom styles */
+
+.w-100 {
+  width: 100%;
+}

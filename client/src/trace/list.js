@@ -11,6 +11,7 @@ import styles from './list.module.css'
 import Chart from '../timeline/chart'
 import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
 import { printDuration } from '../utils'
+import OrderBy from '../orderby'
 
 const TRACE_LIST = gql`
   query traceList(
@@ -106,30 +107,16 @@ export default function TraceList({ graphId, operationId }) {
 
   return (
     <main>
-      <Pill
-        isActive={true}
-        onClick={() => {
-          setOrderAsc(prev => !prev)
-        }}
-      >
-        {orderAsc ? 'desc' : 'asc'}
-      </Pill>
-      <Pill
-        isActive={orderField === 'startTime'}
-        onClick={() => {
-          setOrderField('startTime')
-        }}
-      >
-        Time
-      </Pill>
-      <Pill
-        isActive={orderField === 'duration'}
-        onClick={() => {
-          setOrderField('duration')
-        }}
-      >
-        Duration
-      </Pill>
+      <OrderBy
+        fields={[
+          { label: 'latency', field: 'duration' },
+          { label: 'time', field: 'startTime' }
+        ]}
+        orderAsc={orderAsc}
+        orderField={orderField}
+        setOrderAsc={setOrderAsc}
+        setOrderField={setOrderField}
+      />
       <div>
         <Chart
           ariaLabel="TraceList"

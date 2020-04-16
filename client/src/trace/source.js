@@ -6,7 +6,7 @@ export default function Source({ children }) {
   return (
     <div>
       <pre>
-        <code>
+        <code className="code-block">
           {print(
             gql`
               ${children}

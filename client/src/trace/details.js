@@ -4,8 +4,11 @@ export default function Details({ children }) {
     return <div />
   }
   return (
+    <div>
+      <div><p>Variables:</p></div>
     <pre>
-      Variables: <code>{JSON.stringify(children.variablesJson)}</code>
+      <code className="code-block">{JSON.stringify(children.variablesJson, null, 2)}</code>
     </pre>
+    </div>
   )
 }

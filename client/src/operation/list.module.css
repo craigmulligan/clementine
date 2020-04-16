@@ -8,8 +8,7 @@
   justify-content: space-between;
 }
 
-.row > div,
-.rowRight > div {
+.row > div, .rowRight > div {
   padding: 0 20px;
 }
 
@@ -17,4 +16,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.label {
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+  display: block;
+}
+
+.query {
+  background: var(--color-cyan);
+}
+
+.mutation {
+  background: var(--color-orange);;
 }

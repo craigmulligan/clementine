@@ -1,19 +1,6 @@
 import React from 'react'
 import styles from './stats.module.css'
-
-function printDuration(nanoSeconds) {
-  if (!nanoSeconds) {
-    return ''
-  }
-
-  const microSeconds = Math.round(nanoSeconds / 1000)
-  if (microSeconds > 1000) {
-    const ms = Math.round(microSeconds / 1000)
-    return `${ms} ms`
-  }
-
-  return `${microSeconds} µs`
-}
+import { printDuration } from './utils'
 
 export default function keyMetrics({
   count,
