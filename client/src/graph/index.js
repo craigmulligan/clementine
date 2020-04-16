@@ -56,8 +56,8 @@ export function GraphList() {
         {data.user.graphs.length > 0 ? (
           data.user.graphs.map(graph => {
             return (
-              <Link to={`/graph/${graph.id}/operation`}>
-                <div className={graphListStyles.row} key={graph.id}>
+              <Link key={graph.id} to={`/graph/${graph.id}/operation`}>
+                <div className={graphListStyles.row}>
                   {graph.name}
                   <KeyMetics {...graph.stats} />
                 </div>
@@ -73,11 +73,16 @@ export function GraphList() {
 }
 
 const GRAPH_CREATE = gql`
-  mutation CREATE_GRAPH($name: String!) {
+  mutation CREATE_GRAPH(
+    $name: String!
+    $traceFilters: [TraceFilter]
+    $to: DateTime
+    $from: DateTime
+  ) {
     graphCreate(name: $name) {
       id
       name
-      stats {
+      stats(to: $to, from: $from, traceFilters: $traceFilters) {
         errorCount
         errorPercent
         count
@@ -88,9 +93,9 @@ const GRAPH_CREATE = gql`
 `
 
 export function GraphCreate() {
+  const { filters, from, to } = useContext(FiltersContext)
   const nameRef = useRef()
   const [gc] = useMutation(GRAPH_CREATE)
-  const [, setLocation] = useLocation()
 
   return (
     <div>
@@ -103,11 +108,19 @@ export function GraphCreate() {
               data: { graphCreate: graph }
             } = await gc({
               variables: {
-                name: nameRef.current.value
+                name: nameRef.current.value,
+                traceFilters: filters,
+                to,
+                from
               },
               update: (cache, { data: { graphCreate } }) => {
                 const prevData = cache.readQuery({
-                  query: GET_GRAPHS
+                  query: GET_GRAPHS,
+                  variables: {
+                    traceFilters: filters,
+                    to,
+                    from
+                  }
                 })
 
                 // cloneDeep is necessary for the cache to pickup the change
@@ -120,6 +133,11 @@ export function GraphCreate() {
 
                 cache.writeQuery({
                   query: GET_GRAPHS,
+                  variables: {
+                    traceFilters: filters,
+                    to,
+                    from
+                  },
                   data
                 })
 
