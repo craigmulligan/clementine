@@ -3,6 +3,7 @@ import { gql } from 'apollo-boost'
 import { Redirect } from 'react-router-dom'
 import client from './client'
 import logger from 'loglevel'
+import { Loading, ErrorBanner } from './utils'
 
 const GET_USER = gql`
   {
@@ -29,7 +30,8 @@ const UserContext = React.createContext()
 class UserProvider extends Component {
   state = {
     user: {},
-    loading: true
+    loading: true,
+    error: null
   }
 
   setUser = user => {
@@ -54,7 +56,7 @@ class UserProvider extends Component {
       } catch (e) {
         logger.error(e)
         logger.warn('could find current user')
-        this.setState({ loading: false })
+        this.setState({ loading: false, error: e })
       }
     }
 
@@ -66,7 +68,7 @@ class UserProvider extends Component {
       this.setState({ loading: false })
     } catch (e) {
       logger.warn('could find current user')
-      this.setState({ loading: false })
+      this.setState({ loading: false, error: e })
     }
   }
 
@@ -94,12 +96,14 @@ export { UserProvider }
 export default UserContext
 
 export function UserRedirect({ children }) {
-  const { user, loading } = useContext(UserContext)
-
-  console.log({ user, loading })
+  const { user, loading, error } = useContext(UserContext)
 
   if (loading) {
-    return <div>Loading</div>
+    return <Loading />
+  }
+
+  if (error) {
+    return <ErrorBanner />
   }
 
   if (!user) {

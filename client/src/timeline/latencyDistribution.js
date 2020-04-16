@@ -74,18 +74,18 @@ export default function TimeLine({ graphId, operationId }) {
 
   return (
     <main>
-    <Chart
-      ariaLabel="LatencyDistribution"
-      xScale={{ type: 'band' }}
-      yScale={{ type: 'linear' }}
-      snapTooltipToDataX
-      renderTooltip={renderTooltip}
-    >
-      <XAxis tickFormat={tick => tick.toFixed(2)} label="Duration" />
-      <YAxis label="Requests" />
-      <BarSeries data={dataCount} fill="blue" />
-      <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
-    </Chart>
+      <Chart
+        ariaLabel="LatencyDistribution"
+        xScale={{ type: 'band' }}
+        yScale={{ type: 'linear' }}
+        snapTooltipToDataX
+        renderTooltip={renderTooltip}
+      >
+        <XAxis tickFormat={tick => tick.toFixed(2)} label="Duration" />
+        <YAxis label="Requests" />
+        <BarSeries data={dataCount} fill="black" />
+        <CrossHair showHorizontalLine={true} fullHeight stroke="orange" />
+      </Chart>
     </main>
   )
 }

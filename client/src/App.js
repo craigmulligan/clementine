@@ -1,13 +1,7 @@
 import React, { Fragment } from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { Login, CheckEmail } from './auth'
-import {
-  GraphShow,
-  GraphSettings,
-  GraphCreate,
-  GraphList,
-  GraphHeader
-} from './graph'
+import { GraphShow, GraphSettings, GraphList, GraphHeader } from './graph'
 import { OperationList, OperationHeader } from './operation'
 import client from './client'
 import {
@@ -177,6 +171,106 @@ function App() {
                 />
               </UserRedirect>
             </FiltersProvider>
+=======
+          <FiltersProvider>
+            <main>
+              <Menu />
+              <Route path="/magic" component={CheckEmail} />
+              <Route path="/login" component={Login} />
+            </main>
+            <UserRedirect>
+              <Route path="/graph" component={GraphList} />
+              <Route
+                path="/graph/:graphId/settings"
+                component={({ params }) => (
+                  <Fragment>
+                    <GraphHeader graphId={params.graphId} />
+                    <GraphSettings graphId={params.graphId} />
+                  </Fragment>
+                )}
+              />
+              <Route
+                path="/graph/:graphId/operation"
+                component={({ params }) => (
+                  <Fragment>
+                    <GraphHeader graphId={params.graphId} />
+                    <OperationList graphId={params.graphId} />
+                  </Fragment>
+                )}
+              />
+              <Route
+                path="/graph/:graphId/rpm"
+                component={({ params }) => (
+                  <Fragment>
+                    <GraphHeader graphId={params.graphId} />
+                    <Rpm graphId={params.graphId} />
+                  </Fragment>
+                )}
+              />
+              <Route
+                path="/graph/:graphId/ld"
+                component={({ params }) => (
+                  <Fragment>
+                    <GraphHeader graphId={params.graphId} />
+                    <LatencyDistribution graphId={params.graphId} />
+                  </Fragment>
+                )}
+              />
+              <Route
+                path="/graph/:graphId/operation/:operationId/trace"
+                component={({ params }) => (
+                  <Fragment>
+                    <OperationHeader
+                      graphId={params.graphId}
+                      operationId={params.operationId}
+                    />
+                    <TraceList
+                      graphId={params.graphId}
+                      operationId={params.operationId}
+                    />
+                  </Fragment>
+                )}
+              />
+              <Route
+                path="/graph/:graphId/operation/:operationId/rpm"
+                component={({ params }) => (
+                  <Fragment>
+                    <OperationHeader
+                      graphId={params.graphId}
+                      operationId={params.operationId}
+                    />
+                    <Rpm
+                      graphId={params.graphId}
+                      operationId={params.operationId}
+                    />
+                  </Fragment>
+                )}
+              />
+              <Route
+                path="/graph/:graphId/operation/:operationId/ld"
+                component={({ params }) => (
+                  <Fragment>
+                    <OperationHeader
+                      graphId={params.graphId}
+                      operationId={params.operationId}
+                    />
+                    <LatencyDistribution
+                      graphId={params.graphId}
+                      operationId={params.operationId}
+                    />
+                  </Fragment>
+                )}
+              />
+
+              <Route
+                path="/graph/:graphId/operation/:operationId/trace/:traceId"
+                component={({ params }) => (
+                  <TraceShow traceId={params.traceId} />
+                )}
+              />
+            </UserRedirect>
+          </FiltersProvider>
+>>>>>>> fix up login redirect
         </UserProvider>
       </Router>
     </ApolloProvider>

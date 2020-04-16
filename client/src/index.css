@@ -16,7 +16,6 @@ a {
   cursor: pointer;
 }
 
-
 :root {
   --border-radius: 3px;
   --box-shadow: 2px 2px 10px;
@@ -273,10 +272,29 @@ figure figcaption {
 /* Forms */
 form {
   display: block;
-  max-width: var(--width-card-wide);
   min-width: var(--width-card);
   padding: 1.5rem;
   text-align: var(--justify-normal);
+  margin: auto;
+}
+
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  width: 50%;
+}
+
+.form-inline input {
+  padding: 0.75rem;
+  vertical-align: middle;
+  margin: 0;
+  flex-grow: 8;
+}
+
+.form-inline button {
+  margin: 0;
+  flex-grow: 2;
 }
 
 form header {

@@ -141,12 +141,12 @@ export default function TraceList({ graphId, operationId }) {
           <YAxis label="Duration" />
           <BarSeries
             data={dataSeries}
-            fill="blue"
+            fill="black"
             onClick={({ datum }) => {
               setLocation(`${location}/${datum.x}`)
             }}
           />
-          <CrossHair showHorizontalLine={true} fullHeight stroke="pink" />
+          <CrossHair showHorizontalLine={true} fullHeight stroke="orange" />
         </Chart>
       </div>
     </main>

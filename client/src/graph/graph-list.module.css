@@ -1,0 +1,13 @@
+.wrapper {
+  margin: 0 auto;
+}
+
+.row {
+  cursor: pointer;
+  padding: 20px 0;
+  margin: 20px 0;
+  border-bottom: 1px solid var(--color-grey);
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}

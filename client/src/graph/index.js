@@ -8,21 +8,39 @@ import { ErrorBanner, Loading } from '../utils'
 import Nav from '../nav'
 import { KeyList, KeyCreate } from '../key'
 import KeyMetics from '../keyMetrics'
+import graphListStyles from './graph-list.module.css'
 
 const GET_GRAPHS = gql`
-  query GRAPH_LIST {
+  query GRAPH_LIST(
+    $traceFilters: [TraceFilter]
+    $to: DateTime
+    $from: DateTime
+  ) {
     user {
       id
       graphs {
         id
         name
+        stats(to: $to, from: $from, traceFilters: $traceFilters) {
+          errorCount
+          errorPercent
+          count
+          duration
+        }
       }
     }
   }
 `
 
 export function GraphList() {
-  const { loading, error, data } = useQuery(GET_GRAPHS)
+  const { filters, from, to } = useContext(FiltersContext)
+  const { loading, error, data } = useQuery(GET_GRAPHS, {
+    variables: {
+      traceFilters: filters,
+      to,
+      from
+    }
+  })
 
   if (loading) return <Loading />
   if (error) return <ErrorBanner error={error} />
@@ -32,24 +50,25 @@ export function GraphList() {
   }
 
   return (
-    <div>
-      <Link to={'/graph/create'}>
-        <button>Create Graph</button>
-      </Link>
-      <ul>
+    <main>
+      <GraphCreate />
+      <div className={graphListStyles.wrapper}>
         {data.user.graphs.length > 0 ? (
           data.user.graphs.map(graph => {
             return (
-              <li key={graph.id}>
-                <Link to={`/graph/${graph.id}`}>{graph.name}</Link>
-              </li>
+              <Link to={`/graph/${graph.id}/operation`}>
+                <div className={graphListStyles.row} key={graph.id}>
+                  {graph.name}
+                  <KeyMetics {...graph.stats} />
+                </div>
+              </Link>
             )
           })
         ) : (
           <p>No graphs - create one!</p>
         )}
-      </ul>
-    </div>
+      </div>
+    </main>
   )
 }
 
@@ -58,6 +77,12 @@ const GRAPH_CREATE = gql`
     graphCreate(name: $name) {
       id
       name
+      stats {
+        errorCount
+        errorPercent
+        count
+        duration
+      }
     }
   }
 `
@@ -70,6 +95,7 @@ export function GraphCreate() {
   return (
     <div>
       <form
+        className="form-inline"
         onSubmit={async e => {
           e.preventDefault()
           try {
@@ -96,10 +122,11 @@ export function GraphCreate() {
                   query: GET_GRAPHS,
                   data
                 })
+
+                // clear form on success
+                nameRef.current.value = ''
               }
             })
-
-            setLocation(`/graph/${graph.id}`)
           } catch (e) {
             alert(e.message)
           }
@@ -167,12 +194,13 @@ export function GraphHeader({ graphId }) {
   return (
     <div>
       <main>
-      <header>
-        <h2>{data.graph.name}</h2>
-        <div>
-          <KeyMetics {...data.graph.stats} />
-        </div>
-      </header>
+        <header>
+          <h2>{data.graph.name}</h2>
+          <div>
+            <Filters graphId={graphId} />
+            <KeyMetics {...data.graph.stats} />
+          </div>
+        </header>
       </main>
       <Nav items={items} />
     </div>
@@ -206,7 +234,6 @@ export function GraphSettings({ graphId }) {
 
   return (
     <main>
-      <h2>{data.graph.name}</h2>
       <p>API Keys</p>
       <KeyCreate graphId={data.graph.id} />
       <KeyList keys={data.graph.keys} />

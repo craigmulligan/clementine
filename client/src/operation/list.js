@@ -67,112 +67,118 @@ export default function OperationList({ graphId }) {
     return <div>Not Found</div>
   }
 
-  const symbol = orderAsc ? String.fromCharCode(9662) : String.fromCharCode(9652)
+  const symbol = orderAsc
+    ? String.fromCharCode(9652)
+    : String.fromCharCode(9662)
 
   return (
     <main>
-    <div>
-      <Pill
-        isActive={orderField === 'count'}
-        onClick={() => {
-          if (orderField === 'count') {
-            setOrderAsc(prev => !prev)
-          }
-          setOrderField('count')
-        }}
-      >
-        popular {orderField === 'count' && symbol}
-      </Pill>
-      <Pill
-        isActive={orderField === 'duration'}
-        onClick={() => {
-          if (orderField === 'duration') {
-            setOrderAsc(prev => !prev)
-          }
-
-          setOrderField('duration')
-        }}
-      >
-        slowest {orderField === 'duration' && symbol}
-      </Pill>
-      <Pill
-        isActive={orderField === 'errorCount'}
-        onClick={() => {
-          if (orderField === 'errorCount') {
-            setOrderAsc(prev => !prev)
-          }
-
-          setOrderField('errorCount')
-        }}
-      >
-        Most Errors {orderField === 'errorCount' && symbol}
-      </Pill>
-      <Pill
-        isActive={orderField === 'errorPercent'}
-        onClick={() => {
-          if (orderField === 'errorPercent') {
-            setOrderAsc(prev => !prev)
-          }
-
-          setOrderField('errorPercent')
-        }}
-      >
-        Highest Error Rate {orderField === 'errorPercent' && symbol}
-      </Pill>
       <div>
-        {data.operations.nodes.map(op => {
-          const doc = gql`
-            ${op.key}
-          `
-          const name = getOperationName(doc)
-          const operationTypes = getOperationTypes(doc)
-
-          return (
-            <Link key={op.id} to={`/graph/${graphId}/operation/${op.id}`}>
-              <div className={styles.row}>
-                <div>{op.id.substring(0, 5)} </div>
-                <div>
-                  <code>{name ? name : op.id}</code>
-                </div>
-                <KeyMetrics {...op.stats} />
-                <Pill>{operationTypes.join(' ')}</Pill>
-              </div>
-              <hr />
-            </Link>
-          )
-        })}
-        <button
-          disabled={data.operations.cursor.length === 0}
+        <Pill
+          isActive={orderField === 'count'}
           onClick={() => {
-            fetchMore({
-              variables: {
-                graphId,
-                orderBy: {
-                  field: orderField,
-                  asc: orderAsc
-                },
-                after: data.operations.cursor
-              },
-              updateQuery: (previousResult, { fetchMoreResult }) => {
-                const prevOps = previousResult.operations.nodes
-                const newOps = fetchMoreResult.operations.nodes
-                const nodes = [...prevOps, ...newOps]
-
-                return {
-                  operations: {
-                    // Put the new comments in the front of the list
-                    ...fetchMoreResult.operations,
-                    nodes
-                  }
-                }
-              }
-            })
+            if (orderField === 'count') {
+              setOrderAsc(prev => !prev)
+            }
+            setOrderField('count')
           }}
         >
-          {data.operations.cursor.length === 0 ? 'no more' : 'more'}
-        </button>
+          Popular {orderField === 'count' && symbol}
+        </Pill>
+        <Pill
+          isActive={orderField === 'duration'}
+          onClick={() => {
+            if (orderField === 'duration') {
+              setOrderAsc(prev => !prev)
+            }
+
+            setOrderField('duration')
+          }}
+        >
+          Duration {orderField === 'duration' && symbol}
+        </Pill>
+        <Pill
+          isActive={orderField === 'errorCount'}
+          onClick={() => {
+            if (orderField === 'errorCount') {
+              setOrderAsc(prev => !prev)
+            }
+
+            setOrderField('errorCount')
+          }}
+        >
+          Errors {orderField === 'errorCount' && symbol}
+        </Pill>
+        <Pill
+          isActive={orderField === 'errorPercent'}
+          onClick={() => {
+            if (orderField === 'errorPercent') {
+              setOrderAsc(prev => !prev)
+            }
+
+            setOrderField('errorPercent')
+          }}
+        >
+          Error Rate {orderField === 'errorPercent' && symbol}
+        </Pill>
+        <div>
+          {data.operations.nodes.map(op => {
+            const doc = gql`
+              ${op.key}
+            `
+            const name = getOperationName(doc)
+            const operationTypes = getOperationTypes(doc)
+
+            return (
+              <Link
+                key={op.id}
+                to={`/graph/${graphId}/operation/${op.id}/trace`}
+              >
+                <div className={styles.row}>
+                  <div>{op.id.substring(0, 5)} </div>
+                  <div>
+                    <code>{name ? name : op.id}</code>
+                  </div>
+                  <div className={styles.rowRight}>
+                    <KeyMetrics {...op.stats} />
+                    <Pill>{operationTypes.join(' ')}</Pill>
+                  </div>
+                </div>
+              </Link>
+            )
+          })}
+          <button
+            disabled={data.operations.cursor.length === 0}
+            onClick={() => {
+              fetchMore({
+                variables: {
+                  graphId,
+                  orderBy: {
+                    field: orderField,
+                    asc: orderAsc
+                  },
+                  after: data.operations.cursor
+                },
+                updateQuery: (previousResult, { fetchMoreResult }) => {
+                  const prevOps = previousResult.operations.nodes
+                  const newOps = fetchMoreResult.operations.nodes
+                  const nodes = [...prevOps, ...newOps]
+
+                  return {
+                    operations: {
+                      // Put the new comments in the front of the list
+                      ...fetchMoreResult.operations,
+                      nodes
+                    }
+                  }
+                }
+              })
+            }}
+          >
+            {data.operations.cursor.length === 0 ? 'no more' : 'more'}
+          </button>
+        </div>
       </div>
-    </div>
     </main>
   )
 }

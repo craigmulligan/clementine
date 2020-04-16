@@ -1,11 +1,15 @@
 import React from 'react'
 
 export function ErrorBanner({ error }) {
-  return <div>Error: {error.message}</div>
+  return <div style={{ textAlign: 'center' }}>Error: {error.message}...</div>
 }
 
 export function Loading() {
-  return <div style={{'textAlign': 'center'}}>Loading...</div>
+  return <div style={{ textAlign: 'center' }}>Loading...</div>
+}
+
+export function NotFound() {
+  return <div style={{ textAlign: 'center' }}>Loading...</div>
 }
 
 export function printDuration(nanoSeconds) {
