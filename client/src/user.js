@@ -28,7 +28,8 @@ const UserContext = React.createContext()
 
 class UserProvider extends Component {
   state = {
-    user: {}
+    user: {},
+    loading: true
   }
 
   setUser = user => {
@@ -49,9 +50,11 @@ class UserProvider extends Component {
         })
 
         this.setUser(user)
+        this.setState({ loading: false })
       } catch (e) {
         logger.error(e)
         logger.warn('could find current user')
+        this.setState({ loading: false })
       }
     }
 
@@ -60,21 +63,24 @@ class UserProvider extends Component {
         data: { user }
       } = await client.query({ query: GET_USER })
       this.setUser(user)
+      this.setState({ loading: false })
     } catch (e) {
       logger.warn('could find current user')
+      this.setState({ loading: false })
     }
   }
 
   render() {
     const { children } = this.props
-    const { user } = this.state
+    const { user, loading } = this.state
     const { setUser } = this
 
     return (
       <UserContext.Provider
         value={{
           user,
-          setUser
+          setUser,
+          loading
         }}
       >
         {children}
@@ -88,7 +94,13 @@ export { UserProvider }
 export default UserContext
 
 export function UserRedirect({ children }) {
-  const { user } = useContext(UserContext)
+  const { user, loading } = useContext(UserContext)
+
+  console.log({ user, loading })
+
+  if (loading) {
+    return <div>Loading</div>
+  }
 
   if (!user) {
     return <Redirect to="/login" />

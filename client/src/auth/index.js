@@ -2,9 +2,10 @@ import React, { useRef, useContext } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { useLocation } from 'react-router-dom'
 import { gql } from 'apollo-boost'
-import client from './client'
-import UserContext from './user'
-import { Header } from './header'
+import client from '../client'
+import UserContext from '../user'
+import { Header } from '../header'
+import styles from './index.module.css'
 
 const LOGIN = gql`
   mutation login($email: String!) {
@@ -22,6 +23,7 @@ export function Login() {
     <div>
       <Header />
       <form
+        className={styles.form}
         onSubmit={async e => {
           e.preventDefault()
           try {
