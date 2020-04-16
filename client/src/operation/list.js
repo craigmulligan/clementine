@@ -9,6 +9,7 @@ import Pill from '../pill'
 import Nav from '../nav'
 import { getOperationName, getOperationTypes } from './utils'
 import styles from './list.module.css'
+import OrderBy from '../orderby'
 
 const OPERATION_LIST = gql`
   query operationList(
@@ -67,60 +68,21 @@ export default function OperationList({ graphId }) {
     return <div>Not Found</div>
   }
 
-  const symbol = orderAsc
-    ? String.fromCharCode(9652)
-    : String.fromCharCode(9662)
-
   return (
     <main>
       <div>
-        <Pill
-          isActive={orderField === 'count'}
-          onClick={() => {
-            if (orderField === 'count') {
-              setOrderAsc(prev => !prev)
-            }
-            setOrderField('count')
-          }}
-        >
-          Popular {orderField === 'count' && symbol}
-        </Pill>
-        <Pill
-          isActive={orderField === 'duration'}
-          onClick={() => {
-            if (orderField === 'duration') {
-              setOrderAsc(prev => !prev)
-            }
-
-            setOrderField('duration')
-          }}
-        >
-          Duration {orderField === 'duration' && symbol}
-        </Pill>
-        <Pill
-          isActive={orderField === 'errorCount'}
-          onClick={() => {
-            if (orderField === 'errorCount') {
-              setOrderAsc(prev => !prev)
-            }
-
-            setOrderField('errorCount')
-          }}
-        >
-          Errors {orderField === 'errorCount' && symbol}
-        </Pill>
-        <Pill
-          isActive={orderField === 'errorPercent'}
-          onClick={() => {
-            if (orderField === 'errorPercent') {
-              setOrderAsc(prev => !prev)
-            }
-
-            setOrderField('errorPercent')
-          }}
-        >
-          Error Rate {orderField === 'errorPercent' && symbol}
-        </Pill>
+        <OrderBy
+          fields={[
+            { label: 'Popular', field: 'count' },
+            { label: 'Latency', field: 'duration' },
+            { label: 'Error', field: 'errorCount' },
+            { label: 'Error rate', field: 'errorPercent' }
+          ]}
+          setOrderAsc={setOrderAsc}
+          orderAsc={orderAsc}
+          setOrderField={setOrderField}
+          orderField={orderField}
+        />
         <div>
           {data.operations.nodes.map(op => {
             const doc = gql`
@@ -141,13 +103,14 @@ export default function OperationList({ graphId }) {
                   </div>
                   <div className={styles.rowRight}>
                     <KeyMetrics {...op.stats} />
-                    <Pill>{operationTypes.join(' ')}</Pill>
+                    <span className={[styles.label, ...operationTypes.map((k) => styles[k])].join(' ')} />
                   </div>
                 </div>
               </Link>
             )
           })}
           <button
+            className={'w-100'}
             disabled={data.operations.cursor.length === 0}
             onClick={() => {
               fetchMore({
