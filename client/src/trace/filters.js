@@ -25,7 +25,7 @@ export default function TraceFilters({ graphId, onChange }) {
     setFilterInterval,
     filterInterval
   } = useContext(FiltersContext)
-  const [location, set, query] = useLocation()
+  const [location] = useLocation()
   const url = new URL('http://localhost' + location)
 
   const params = url.searchParams
