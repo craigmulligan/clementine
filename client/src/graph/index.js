@@ -3,7 +3,7 @@ import React, { useRef, useContext } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { useLocation, Link } from 'wouter'
 import { cloneDeep } from 'lodash'
-import { FiltersContext, Filters } from '../trace'
+import { FiltersContext } from '../trace'
 import { ErrorBanner, Loading } from '../utils'
 import Nav from '../nav'
 import { KeyList, KeyCreate } from '../key'
@@ -166,7 +166,6 @@ export function GraphHeader({ graphId }) {
       <header>
         <h2>{data.graph.name}</h2>
         <div>
-          <Filters graphId={graphId} />
           <KeyMetics {...data.graph.stats} />
         </div>
       </header>
