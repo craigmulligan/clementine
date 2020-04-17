@@ -9,6 +9,7 @@ import Pill from '../pill'
 import Nav from '../nav'
 import { getOperationName, getOperationTypes } from './utils'
 import styles from './list.module.css'
+import Label from '../label'
 import OrderBy from '../orderby'
 
 const OPERATION_LIST = gql`
@@ -103,7 +104,7 @@ export default function OperationList({ graphId }) {
                   </div>
                   <div className={styles.rowRight}>
                     <KeyMetrics {...op.stats} />
-                    <span className={[styles.label, ...operationTypes.map((k) => styles[k])].join(' ')} />
+                    <Label type={ operationTypes.includes('mutation') ? 'orange' : 'green' } />
                   </div>
                 </div>
               </Link>

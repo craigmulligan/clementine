@@ -131,7 +131,7 @@ export default function TraceList({ graphId, operationId }) {
             data={dataSeries}
             fill="black"
             onClick={({ datum }) => {
-              history.push(`${location}/${datum.x}`)
+              history.push(`trace/${datum.x}`)
             }}
           />
           <CrossHair showHorizontalLine={true} fullHeight stroke="orange" />
