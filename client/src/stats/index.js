@@ -1,6 +1,6 @@
 import React from 'react'
-import styles from './stats.module.css'
-import { printDuration } from './utils'
+import styles from './index.module.css'
+import { printDuration } from '../utils'
 
 export default function keyMetrics({
   count,

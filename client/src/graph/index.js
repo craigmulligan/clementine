@@ -4,10 +4,10 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { Link } from 'react-router-dom'
 import { cloneDeep } from 'lodash'
 import { FiltersContext } from '../trace'
-import { ErrorBanner, Loading } from '../utils'
+import { ErrorBanner, Loading, NotFound } from '../utils'
 import Nav from '../nav'
 import { KeyList, KeyCreate } from '../key'
-import KeyMetics from '../keyMetrics'
+import Stats from '../stats'
 import graphListStyles from './graph-list.module.css'
 
 const GET_GRAPHS = gql`
@@ -59,13 +59,13 @@ export function GraphList() {
               <Link key={graph.id} to={`/graph/${graph.id}/operation`}>
                 <div className={graphListStyles.row}>
                   {graph.name}
-                  <KeyMetics {...graph.stats} />
+                  <Stats {...graph.stats} />
                 </div>
               </Link>
             )
           })
         ) : (
-          <p>No graphs - create one!</p>
+          <NotFound />
         )}
       </div>
     </main>
@@ -213,7 +213,7 @@ export function GraphHeader({ graphId }) {
         <header>
           <h2>{data.graph.name}</h2>
           <div>
-            <KeyMetics {...data.graph.stats} />
+            <Stats {...data.graph.stats} />
           </div>
         </header>
       </main>
@@ -244,7 +244,7 @@ export function GraphSettings({ graphId }) {
   if (error) return <ErrorBanner error={error} />
 
   if (!data.graph) {
-    return <div>Not Found</div>
+    return <NotFound />
   }
 
   return (

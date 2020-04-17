@@ -3,7 +3,7 @@ import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'react-router-dom'
-import KeyMetrics from '../keyMetrics'
+import Stats from '../stats'
 import { FiltersContext } from '../trace'
 import Nav from '../nav'
 import OperationList from './list'
@@ -84,7 +84,7 @@ export function OperationHeader({ graphId, operationId, stats }) {
           <h2>{name ? name : operationId}</h2>
         </Link>
         <Filters graphId={graphId} />
-        <KeyMetrics {...operationStats} />
+        <Stats {...operationStats} />
       </header>
       <Nav items={items} />
     </div>

@@ -22,9 +22,6 @@ async function verify(token) {
 
 async function send(user) {
   const [token, link] = await generate(user)
-  if (process.env.NODE_ENV === 'test') {
-    return
-  }
 
   return sendEmail({
     text: `Follow this link to login ${link}`,
