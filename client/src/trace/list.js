@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, Link, useHistory } from 'react-router-dom'
 import TracingReponse from './TracingReponse'
 import FiltersContext from './filtersContext'
 import Source from './source'
@@ -72,7 +72,8 @@ export function renderTooltip({ datum, seriesKey, color, data }) {
 }
 
 export default function TraceList({ graphId, operationId }) {
-  const [location, setLocation] = useLocation()
+  const location = useLocation()
+  const history = useHistory()
   const [orderField, setOrderField] = useState('duration')
   const [orderAsc, setOrderAsc] = useState(false)
   const { filters, to, from } = useContext(FiltersContext)
@@ -130,7 +131,7 @@ export default function TraceList({ graphId, operationId }) {
             data={dataSeries}
             fill="black"
             onClick={({ datum }) => {
-              setLocation(`${location}/${datum.x}`)
+              history.push(`${location}/${datum.x}`)
             }}
           />
           <CrossHair showHorizontalLine={true} fullHeight stroke="orange" />

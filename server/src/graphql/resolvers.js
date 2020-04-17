@@ -28,9 +28,9 @@ module.exports = {
   DateTime: DateTimeResolver,
   JSON: JSONResolver,
   Query: {
-    traceFilterOptions: (_, { graphId }, { req }) => {
+    traceFilterOptions: async (_, { graphId }, { req }) => {
       // TODO permissions
-      const options = Trace.findFilterOptions({ graphId })
+      const options = await Trace.findFilterOptions({ graphId })
 
       return {
         ...options,

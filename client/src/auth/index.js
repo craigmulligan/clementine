@@ -1,6 +1,6 @@
 import React, { useRef, useContext } from 'react'
 import { useMutation } from '@apollo/react-hooks'
-import { useLocation } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import { gql } from 'apollo-boost'
 import client from '../client'
 import UserContext from '../user'
@@ -14,7 +14,7 @@ const LOGIN = gql`
 `
 
 export function Login() {
-  const [, setLocation] = useLocation()
+  const history = useHistory()
   const { setUser } = useContext(UserContext)
   const emailRef = useRef()
   const [login] = useMutation(LOGIN)
@@ -34,7 +34,7 @@ export function Login() {
             })
 
             await client.resetStore()
-            setLocation('/magic')
+            history.push('/magic')
           } catch (e) {
             alert(e.message)
           }
