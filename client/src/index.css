@@ -220,7 +220,7 @@ sup {
 a {
   color: var(--color-text-secondary);
   font-weight: bold;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 a.active {
@@ -229,7 +229,7 @@ a.active {
 
 a:hover {
   filter: brightness(var(--hover-brightness));
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 a b,

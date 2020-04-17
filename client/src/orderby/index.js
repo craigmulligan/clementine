@@ -17,6 +17,7 @@ export default function OrderBy({
       {fields.map(({ field, label }) => {
         return (
           <Pill
+            key={field}
             isActive={orderField === field}
             onClick={() => {
               if (orderField === field) {

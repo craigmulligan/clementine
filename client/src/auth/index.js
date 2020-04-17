@@ -5,6 +5,7 @@ import { gql } from 'apollo-boost'
 import client from '../client'
 import UserContext from '../user'
 import { Header } from '../header'
+import { Link } from 'react-router-dom'
 
 const LOGIN = gql`
   mutation login($email: String!) {

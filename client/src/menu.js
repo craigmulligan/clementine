@@ -13,9 +13,7 @@ function Menu() {
     return (
       <header>
         <nav>
-          <Link to="/graph">
-            <a>Graphs</a>
-          </Link>
+          <Link to="/graph">Graphs</Link>
           <Link to={'?filters=1'}>Filters {filters.length}</Link>
           <Logout />
         </nav>
@@ -27,9 +25,7 @@ function Menu() {
     <header>
       <nav>
         <div>
-          <Link to="/login">
-            <a>signin</a>
-          </Link>
+          <Link to="/login">signin</Link>
         </div>
       </nav>
     </header>
