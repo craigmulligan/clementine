@@ -4,10 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import Logout from './logout'
 import UserContext from './user'
 import { FiltersContext } from './trace'
-
-function useQuery() {
-  return new URLSearchParams(useLocation().search)
-}
+import Label from './label'
 
 function Menu() {
   const { user } = useContext(UserContext)
@@ -15,7 +12,7 @@ function Menu() {
   const location = useLocation()
   const search = new URLSearchParams(location.search)
 
-  console.log(search.toString(), location.pathname)
+  console.log(filters.length)
   let path
 
   // toggle fitlers query
@@ -28,11 +25,13 @@ function Menu() {
   }
 
   if (user) {
+    const label = filters.length > 0 ? <Label /> : ""
+    console.log({ label })
     return (
       <header>
         <nav>
           <Link to="/graph">Graphs</Link>
-          <Link to={path}>Filters {filters.length}</Link>
+          <Link to={path}>Filters{' '}{label}</Link>
           <Logout />
         </nav>
       </header>

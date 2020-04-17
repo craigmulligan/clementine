@@ -1,0 +1,14 @@
+.label {
+  border-radius: 50%;
+  min-height: 10px;
+  min-width: 10px;
+  display: inline-block;
+}
+
+.green {
+  background: var(--color-cyan);
+}
+
+.orange {
+  background: var(--color-orange);;
+}
