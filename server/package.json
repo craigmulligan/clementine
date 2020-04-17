@@ -28,7 +28,6 @@
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "graphql": "^14.6.0",
-    "graphql-auth": "^0.2.6",
     "graphql-scalars": "^1.0.9",
     "helmet": "^3.16.0",
     "loglevel": "^1.6.7",
