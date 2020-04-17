@@ -5,7 +5,6 @@ import { Loading, ErrorBanner } from '../utils'
 import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
 import FiltersContext from './filtersContext'
-import { Link } from 'react-router-dom'
 import './filters.css'
 
 const TRACE_FILTER_OPTIONS = gql`
@@ -20,12 +19,7 @@ const TRACE_FILTER_OPTIONS = gql`
 `
 
 export default function TraceFilters({ graphId, isVisible }) {
-  const {
-    rawFilters: conditions,
-    setFilters,
-    setFilterInterval,
-    filterInterval
-  } = useContext(FiltersContext)
+  const { rawFilters: conditions, setFilters } = useContext(FiltersContext)
 
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {

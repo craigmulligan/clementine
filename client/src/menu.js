@@ -11,8 +11,6 @@ function Menu() {
   const { rawFilters: filters } = useContext(FiltersContext)
   const location = useLocation()
   const search = new URLSearchParams(location.search)
-
-  console.log(filters.length)
   let path
 
   // toggle fitlers query
@@ -26,7 +24,6 @@ function Menu() {
 
   if (user) {
     const label = filters.length > 0 ? <Label /> : ""
-    console.log({ label })
     return (
       <header>
         <nav>

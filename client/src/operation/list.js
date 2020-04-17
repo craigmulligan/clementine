@@ -5,8 +5,6 @@ import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'react-router-dom'
 import KeyMetrics from '../keyMetrics'
 import { FiltersContext } from '../trace'
-import Pill from '../pill'
-import Nav from '../nav'
 import { getOperationName, getOperationTypes } from './utils'
 import styles from './list.module.css'
 import Label from '../label'
@@ -104,7 +102,11 @@ export default function OperationList({ graphId }) {
                   </div>
                   <div className={styles.rowRight}>
                     <KeyMetrics {...op.stats} />
-                    <Label type={ operationTypes.includes('mutation') ? 'orange' : 'green' } />
+                    <Label
+                      type={
+                        operationTypes.includes('mutation') ? 'orange' : 'green'
+                      }
+                    />
                   </div>
                 </div>
               </Link>

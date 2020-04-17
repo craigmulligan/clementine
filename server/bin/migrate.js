@@ -1,10 +1,11 @@
 const { runMigration } = require('../src/persistence/migrator')
+const logger = require('loglevel')
 
 const [command] = process.argv.slice(2)
 
 runMigration(command)
   .then(() => {
-    console.log(`migrations "${command}" successfully ran`)
+    logger.info(`migrations "${command}" successfully ran`)
     // eslint-disable-next-line unicorn/no-process-exit
     process.exit(0)
   })

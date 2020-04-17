@@ -32,7 +32,7 @@ const TRACE_LIST = gql`
 `
 
 export function renderTooltip({ datum, seriesKey, color, data }) {
-  const { x, y, value } = datum
+  const { x, y } = datum
 
   return (
     <div>

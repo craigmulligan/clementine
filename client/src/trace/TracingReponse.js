@@ -25,7 +25,6 @@ function prepareTracing(node, acc = []) {
 }
 
 export default withParentSize(({ parentWidth, tracing, duration }) => {
-  console.log(parentWidth)
   return (
     <div className={styles.wrapper}>
       <div>

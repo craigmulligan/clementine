@@ -2,12 +2,8 @@ import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
-import { useLocation, Link, useHistory } from 'react-router-dom'
-import TracingReponse from './TracingReponse'
+import { useHistory } from 'react-router-dom'
 import FiltersContext from './filtersContext'
-import Source from './source'
-import Pill from '../pill'
-import styles from './list.module.css'
 import Chart from '../timeline/chart'
 import { CrossHair, XAxis, YAxis, BarSeries } from '@data-ui/xy-chart'
 import { printDuration } from '../utils'
@@ -44,7 +40,7 @@ const TRACE_LIST = gql`
 `
 
 export function renderTooltip({ datum, seriesKey, color, data }) {
-  const { x, y, value, startTime } = datum
+  const { x, y, startTime } = datum
 
   return (
     <div>
@@ -72,7 +68,6 @@ export function renderTooltip({ datum, seriesKey, color, data }) {
 }
 
 export default function TraceList({ graphId, operationId }) {
-  const location = useLocation()
   const history = useHistory()
   const [orderField, setOrderField] = useState('duration')
   const [orderAsc, setOrderAsc] = useState(false)

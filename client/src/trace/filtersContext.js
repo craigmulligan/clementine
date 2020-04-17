@@ -6,10 +6,7 @@ const FiltersContext = React.createContext()
 class FiltersProvider extends Component {
   // Context state
   state = {
-    filters: [],
-    filterInterval: 'day',
-    isVisible: false,
-    value: ''
+    filters: []
   }
 
   backUp = () => {
@@ -24,7 +21,7 @@ class FiltersProvider extends Component {
       value = filter.value
     }
 
-    let from
+    let from = 0
     const to = Date.now()
     if (value === 'hour') {
       from = to - 1000 * 60 * 60
@@ -43,18 +40,19 @@ class FiltersProvider extends Component {
 
   // Method to update state
   setFilters = filters => {
-    this.setState({ filters }, this.backUp)
-  }
-
-  toggleVisibility = () => {
-    this.setState(({ isVisible }) => ({ isVisible: !isVisible }), this.backUp)
+    this.setState(
+      {
+        filters
+      },
+      this.backUp
+    )
   }
 
   normalizeFilters = filters => {
-    return filters.map(f => ({
-      field: f.field.name,
-      value: f.value.name,
-      operator: 'eq'
+    return filters.map(({ field, value, operator }) => ({
+      field,
+      value,
+      operator
     }))
   }
 
@@ -70,8 +68,8 @@ class FiltersProvider extends Component {
 
   render() {
     const { children } = this.props
-    const { filters, filterInterval, value } = this.state
-    const { setFilters, toggleVisibility, setValue } = this
+    const { filters } = this.state
+    const { setFilters } = this
     const { to, from } = this.processInterval(filters)
 
     return (
@@ -83,7 +81,6 @@ class FiltersProvider extends Component {
           rawFilters: filters,
           to,
           from,
-          toggleVisibility,
           setFilters
         }}
       >

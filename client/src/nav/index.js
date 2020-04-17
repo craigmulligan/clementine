@@ -7,21 +7,23 @@ export default ({ items }) => {
   return (
     <div className={styles.decorator}>
       <main className={styles.container}>
-      <div className={styles.wrapper}>
-
-        {items.map(item => {
-
-          const [isActive] = useRoute(item.to)
-          return (
-            <Link key={item.to} className={styles.link} to={item.to}
-            className={isActive ? styles.link + ' ' + styles.active : styles.link}
-            >
-              <div className={styles.item}>{item.title}</div>
-            </Link>
-          )
-        })}
-      </div>
-    </main>
+        <div className={styles.wrapper}>
+          {items.map(item => {
+            const [isActive] = useRoute(item.to)
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={
+                  isActive ? styles.link + ' ' + styles.active : styles.link
+                }
+              >
+                <div className={styles.item}>{item.title}</div>
+              </Link>
+            )
+          })}
+        </div>
+      </main>
     </div>
   )
 }

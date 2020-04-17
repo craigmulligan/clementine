@@ -1,6 +1,7 @@
 const db = require('./db')
 const { sql } = require('slonik')
 const { cloneDeep } = require('lodash')
+const logger = require('loglevel')
 
 const ensureMigrationsTable = db =>
   db.query(
@@ -14,7 +15,7 @@ const postgresStateStorage = {
     const { rows } = await db.query(sql`SELECT data FROM migrations`)
 
     if (rows.length !== 1) {
-      console.log(
+      logger.warning(
         'Cannot read migrations from database. If this is the first time you run migrations, then this is normal.'
       )
 

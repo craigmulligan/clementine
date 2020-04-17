@@ -1,9 +1,8 @@
-import React, { useRef, useContext } from 'react'
+import React, { useRef } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { useHistory } from 'react-router-dom'
 import { gql } from 'apollo-boost'
 import client from '../client'
-import UserContext from '../user'
 import { Header } from '../header'
 import { Link } from 'react-router-dom'
 
@@ -15,7 +14,6 @@ const LOGIN = gql`
 
 export function Login() {
   const history = useHistory()
-  const { setUser } = useContext(UserContext)
   const emailRef = useRef()
   const [login] = useMutation(LOGIN)
 
@@ -27,7 +25,7 @@ export function Login() {
         onSubmit={async e => {
           e.preventDefault()
           try {
-            const user = await login({
+            await login({
               variables: {
                 email: emailRef.current.value
               }

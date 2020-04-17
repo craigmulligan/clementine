@@ -1,15 +1,10 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { ApolloProvider } from '@apollo/react-hooks'
 import { Login, CheckEmail } from './auth'
-import { GraphShow, GraphSettings, GraphList, GraphHeader } from './graph'
+import { GraphSettings, GraphList, GraphHeader } from './graph'
 import { OperationList, OperationHeader } from './operation'
 import client from './client'
-import {
-  Route,
-  Switch,
-  BrowserRouter as Router,
-  Redirect
-} from 'react-router-dom'
+import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
 import { UserProvider, UserRedirect } from './user'
 import Menu from './menu'
 import { TraceList, FiltersProvider, Filters, TraceShow } from './trace'
@@ -27,7 +22,7 @@ function App() {
                 const isVisible = new URLSearchParams(location.search).get(
                   'filters'
                 )
-                console.log(params.graphId)
+
                 return (
                   <Filters graphId={params.graphId} isVisible={!!isVisible} />
                 )

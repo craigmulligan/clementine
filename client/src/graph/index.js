@@ -1,7 +1,7 @@
 import { gql } from 'apollo-boost'
 import React, { useRef, useContext } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
-import { useLocation, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { cloneDeep } from 'lodash'
 import { FiltersContext } from '../trace'
 import { ErrorBanner, Loading } from '../utils'
@@ -104,9 +104,7 @@ export function GraphCreate() {
         onSubmit={async e => {
           e.preventDefault()
           try {
-            const {
-              data: { graphCreate: graph }
-            } = await gc({
+            await gc({
               variables: {
                 name: nameRef.current.value,
                 traceFilters: filters,
