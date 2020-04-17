@@ -9,7 +9,6 @@ export default function TracingRow({
   totalDuration,
   screenWidth
 }) {
-  console.log(screenWidth)
   const offsetLeft = (startOffset / totalDuration) * screenWidth
   const barWidth = (duration / totalDuration) * screenWidth
 

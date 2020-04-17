@@ -10,12 +10,11 @@ const { Cursor } = require('./utils')
 
 // todo this should be injected for testing.
 function processDates(from, to) {
-  const dayMs = 86400000
   if (!to) {
     to = new Date()
   }
   if (!from) {
-    from = new Date(to - dayMs)
+    from = new Date(0)
   }
 
   return {
@@ -89,7 +88,6 @@ module.exports = {
     },
     trace: async (_, { traceId }, { req }) => {
       const t = await Trace.findById(traceId)
-      console.log(t)
       return t
     },
     operations: async (
@@ -106,7 +104,7 @@ module.exports = {
         traceFilters = []
       }
 
-      const limit = 7
+      const limit = 10
       const cursor = Cursor.decode(after)
       const nodes = await Trace.findAllOperations(
         [...traceFilters, { field: 'graphId', operator: 'eq', value: graphId }],
@@ -247,7 +245,6 @@ module.exports = {
       req.session.userId = user.id
       req.session.userEmail = user.email
 
-      console.log(user)
       return user
     },
     userLogout: async (_, {}, { req }) => {

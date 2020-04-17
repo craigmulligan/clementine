@@ -31,7 +31,7 @@ const LATENCY_DISTRIBUTION = gql`
 `
 
 export function renderTooltip({ datum, seriesKey, color, data }) {
-  const { x, y, value } = datum
+  const { x, y } = datum
 
   return (
     <div>
