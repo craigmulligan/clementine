@@ -4,34 +4,5 @@
   flex-direction: column;
   margin: 0 auto;
   max-width: 500px;
+  margin-top: 50px;
 }
-
-.wrapper input {
-  box-sizing : border-box;
-  padding: 0.75rem;
-  display: block;
-  width: 100%;
-  margin: 0;
-}
-
-.suggestions {
-  width: 100%;
-  text-align: left;
-  margin: 0;
-}
-
-.suggestions > div {
-  padding: 0.75rem;
-}
-
-.searchGo {
-  background: var(--color-grey);
-  color: var(--color-black);
-}
-
-.active {
-  background: var(--color-black);
-  color: var(--color-white);
-}
-
-

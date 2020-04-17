@@ -215,7 +215,6 @@ export function GraphHeader({ graphId }) {
         <header>
           <h2>{data.graph.name}</h2>
           <div>
-            <Filters graphId={graphId} />
             <KeyMetics {...data.graph.stats} />
           </div>
         </header>

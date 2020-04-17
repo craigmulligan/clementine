@@ -5,7 +5,7 @@ import { Loading, ErrorBanner } from '../utils'
 import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
 import FiltersContext from './filtersContext'
-import { useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const TRACE_FILTER_OPTIONS = gql`
   query traceFilterOptions($graphId: ID!) {
@@ -69,6 +69,9 @@ export default function TraceFilters({ graphId, isVisible }) {
 
   return (
     <div className={styles.wrapper}>
+      <div>
+        <Link to="">Close</Link>
+      </div>
       <VisualFilter
         conditions={conditions}
         fields={fields}
