@@ -1,6 +1,6 @@
 # Clementine
 
-> Graphql analytics and observability platform
+> Graphql Analytics and Observability Platform
 
 ## Setup
 
@@ -17,6 +17,8 @@ Postgres is exposed on port `5432`. The connection string is `postgres://user:pa
 
 You can connect to Postgres using the psql client:
 
+NB you need to setup smpt for logins. (See .env for required fields).
+
 ```sh
 psql postgres://user:pass@localhost:5432/db
 ```
@@ -32,11 +34,10 @@ psql postgres://user:pass@localhost:5432/db
 - Add permissions [server]
 - Add apiKey checks on ingress endpoint [server]
 - Ability to remove/revoke a key [Server & Client]
-- Serve client from server (both in dev + prod)
-- Fix filters
-- Final styling
-- Forward to apollo-engine
-- Use redis for queues
+- Serve client from server (both in dev + prod) [server & client]
+- Forward to apollo-engine [server]
+- Use redis for queues [server]
+- Add helm chart [server]
 
 # RoadMap
 
@@ -44,8 +45,3 @@ psql postgres://user:pass@localhost:5432/db
 - Filter by different percentiles.
 - Team/Org support.
 - Add error distribution views.
-
-# NOTES
-
-- API_KEY needs to be in format `service_id:<api_key>`.
-- API_KEY needs to be in format `service_id:<api_key>`.
