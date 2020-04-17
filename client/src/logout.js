@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import client from './client'
 import UserContext from './user'
-import { Link } from 'wouter'
+import { Link } from 'react-router-dom'
 
 const LOGOUT = gql`
   mutation logut {

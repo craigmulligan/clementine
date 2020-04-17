@@ -5,7 +5,7 @@ import { Loading, ErrorBanner } from '../utils'
 import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
 import FiltersContext from './filtersContext'
-import { useLocation } from 'wouter'
+import { useParams } from 'react-router-dom'
 
 const TRACE_FILTER_OPTIONS = gql`
   query traceFilterOptions($graphId: ID!) {
@@ -18,17 +18,13 @@ const TRACE_FILTER_OPTIONS = gql`
   }
 `
 
-export default function TraceFilters({ graphId, onChange }) {
+export default function TraceFilters({ graphId, isVisible }) {
   const {
     rawFilters: conditions,
     setFilters,
     setFilterInterval,
     filterInterval
   } = useContext(FiltersContext)
-  const [location] = useLocation()
-  const url = new URL('http://localhost' + location)
-
-  const params = url.searchParams
 
   const { loading, error, data } = useQuery(TRACE_FILTER_OPTIONS, {
     variables: {
@@ -67,8 +63,7 @@ export default function TraceFilters({ graphId, onChange }) {
       }
     })
 
-  console.log(params.get('filters'))
-  if (!params.get('filters')) {
+  if (!isVisible) {
     return <div />
   }
 

@@ -13,6 +13,7 @@ module.exports = gql`
     schemaTag
     clientName
     clientVersion
+    hasErrors
   }
 
   input TraceFilter {
@@ -32,6 +33,7 @@ module.exports = gql`
     schemaTag: [String]
     clientName: [String]
     clientVersion: [String]
+    hasErrors: [String]
   }
 
   input OperationOrderBy {

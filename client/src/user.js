@@ -1,6 +1,6 @@
 import React, { Component, useContext } from 'react'
 import { gql } from 'apollo-boost'
-import { Redirect } from 'wouter'
+import { Redirect } from 'react-router-dom'
 import client from './client'
 import logger from 'loglevel'
 
