@@ -1,8 +1,13 @@
 .wrapper {
+  background: var(--color-black);
+  width: 100%;
+  min-height: 300px;
   display: flex;
-  padding-bottom: 50px;
-  flex-direction: column;
+  margin: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper > div {
   margin: 0 auto;
-  max-width: 500px;
-  margin-top: 50px;
 }

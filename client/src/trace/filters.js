@@ -6,6 +6,7 @@ import VisualFilter from 'react-visual-filter'
 import styles from './filters.module.css'
 import FiltersContext from './filtersContext'
 import { Link } from 'react-router-dom'
+import './filters.css'
 
 const TRACE_FILTER_OPTIONS = gql`
   query traceFilterOptions($graphId: ID!) {
@@ -70,15 +71,14 @@ export default function TraceFilters({ graphId, isVisible }) {
   return (
     <div className={styles.wrapper}>
       <div>
-        <Link to="">Close</Link>
+        <VisualFilter
+          conditions={conditions}
+          fields={fields}
+          onChange={data => {
+            setFilters(data)
+          }}
+        />
       </div>
-      <VisualFilter
-        conditions={conditions}
-        fields={fields}
-        onChange={data => {
-          setFilters(data)
-        }}
-      />
     </div>
   )
 }

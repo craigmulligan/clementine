@@ -1,0 +1,87 @@
+/* FILTERS */
+.visual-filter,
+.visual-filter .visual-conditions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.visual-filter {
+  position: relative;
+}
+
+
+.visual-options {
+  position: absolute;
+}
+
+.visual-filter .add-filter {
+  color: var(--color-white);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.75rem;
+}
+
+.visual-filter input {
+  color: var(--color-white);
+  padding: 0.75rem;
+}
+
+.visual-filter input[type='submit'] {
+  padding: 5px 10px;
+  border-radius: 0.1px;
+}
+
+.visual-filter .chip {
+  border: 1px solid var(--color-white);
+  background: none;
+  color: var(--color-white);
+  margin-right: 5px;
+  padding: 0.75rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.visual-filter .visual-selector,
+.visual-filter .visual-value {
+  margin-right: 15px;
+}
+
+.visual-filter .visual-value {
+  height: none;
+}
+
+.visual-filter .visual-options {
+  padding: 0.75rem;
+  border: 1px solid var(--color-white);
+  color: var(--color-white);
+  list-style-type: none;
+  margin: 0;
+  z-index: 10;
+  border-radius: var(--border-radius);
+  min-width: 50px;
+}
+
+.visual-filter .visual-options li {
+  padding: 0;
+}
+
+.visual-filter .visual-options li:hover {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  text-decoration: line-through;
+}
+
+.visual-filter .visual-selector.expanded {
+  box-shadow: none;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+}
+
+.visual-filter .visual-selector .visual-label {
+  padding: 0.75rem;
+  color: var(--color-white);
+  cursor: pointer;
+  font-weight: bold;
+}
+/* FILTERS */
