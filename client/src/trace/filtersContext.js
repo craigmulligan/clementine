@@ -17,11 +17,11 @@ class FiltersProvider extends Component {
   }
 
   processInterval = filters => {
-    const filter = filters.find(f => f.field.name === 'interval')
+    const filter = filters.find(f => f.field === 'interval')
 
     let value
     if (filter) {
-      value = filter.value.name
+      value = filter.value
     }
 
     let from
