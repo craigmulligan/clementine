@@ -10,7 +10,12 @@ import {
 } from './graph'
 import { OperationList, OperationHeader } from './operation'
 import client from './client'
-import { Route, Switch, Router, Redirect } from 'wouter'
+import {
+  Route,
+  Switch,
+  BrowserRouter as Router,
+  Redirect
+} from 'react-router-dom'
 import { UserProvider, UserRedirect } from './user'
 import Menu from './menu'
 import { TraceList, FiltersProvider, Filters, TraceShow } from './trace'
@@ -27,22 +32,38 @@ function App() {
               <Route path="/signup" component={Signup} />
               <Route path="/login" component={Login} />
               <UserRedirect>
-                <Route path="/graph" component={GraphList} />
+                <Route exact path="/graph" component={GraphList} />
+                <Route
+                  path="/graph/:graphId"
+                  component={({ match: { params, ...props }, location }) => {
+                    console.log(location.search)
+                    return (
+                      <Filters
+                        graphId={params.graphId}
+                        isVisible={
+                          !!new URLSearchParams(location.search).get('filters')
+                        }
+                      />
+                    )
+                  }}
+                />
                 <Switch>
                   <Route
                     path="/graph/create"
-                    component={({ params }) => <GraphCreate />}
+                    component={({ match: { params } }) => <GraphCreate />}
                   />
                 </Switch>
                 <Route
+                  exact
                   path="/graph/:graphId"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Redirect to={`/graph/${params.graphId}/operation`} />
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/settings"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <GraphHeader graphId={params.graphId} />
                       <GraphSettings graphId={params.graphId} />
@@ -50,8 +71,9 @@ function App() {
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/operation"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <GraphHeader graphId={params.graphId} />
                       <OperationList graphId={params.graphId} />
@@ -59,8 +81,9 @@ function App() {
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/rpm"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <GraphHeader graphId={params.graphId} />
                       <Rpm graphId={params.graphId} />
@@ -68,8 +91,9 @@ function App() {
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/ld"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <GraphHeader graphId={params.graphId} />
                       <LatencyDistribution graphId={params.graphId} />
@@ -77,16 +101,18 @@ function App() {
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/operation/:operationId"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Redirect
                       to={`/graph/${params.graphId}/operation/${params.operationId}/trace`}
                     />
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/operation/:operationId/trace"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <OperationHeader
                         graphId={params.graphId}
@@ -100,8 +126,9 @@ function App() {
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/operation/:operationId/rpm"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <OperationHeader
                         graphId={params.graphId}
@@ -115,8 +142,9 @@ function App() {
                   )}
                 />
                 <Route
+                  exact
                   path="/graph/:graphId/operation/:operationId/ld"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <Fragment>
                       <OperationHeader
                         graphId={params.graphId}
@@ -131,8 +159,9 @@ function App() {
                 />
 
                 <Route
+                  exact
                   path="/graph/:graphId/operation/:operationId/trace/:traceId"
-                  component={({ params }) => (
+                  component={({ match: { params } }) => (
                     <TraceShow traceId={params.traceId} />
                   )}
                 />

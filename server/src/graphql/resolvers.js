@@ -29,7 +29,12 @@ module.exports = {
   Query: {
     traceFilterOptions: (_, { graphId }, { req }) => {
       // TODO permissions
-      return Trace.findFilterOptions({ graphId })
+      const options = Trace.findFilterOptions({ graphId })
+
+      return {
+        ...options,
+        hasErrors: ['true', 'false']
+      }
     },
     user: (_, _args, { req }) => {
       // TODO permissions

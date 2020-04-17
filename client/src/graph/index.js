@@ -1,7 +1,7 @@
 import { gql } from 'apollo-boost'
 import React, { useRef, useContext } from 'react'
 import { useMutation, useQuery } from '@apollo/react-hooks'
-import { useLocation, Link } from 'wouter'
+import { useLocation, Link } from 'react-router-dom'
 import { cloneDeep } from 'lodash'
 import { FiltersContext } from '../trace'
 import { ErrorBanner, Loading } from '../utils'

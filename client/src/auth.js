@@ -1,6 +1,6 @@
 import React, { useRef, useContext } from 'react'
 import { useMutation } from '@apollo/react-hooks'
-import { useLocation } from 'wouter'
+import { useLocation } from 'react-router-dom'
 import { gql } from 'apollo-boost'
 import client from './client'
 import UserContext from './user'
