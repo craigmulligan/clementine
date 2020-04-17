@@ -3,7 +3,7 @@ import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
 import { Loading, ErrorBanner } from '../utils'
 import { Link } from 'react-router-dom'
-import KeyMetrics from '../keyMetrics'
+import Stats from '../stats'
 import { FiltersContext } from '../trace'
 import { getOperationName, getOperationTypes } from './utils'
 import styles from './list.module.css'
@@ -101,7 +101,7 @@ export default function OperationList({ graphId }) {
                     <code>{name ? name : op.id}</code>
                   </div>
                   <div className={styles.rowRight}>
-                    <KeyMetrics {...op.stats} />
+                    <Stats {...op.stats} />
                     <Label
                       type={
                         operationTypes.includes('mutation') ? 'orange' : 'green'

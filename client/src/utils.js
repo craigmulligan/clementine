@@ -9,7 +9,7 @@ export function Loading() {
 }
 
 export function NotFound() {
-  return <div style={{ textAlign: 'center' }}>Loading...</div>
+  return <div style={{ textAlign: 'center' }}>Not Found</div>
 }
 
 export function printDuration(nanoSeconds) {
