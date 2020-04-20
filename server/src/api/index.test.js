@@ -7,13 +7,6 @@ const { Trace, Graph, User, sql, db } = require('../persistence')
 const { runMigration } = require('../persistence/migrator')
 const supertest = require('supertest')
 
-beforeEach(async () => {
-  await runMigration('up')
-})
-afterEach(async () => {
-  await runMigration('down')
-})
-
 function formatProto(path) {
   const messageJSON = require(path)
   const message = proto.FullTracesReport.fromObject(messageJSON)

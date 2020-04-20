@@ -3,6 +3,9 @@ ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
 test:
 	docker-compose run server npm test
 
+test-debug:
+	docker-compose run server node --inspect node_modules/.bin/jest --runInBand
+
 ci:
 	docker-compose run server npm ci
 

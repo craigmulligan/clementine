@@ -14,9 +14,7 @@
     "migrate": "npm run wait:db && node ./bin/migrate.js",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": [
-    "graphql"
-  ],
+  "keywords": ["graphql"],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {
@@ -51,5 +49,9 @@
   "bugs": {
     "url": "https://github.com/hobochild/clementine/issues"
   },
-  "homepage": "https://github.com/hobochild/clementine#readme"
+  "homepage": "https://github.com/hobochild/clementine#readme",
+  "jest": {
+    "testPathIgnorePatterns": ["utils.js", "/node_modules"],
+    "setupFilesAfterEnv": ["./src/setupTests.js"]
+  }
 }
