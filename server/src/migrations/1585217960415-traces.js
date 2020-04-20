@@ -25,7 +25,7 @@ module.exports.up = async function(next) {
   `)
 
   await db.query(sql`
-    CREATE FUNCTION date_round(base_date timestamptz, round_interval interval)
+    CREATE OR REPLACE FUNCTION date_round(base_date timestamptz, round_interval interval)
       RETURNS timestamptz AS $BODY$
   SELECT '1970-01-01'::timestamptz
       + (EXTRACT(epoch FROM $1)::integer + EXTRACT(epoch FROM $2)::integer / 2)
@@ -50,9 +50,6 @@ module.exports.up = async function(next) {
 module.exports.down = async function(next) {
   await db.query(sql`
     DROP TABLE traces;
-  `)
-
-  await db.query(sql`
     DROP FUNCTION IF EXISTS date_round(timestamptz, interval);
   `)
 

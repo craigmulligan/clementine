@@ -15,7 +15,7 @@ const postgresStateStorage = {
     const { rows } = await db.query(sql`SELECT data FROM migrations`)
 
     if (rows.length !== 1) {
-      logger.warning(
+      logger.warn(
         'Cannot read migrations from database. If this is the first time you run migrations, then this is normal.'
       )
 
