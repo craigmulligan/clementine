@@ -13,6 +13,12 @@ const QUERY = gql`
   }
 `
 
+const REVOKE_QUERY = gql`
+  mutation revokeApiKey($keyId: ID!) {
+    keyRevoke(keyId: $keyId)
+  }
+`
+
 export function KeyCreate({ graphId }) {
   const [createKey] = useMutation(QUERY)
 
@@ -46,13 +52,49 @@ export function KeyCreate({ graphId }) {
   )
 }
 
-export function KeyList({ keys }) {
+export function KeyRevoke({ graphId, keyId }) {
+  const [revokeKey] = useMutation(REVOKE_QUERY)
+
+  return (
+    <button
+      onClick={async () => {
+        await revokeKey({
+          variables: { keyId },
+          update: (cache, { data: { keyRevoke } }) => {
+            const prevData = cache.readQuery({
+              query: GRAPH_SETTINGS,
+              variables: { graphId }
+            })
+
+            const data = cloneDeep(prevData)
+            data.graph.keys = data.graph.keys.filter(key => {
+              return key.id !== keyId
+            })
+
+            cache.writeQuery({
+              query: GRAPH_SETTINGS,
+              variables: { graphId },
+              data
+            })
+          }
+        })
+      }}
+    >
+      revoke
+    </button>
+  )
+}
+
+export function KeyList({ keys, graphId }) {
   return (
     <ul>
       {keys.map(key => {
         return (
           <li key={key.id}>
-            <span>{key.secret}</span>
+            <span>
+              {key.secret}
+              <KeyRevoke keyId={key.id} graphId={graphId} />
+            </span>
           </li>
         )
       })}

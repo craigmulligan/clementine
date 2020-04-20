@@ -15,6 +15,7 @@ services:
       KEY_SECRET: ${KEY_SECRET:-"super-secret"}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP_EMAIL_FROM: ${SMTP_EMAIL_FROM}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       ENGINE_API_KEY: ${ENGINE_API_KEY}
     ports:

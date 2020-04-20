@@ -280,6 +280,11 @@ module.exports = {
     },
     tokenVerify: async (_, { token }, { req, magicLink }) => {
       const user = await magicLink.verify(token)
+
+      if (!user) {
+        throw new ForbiddenError()
+      }
+
       req.session.userId = user.id
       req.session.userEmail = user.email
 

@@ -251,7 +251,7 @@ export function GraphSettings({ graphId }) {
     <main>
       <h4>API Keys</h4>
       <KeyCreate graphId={data.graph.id} />
-      <KeyList keys={data.graph.keys} />
+      <KeyList graphId={data.graph.id} keys={data.graph.keys} />
     </main>
   )
 }

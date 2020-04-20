@@ -24,7 +24,7 @@ async function send(user) {
   const [token, link] = await generate(user)
 
   return sendEmail({
-    text: `Follow this <a href="${link}">link</a> to login.`,
+    text: `Follow this ${link} to login.`,
     subject: 'Clementine Signin',
     from: process.env.SMTP_EMAIL_FROM,
     to: user.email
