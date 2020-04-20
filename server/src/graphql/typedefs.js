@@ -185,6 +185,7 @@ module.exports = gql`
   type Mutation {
     graphCreate(name: String!): Graph!
     keyCreate(graphId: ID!): Key!
+    keyRevoke(keyId: ID!): Boolean!
     userLogout: Boolean!
     userLogin(email: String): Boolean!
     tokenVerify(token: String): User!
