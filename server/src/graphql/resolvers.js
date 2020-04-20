@@ -28,7 +28,11 @@ module.exports = {
   JSON: JSONResolver,
   Query: {
     traceFilterOptions: async (_, { graphId }, { req }) => {
-      // TODO permissions
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       const options = await Trace.findFilterOptions({ graphId })
 
       return {
@@ -36,21 +40,29 @@ module.exports = {
         hasErrors: ['true', 'false']
       }
     },
-    user: (_, _args, { req }) => {
-      // TODO permissions
-      return User.findById(req.session.userId)
+    user: async (_, _args, { req }) => {
+      const user = await User.findById(req.session.userId)
+
+      return user
     },
-    graph: (_, { graphId, ...rest }, { req }) => {
-      // TODO permissions
-      return Graph.findById(graphId)
+    graph: async (_, { graphId, ...rest }, { req }) => {
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
+      return graph
     },
     traces: async (
       _,
       { graphId, after, operationId, orderBy, to, from, traceFilters },
       { req }
     ) => {
-      // TODO permissions
-      //
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       if (!traceFilters) {
         traceFilters = []
       }
@@ -86,16 +98,22 @@ module.exports = {
         nodes
       }
     },
-    trace: async (_, { traceId }, { req }) => {
-      const t = await Trace.findById(traceId)
-      return t
+    trace: async (_, { graphId, traceId }, { req }) => {
+      // TODO PERMISSIONS
+      const trace = await Trace.findById(traceId)
+      return trace
     },
     operations: async (
       _,
       { graphId, orderBy, after, traceFilters, to, from },
       { req }
     ) => {
-      // TODO permissions
+      const graph = await Graph.findById(graphId)
+
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       if (!orderBy) {
         orderBy = { field: 'count', asc: false }
       }
@@ -104,7 +122,7 @@ module.exports = {
         traceFilters = []
       }
 
-      const limit = 10
+      const limit = 11
       const cursor = Cursor.decode(after)
       const nodes = await Trace.findAllOperations(
         [...traceFilters, { field: 'graphId', operator: 'eq', value: graphId }],
@@ -129,6 +147,11 @@ module.exports = {
       { graphId, operationId, to, from, traceFilters },
       { req }
     ) => {
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       if (!traceFilters) {
         traceFilters = []
       }
@@ -156,6 +179,11 @@ module.exports = {
       { graphId, operationId, traceFilters, to, from },
       { req }
     ) => {
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       if (!traceFilters) {
         traceFilters = []
       }
@@ -183,6 +211,11 @@ module.exports = {
       { graphId, operationId, traceFilters, to, from },
       { req }
     ) => {
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       if (!traceFilters) {
         traceFilters = []
       }
@@ -205,6 +238,11 @@ module.exports = {
       { graphId, operationId, traceFilters, to, from },
       { req }
     ) => {
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+
       if (!traceFilters) {
         traceFilters = []
       }
@@ -250,7 +288,6 @@ module.exports = {
     userLogout: async (_, {}, { req }) => {
       try {
         req.session.destroy()
-
         return true
       } catch (error) {
         throw new GraphQLError(`DELETE session >> ${error.stack}`)
@@ -265,8 +302,11 @@ module.exports = {
 
       return Graph.create(name, userId)
     },
-    keyCreate: (_, { graphId }, { req }) => {
-      // TODO permissions
+    keyCreate: async (_, { graphId }, { req }) => {
+      const graph = await Graph.findById(graphId)
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
       return Key.create(graphId)
     }
   },

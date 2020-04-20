@@ -36,7 +36,9 @@ const gql = new ApolloServer({
   },
   formatError: err => {
     logger.error(err)
-    logger.error(err.extensions.exception)
+    if (err.extensions.exception) {
+      logger.error(err.extensions.exception)
+    }
     return err
   },
   context: async ({ req, res }) => {

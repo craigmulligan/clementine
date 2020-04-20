@@ -6,6 +6,7 @@ const { runMigration } = require('../persistence/migrator')
 const uuid = require('uuid/v4')
 const exec = require('util').promisify(require('child_process').exec)
 const supertest = require('supertest')
+const logger = require('loglevel')
 
 beforeEach(async () => {
   await runMigration('up')
@@ -140,37 +141,75 @@ describe('graph', () => {
       })
   })
 
-  test('show', async () => {
-    const email = 'xx@gmail.com'
-    const request = supertest.agent(app)
-    const user = await User.create(email)
-    const token = await generateToken(user)
-    await login(request, token)
+  describe('show', () => {
+    test('happy path :)', async () => {
+      const email = 'xx@gmail.com'
+      const request = supertest.agent(app)
+      const user = await User.create(email)
+      const token = await generateToken(user)
+      await login(request, token)
 
-    const graph1 = await Graph.create('myGraph', user.id)
-    const graph2 = await Graph.create('mySecondGraph', user.id)
+      const graph1 = await Graph.create('myGraph', user.id)
+      const graph2 = await Graph.create('mySecondGraph', user.id)
 
-    const query = `
-      query gv {
-        graph(graphId: "${graph2.id}") {
-          id
-          name
+      const query = `
+        query gv {
+          graph(graphId: "${graph2.id}") {
+            id
+            name
+          }
         }
-      }
-    `
+      `
 
-    await request
-      .post('/api/graphql')
-      .send({ query })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .then(raiseGqlErr)
-      .then(res => {
-        const body = res.body
-        const g = res.body.data.graph
-        expect(g.id).toBe(graph2.id)
-        expect(g).toHaveProperty('name', 'mySecondGraph')
-      })
+      await request
+        .post('/api/graphql')
+        .send({ query })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(raiseGqlErr)
+        .then(res => {
+          const body = res.body
+          const g = res.body.data.graph
+          expect(g.id).toBe(graph2.id)
+          expect(g).toHaveProperty('name', 'mySecondGraph')
+        })
+    })
+
+    test('only member can view', async done => {
+      const email = 'xx@gmail.com'
+      const email2 = 'xy@gmail.com'
+      const request = supertest.agent(app)
+      const user = await User.create(email)
+      const user2 = await User.create(email2)
+      const token = await generateToken(user)
+      await login(request, token)
+
+      const graph1 = await Graph.create('myGraph', user.id)
+      const graph2 = await Graph.create('mySecondGraph', user2.id)
+
+      const query = `
+        query gv {
+          graph(graphId: "${graph2.id}") {
+            id
+            name
+          }
+        }
+      `
+
+      // hide error to output in tests
+      jest.spyOn(logger, 'error').mockImplementation(() => {})
+
+      await request
+        .post('/api/graphql')
+        .send({ query })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(res => {
+          const errors = res.body.errors
+          expect(errors[0].extensions.code).toContain('FORBIDDEN')
+          done()
+        })
+    })
   })
 
   test('list', async () => {
@@ -214,41 +253,81 @@ describe('graph', () => {
 })
 
 describe('keys', () => {
-  test('create', async () => {
-    const email = 'xx@gmail.com'
-    const request = supertest.agent(app)
-    const user = await User.create(email)
-    const token = await generateToken(user)
-    await login(request, token)
+  describe('create', () => {
+    test('happy path :)', async () => {
+      const email = 'xx@gmail.com'
+      const request = supertest.agent(app)
+      const user = await User.create(email)
+      const token = await generateToken(user)
+      await login(request, token)
 
-    const graph = await Graph.create('myGraph', user.id)
+      const graph = await Graph.create('myGraph', user.id)
 
-    const query = `
-      mutation cg {
-        keyCreate(graphId: "${graph.id}") {
-          id
-          secret
-          graph {
+      const query = `
+        mutation cg {
+          keyCreate(graphId: "${graph.id}") {
             id
+            secret
+            graph {
+              id
+            }
           }
         }
-      }
-    `
+      `
 
-    return request
-      .post('/api/graphql')
-      .send({ query })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json')
-      .then(raiseGqlErr)
-      .then(res => {
-        const body = res.body
-        const key = res.body.data.keyCreate
-        expect(key).toHaveProperty('id')
-        expect(key).toHaveProperty('graph.id', graph.id)
-        expect(key).toHaveProperty('secret')
-        expect(key.secret.split(':')[0]).toBe(graph.id)
-      })
+      return request
+        .post('/api/graphql')
+        .send({ query })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(raiseGqlErr)
+        .then(res => {
+          const body = res.body
+          const key = res.body.data.keyCreate
+          expect(key).toHaveProperty('id')
+          expect(key).toHaveProperty('graph.id', graph.id)
+          expect(key).toHaveProperty('secret')
+          expect(key.secret.split(':')[0]).toBe(graph.id)
+        })
+    })
+
+    test('only member can create key', async done => {
+      const email = 'xx@gmail.com'
+      const email2 = 'xy@gmail.com'
+      const request = supertest.agent(app)
+      const user = await User.create(email)
+      const user2 = await User.create(email2)
+      const token = await generateToken(user)
+      await login(request, token)
+
+      const graph = await Graph.create('myGraph', user.id)
+      const graph2 = await Graph.create('myGraph', user2.id)
+
+      const query = `
+        mutation cg($graphId: ID!) {
+          keyCreate(graphId: $graphId) {
+            id
+            secret
+            graph {
+              id
+            }
+          }
+        }
+      `
+
+      // hide error to output in tests
+      jest.spyOn(logger, 'error').mockImplementation(() => {})
+      return request
+        .post('/api/graphql')
+        .send({ query, variables: { graphId: graph2.id } })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(res => {
+          const errors = res.body.errors
+          expect(errors[0].extensions.code).toContain('FORBIDDEN')
+          done()
+        })
+    })
   })
 
   test('list', async () => {
@@ -297,27 +376,27 @@ describe('keys', () => {
   })
 })
 
-describe.skip('operations', () => {
-  beforeEach(async () => {
-    await exec(
-      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
-    )
+describe('operations', () => {
+  beforeEach(done => {
+    return exec(
+      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump-new.psql`
+    ).then(done)
   })
+  test.only('can list by graph', async () => {
+    // await exec(
+    // `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump-new.psql`
+    // )
 
-  test('can list by graph', async () => {
-    await exec(
-      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
-    )
     const request = supertest.agent(app)
-    const graphId = '770101a9-c787-406c-8ce1-9b22f3349d0a'
-    await userLogin(request, 'x@x.com', '123')
-
-    from = new Date('2020-04-04')
-    to = new Date('2020-04-07')
+    const email = 'x@x.com'
+    const user = await User.find(email)
+    const token = await generateToken(user)
+    await login(request, token)
+    const graphId = 'b0d7a91f-efc2-40d1-ac55-b89b4933ef58'
 
     const query = `
       query cg {
-        operations(graphId: "${graphId}", to: "${to}" from: "${from}") {
+        operations(graphId: "${graphId}") {
           nodes {
             id
             key
@@ -340,22 +419,23 @@ describe.skip('operations', () => {
       .then(async res => {
         const nodes = res.body.data.operations.nodes
         const firstNode = nodes[0]
-        expect(nodes.length).toBe(6)
+        expect(nodes.length).toBe(10)
         expect(firstNode).toHaveProperty('key')
-        expect(firstNode.stats).toHaveProperty('count', 63)
+        expect(firstNode.stats).toHaveProperty('count', 336)
         expect(firstNode.stats).toHaveProperty('duration')
       })
   })
 
   test('can order by duration', async () => {
     await exec(
-      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
+      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump-new.psql`
     )
     const request = supertest.agent(app)
-    const graphId = '770101a9-c787-406c-8ce1-9b22f3349d0a'
-    await userLogin(request, 'x@x.com', '123')
-    from = new Date('2020-04-04')
-    to = new Date('2020-04-07')
+    const email = 'x@x.com'
+    const user = await User.find(email)
+    const token = await generateToken(user)
+    await login(request, token)
+    const graphId = 'b0d7a91f-efc2-40d1-ac55-b89b4933ef58'
 
     const orderBy = {
       field: 'duration',
@@ -364,7 +444,7 @@ describe.skip('operations', () => {
 
     const query = `
       query cg {
-        operations(graphId: "${graphId}", to: "${to}", from: "${from}" orderBy: { field: duration, asc: false }) {
+        operations(graphId: "${graphId}", orderBy: { field: duration, asc: false }) {
           nodes {
             id
             key
@@ -393,9 +473,9 @@ describe.skip('operations', () => {
   })
 
   test('can paginate with Cursor', async () => {
-    await exec(
-      `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
-    )
+    // await exec(
+    // `psql postgres://user:pass@postgres:5432/db < ${__dirname}/__data__/dump.psql`
+    // )
     const request = supertest.agent(app)
     const graphId = '770101a9-c787-406c-8ce1-9b22f3349d0a'
     await userLogin(request, 'x@x.com', '123')

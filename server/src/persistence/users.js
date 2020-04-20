@@ -23,6 +23,11 @@ module.exports = {
     SELECT * FROM users WHERE email=${email};
     `)
   },
+  async findAll() {
+    return await db.query(sql`
+    SELECT * FROM users;
+    `)
+  },
   async markVerified(id) {
     return await db.query(sql`
     UPDATE users SET "isVerified" = true WHERE id=${id};

@@ -26,7 +26,7 @@ async function send(user) {
   return sendEmail({
     text: `Follow this <a href="${link}">link</a> to login.`,
     subject: 'Clementine Signin',
-    from: SMTP_EMAIL_FROM,
+    from: process.env.SMTP_EMAIL_FROM,
     to: user.email
   })
 }
