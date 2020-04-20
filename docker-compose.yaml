@@ -23,6 +23,7 @@ services:
     volumes:
       - ./server/src:/app/src
       - ./server/bin:/app/bin
+      - ./server/package.json:/app/package.json
     networks:
       - clementine
 
