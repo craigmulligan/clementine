@@ -34,6 +34,16 @@ module.exports = {
     const [key] = rows
     return key
   },
+  findById(keyId) {
+    return db.maybeOne(sql`
+      SELECT * FROM keys WHERE "id"=${keyId};
+    `)
+  },
+  revoke(keyId) {
+    return db.maybeOne(sql`
+      DELETE FROM keys WHERE "id"=${keyId};
+    `)
+  },
   async findAll({ graphId }) {
     const { rows } = await db.query(sql`
       SELECT * FROM keys WHERE "graphId"=${graphId};

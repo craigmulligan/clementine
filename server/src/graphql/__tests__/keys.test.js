@@ -82,6 +82,73 @@ describe('keys', () => {
     })
   })
 
+  describe('revoke', () => {
+    test('happy path :)', async () => {
+      const email = 'xx@gmail.com'
+      const request = supertest.agent(app)
+      const user = await User.create(email)
+      const token = await generateToken(user)
+      await login(request, token)
+
+      const graph = await Graph.create('myGraph', user.id)
+      const graph2 = await Graph.create('mm', user.id)
+      const key1 = await Key.create(graph.id)
+      const key2 = await Key.create(graph.id)
+
+      const query = `
+      mutation revoke {
+        keyRevoke(keyId: "${key1.id}")
+      }
+    `
+
+      await request
+        .post('/api/graphql')
+        .send({ query })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(raiseGqlErr)
+
+      const revokedKey = await Key.findById(key1.id)
+      expect(revokedKey).toBeNull()
+    })
+
+    test('revoke - no permissions', async () => {
+      const email = 'xx@gmail.com'
+      const email2 = 'xy@gmail.com'
+      const request = supertest.agent(app)
+      const user = await User.create(email)
+      const user2 = await User.create(email2)
+      const token = await generateToken(user)
+      await login(request, token)
+
+      const graph = await Graph.create('myGraph', user.id)
+      const graph2 = await Graph.create('mm', user2.id)
+      const key1 = await Key.create(graph.id)
+      const key2 = await Key.create(graph2.id)
+
+      const query = `
+      mutation revoke {
+        keyRevoke(keyId: "${key2.id}")
+      }
+    `
+
+      jest.spyOn(logger, 'error').mockImplementation(() => {})
+      await request
+        .post('/api/graphql')
+        .send({ query })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json')
+        .then(res => {
+          const errors = res.body.errors
+          expect(errors[0].extensions.code).toContain('FORBIDDEN')
+        })
+
+      // make sure it wasnt deleted
+      const revokedKey = await Key.findById(key2.id)
+      expect(revokedKey.id).toBeDefined()
+    })
+  })
+
   test('list', async () => {
     const email = 'xx@gmail.com'
     const request = supertest.agent(app)

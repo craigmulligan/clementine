@@ -308,6 +308,16 @@ module.exports = {
         throw new ForbiddenError()
       }
       return Key.create(graphId)
+    },
+    keyRevoke: async (_, { keyId }, { req }) => {
+      const key = await Key.findById(keyId)
+      const graph = await Graph.findById(key.graphId)
+
+      if (graph.userId !== req.session.userId) {
+        throw new ForbiddenError()
+      }
+      await Key.revoke(keyId)
+      return true
     }
   },
   Graph: {
