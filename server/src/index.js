@@ -7,7 +7,9 @@ const { SESSION_SECRET } = require('./config')
 const cors = require('cors')
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
-const { redis } = require('./persistence')
+const {
+  redis: { client }
+} = require('./persistence')
 const logger = require('loglevel')
 const magicLink = require('./magicLink')
 const { User } = require('./persistence')
@@ -52,7 +54,7 @@ const gql = new ApolloServer({
 
 app.use(
   session({
-    store: new RedisStore({ client: redis }),
+    store: new RedisStore({ client }),
     secret: SESSION_SECRET,
     saveUninitialized: false,
     rolling: true,

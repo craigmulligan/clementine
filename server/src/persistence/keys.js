@@ -4,6 +4,7 @@ const db = require('./db')
 const redis = require('./redis')
 const { KEY_SECRET } = require('../config')
 const crypto = require('crypto')
+const EXPIRE = 216000 // 1 Day (we revoke on delete)
 
 function hash(str) {
   return crypto
@@ -36,10 +37,13 @@ module.exports = {
       SELECT * FROM keys WHERE "id"=${keyId};
     `)
   },
-  revoke(keyId) {
-    return db.maybeOne(sql`
+  async revoke(keyId) {
+    const key = await this.findById(keyId)
+    await db.maybeOne(sql`
       DELETE FROM keys WHERE "id"=${keyId};
     `)
+
+    return redis.del(`key:${key.hash}`)
   },
   async findAll({ graphId }) {
     const { rows } = await db.query(sql`
@@ -50,10 +54,26 @@ module.exports = {
   },
   async verify(secret, graphId) {
     const hashedSecret = hash(secret)
+    const cachedKey = await redis.get(`key:${hashedSecret}`)
+    if (cachedKey) {
+      return true
+    }
+
     const key = await db.maybeOne(sql`
       SELECT * FROM keys WHERE "graphId"=${graphId} and hash=${hashedSecret};
     `)
 
-    return !!key
+    if (key) {
+      await redis.set(
+        `key:${hashedSecret}`,
+        JSON.stringify({ validated: true }),
+        'EX',
+        EXPIRE
+      )
+
+      return true
+    }
+
+    return false
   }
 }
