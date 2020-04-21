@@ -5,18 +5,26 @@ const email = require('./email')
 const get = promisify(redis.get).bind(redis)
 const set = promisify(redis.set).bind(redis)
 const sendEmail = promisify(email.send).bind(email)
+const crypto = require('crypto')
 const prefix = 'magicLink'
+
+function hash(str) {
+  return crypto
+    .createHash('sha256')
+    .update(str)
+    .digest('hex')
+}
 
 const domain = process.env.domain || 'http://localhost:5000'
 
 async function generate(data) {
   const token = uuid()
-  await set(`${prefix}:${token}`, JSON.stringify(data))
+  await set(`${prefix}:${hash(token)}`, JSON.stringify(data))
   return [token, `${domain}/graph?token=${token}`]
 }
 
 async function verify(token) {
-  const data = await get(`${prefix}:${token}`)
+  const data = await get(`${prefix}:${hash(token)}`)
   return JSON.parse(data)
 }
 

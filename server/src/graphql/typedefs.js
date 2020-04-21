@@ -77,7 +77,9 @@ module.exports = gql`
 
   type Key {
     id: ID!
-    secret: String!
+    "Secret is only returned on Create"
+    secret: String
+    prefix: String
     createdAt: DateTime!
     graph: Graph!
   }

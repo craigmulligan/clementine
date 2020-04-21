@@ -8,7 +8,8 @@ module.exports.up = async function(next) {
       id uuid PRIMARY KEY,
       "createdAt" timestamp with time zone default (now() at time zone 'utc') NOT NULL,
       "graphId" uuid REFERENCES graphs (id) ON DELETE CASCADE,
-      secret text
+      hash text UNIQUE,
+      prefix text
     );
   `)
 
