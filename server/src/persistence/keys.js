@@ -3,21 +3,29 @@ const uuid = require('uuid/v4')
 const db = require('./db')
 const redis = require('./redis')
 const { KEY_SECRET } = require('../config')
-const { encrypt, decrypt } = require('./crypto')
+const crypto = require('crypto')
+
+function hash(str) {
+  return crypto
+    .createHash('sha256')
+    .update(str)
+    .digest('hex')
+}
 
 module.exports = {
-  encrypt,
-  decrypt,
+  hash,
   async create(graphId) {
     const secret = uuid()
-    const hashedSecret = encrypt(secret)
+    const hashedSecret = hash(secret)
     const { rows } = await db.query(sql`
-        INSERT INTO keys (id, secret, "graphId",  prefix)
+        INSERT INTO keys (id, hash, "graphId",  prefix)
         VALUES (${uuid()}, ${hashedSecret}, ${graphId}, ${secret.slice(0, 4)})
         RETURNING id, "graphId", prefix;
       `)
 
     const [key] = rows
+
+    // we return the plain text secret only on create.
     return {
       ...key,
       secret
@@ -41,9 +49,9 @@ module.exports = {
     return rows
   },
   async verify(secret, graphId) {
-    const encrypted = encrypt(secret)
+    const hashedSecret = hash(secret)
     const key = await db.maybeOne(sql`
-      SELECT * FROM keys WHERE "graphId"=${graphId} and secret=${encrypted};
+      SELECT * FROM keys WHERE "graphId"=${graphId} and hash=${hashedSecret};
     `)
 
     return !!key

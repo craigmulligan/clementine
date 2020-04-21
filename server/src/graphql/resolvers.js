@@ -3,7 +3,6 @@ const {
   ForbiddenError,
   GraphQLError
 } = require('apollo-server-express')
-const bcrypt = require('bcrypt')
 const { User, Graph, Key, Trace } = require('../persistence')
 const { DateTimeResolver, JSONResolver } = require('graphql-scalars')
 const { Cursor } = require('./utils')
@@ -350,7 +349,10 @@ module.exports = {
   },
   Key: {
     secret: ({ graphId, secret }) => {
-      return `${graphId}:${Key.decrypt(secret)}`
+      if (secret) {
+        return `${graphId}:${secret}`
+      }
+      return null
     },
     graph: ({ graphId }) => {
       return Graph.findById(graphId)

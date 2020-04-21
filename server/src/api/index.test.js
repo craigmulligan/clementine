@@ -55,12 +55,12 @@ describe('/api/ingress', () => {
     // TODO create graph
     await request
       .post('/api/ingress/traces')
-      .set('x-api-key', graph.id + ':' + Key.decrypt(key.secret))
+      .set('x-api-key', graph.id + ':' + key.secret)
       .send(buffer)
       .expect(201)
   })
 
-  test.only('Happy path', async () => {
+  test('Happy path', async () => {
     const compressed = await formatProto('./__data__/traces.json')
     const request = supertest.agent(app)
 
@@ -72,7 +72,7 @@ describe('/api/ingress', () => {
     await request
       .post('/api/ingress/traces')
       .set('content-encoding', 'gzip')
-      .set('x-api-key', graph.id + ':' + Key.decrypt(key.secret))
+      .set('x-api-key', graph.id + ':' + key.secret)
       .send(compressed)
       .expect(201)
 
@@ -107,7 +107,7 @@ describe('/api/ingress', () => {
     await request
       .post('/api/ingress/traces')
       .set('content-encoding', 'gzip')
-      .set('x-api-key', graph.id + ':' + Key.decrypt(key.secret))
+      .set('x-api-key', graph.id + ':' + key.secret)
       .send(compressed)
       .expect(201)
 
