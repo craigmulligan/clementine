@@ -31,11 +31,10 @@ psql postgres://user:pass@localhost:5432/db
 
 # TODO:
 
-- Add apiKey checks on ingress endpoint [server]
 - Serve client from server (both in dev + prod) [server & client]
 - Forward to apollo-engine [server]
 - Use redis for queues [server]
-- Add helm chart [server]
+- Add deployment instructions helm chart? [server]
 
 # RoadMap
 
