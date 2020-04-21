@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4')
 const promisify = require('util').promisify
-const redis = require('./redis')
+const { redis } = require('./persistence')
 const email = require('./email')
 const get = promisify(redis.get).bind(redis)
 const set = promisify(redis.set).bind(redis)
