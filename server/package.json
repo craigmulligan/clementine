@@ -6,7 +6,7 @@
   "main": "config.js",
   "scripts": {
     "wait:db": "wait-on tcp:postgres:5432 && echo 'postgres is up!'",
-    "test": "npm run wait:db && jest --watchAll --runInBand",
+    "test": "npm run wait:db && jest src/api/index.test.js --watchAll --runInBand",
     "ci": "npm run wait:db && npm test",
     "format": "prettier",
     "start": "node ./bin/start.js",

@@ -3,6 +3,7 @@ const Graph = require('./graphs')
 const User = require('./users')
 const Key = require('./keys')
 const db = require('./db')
+const redis = require('./redis')
 const { sql } = require('slonik')
 
 module.exports = {
@@ -11,5 +12,6 @@ module.exports = {
   User,
   Key,
   db,
-  sql
+  sql,
+  redis
 }

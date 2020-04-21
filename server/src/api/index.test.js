@@ -3,7 +3,7 @@ const proto = require('apollo-engine-reporting-protobuf')
 const zlib = require('zlib')
 const promisify = require('util').promisify
 const gzip = promisify(zlib.gzip)
-const { Trace, Graph, User, sql, db } = require('../persistence')
+const { Trace, Graph, User, sql, Key, db } = require('../persistence')
 const { runMigration } = require('../persistence/migrator')
 const supertest = require('supertest')
 
@@ -27,28 +27,10 @@ describe('/api/ingress', () => {
       .expect(403)
   })
 
-  test('uncompressed', async () => {
-    const request = supertest.agent(app)
-    const messageJSON = require('./__data__/traces.json')
-    const message = proto.FullTracesReport.fromObject(messageJSON)
-    const buffer = proto.FullTracesReport.encode(message).finish()
-
-    const user = await User.create('email@email.com', '123')
-    const graph = await Graph.create('myGraph', user.id)
-
-    // TODO create graph
-    await request
-      .post('/api/ingress/traces')
-      .set('x-api-key', graph.id + ':123')
-      .send(buffer)
-      .expect(201)
-  })
-
-  test('Happy path', async () => {
+  test('Invalid ApiKey', async () => {
     const compressed = await formatProto('./__data__/traces.json')
     const request = supertest.agent(app)
-
-    const user = await User.create('email@email.com', '123')
+    const user = await User.create('email@email.com')
     const graph = await Graph.create('myGraph', user.id)
 
     // TODO create graph
@@ -56,6 +38,41 @@ describe('/api/ingress', () => {
       .post('/api/ingress/traces')
       .set('content-encoding', 'gzip')
       .set('x-api-key', graph.id + ':123')
+      .send(compressed)
+      .expect(403)
+  })
+
+  test('uncompressed', async () => {
+    const request = supertest.agent(app)
+    const messageJSON = require('./__data__/traces.json')
+    const message = proto.FullTracesReport.fromObject(messageJSON)
+    const buffer = proto.FullTracesReport.encode(message).finish()
+
+    const user = await User.create('email@email.com')
+    const graph = await Graph.create('myGraph', user.id)
+    const key = await Key.create(graph.id)
+
+    // TODO create graph
+    await request
+      .post('/api/ingress/traces')
+      .set('x-api-key', graph.id + ':' + Key.decrypt(key.secret))
+      .send(buffer)
+      .expect(201)
+  })
+
+  test.only('Happy path', async () => {
+    const compressed = await formatProto('./__data__/traces.json')
+    const request = supertest.agent(app)
+
+    const user = await User.create('email@email.com')
+    const graph = await Graph.create('myGraph', user.id)
+    const key = await Key.create(graph.id)
+
+    // TODO create graph
+    await request
+      .post('/api/ingress/traces')
+      .set('content-encoding', 'gzip')
+      .set('x-api-key', graph.id + ':' + Key.decrypt(key.secret))
       .send(compressed)
       .expect(201)
 
@@ -84,12 +101,13 @@ describe('/api/ingress', () => {
 
     const user = await User.create('email@email.com', '123')
     const graph = await Graph.create('myGraph', user.id)
+    const key = await Key.create(graph.id)
 
     // TODO create graph
     await request
       .post('/api/ingress/traces')
       .set('content-encoding', 'gzip')
-      .set('x-api-key', graph.id + ':123')
+      .set('x-api-key', graph.id + ':' + Key.decrypt(key.secret))
       .send(compressed)
       .expect(201)
 
