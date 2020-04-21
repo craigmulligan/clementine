@@ -92,7 +92,12 @@ export function KeyList({ keys, graphId }) {
         return (
           <li key={key.id}>
             <span>
-              {key.secret}
+              {key.secret && (
+                <span>
+                  Save your key now - you wont be able to retrieve it later.
+                </span>
+              )}
+              {key.secret ? key.secret : key.prefix}
               <KeyRevoke keyId={key.id} graphId={graphId} />
             </span>
           </li>
