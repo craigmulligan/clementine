@@ -23,7 +23,7 @@ services:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: development
       SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
-      SMTP: ${SMTP_HOST}
+      SMTP: ${SMTP}
       SMTP_EMAIL_FROM: ${SMTP_EMAIL_FROM}
       ENGINE_API_KEY: ${ENGINE_API_KEY}
     ports:
