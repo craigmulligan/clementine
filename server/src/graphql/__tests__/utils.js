@@ -45,7 +45,7 @@ async function generateToken(user) {
 }
 
 function login(request, token) {
-  return request.get(`/magic?token=${token}`)
+  return request.get(`/api/verify?token=${token}`)
 }
 
 module.exports = { generateTraces, raiseGqlErr, generateToken, login }
