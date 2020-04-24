@@ -31,9 +31,8 @@ psql postgres://user:pass@localhost:5432/db
 
 # TODO:
 
-- Serve client from server (both in dev + prod) [server & client]
-- Forward to apollo-engine [server]
 - Use redis for queues [server]
+- Forward to apollo-engine [server]
 - Add deployment instructions helm chart? [server]
 
 # RoadMap
@@ -41,4 +40,5 @@ psql postgres://user:pass@localhost:5432/db
 - Add extra filters for cache hits etc.
 - Filter by different percentiles.
 - Team/Org support.
+- Add error distribution views.
 - Add error distribution views.
