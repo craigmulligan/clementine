@@ -13,10 +13,42 @@ const {
 const logger = require('loglevel')
 const magicLink = require('./magicLink')
 const { User } = require('./persistence')
+const ingress = require('./ingress')
 
 const app = express()
-const api = require('./api')
+const api = express.Router();
+
+app.use(
+  session({
+    store: new RedisStore({ client }),
+    secret: SESSION_SECRET,
+    saveUninitialized: false,
+    rolling: true,
+    resave: false
+  })
+)
+app.use(morgan('short'))
+app.use(helmet())
 app.use('/api', api)
+
+api.use('/', ingress)
+api.get('/health', (req, res) => res.sendStatus(200))
+api.get('/verify', async (req, res) => {
+  const token = req.query.token
+  if (!token) {
+    res.redirect(302, '/login')
+  }
+
+  const data = await magicLink.verify(token)
+
+  if (data) {
+    req.session.userId = data.id
+    req.session.userEmail = data.email
+  }
+
+  User.markVerified(data.id)
+  res.redirect(302, '/graph')
+})
 
 const gql = new ApolloServer({
   typeDefs,
@@ -25,7 +57,7 @@ const gql = new ApolloServer({
   introspection: true,
   engine: {
     logger,
-    endpointUrl: 'http://localhost:3000',
+    endpointUrl: 'http://server',
     apiKey: process.env.ENGINE_API_KEY,
     debugPrintReports: true,
     schemaTag: 'test',
@@ -52,37 +84,6 @@ const gql = new ApolloServer({
   }
 })
 
-app.use(
-  session({
-    store: new RedisStore({ client }),
-    secret: SESSION_SECRET,
-    saveUninitialized: false,
-    rolling: true,
-    resave: false
-  })
-)
-app.get('/api', (req, res) => res.sendStatus(200))
-app.get('/api/health', (req, res) => res.sendStatus(200))
-app.get('/api/verify', async (req, res) => {
-  console.log('YASSS')
-  const token = req.query.token
-  if (!token) {
-    res.redirect(302, '/login')
-  }
-
-  const data = await magicLink.verify(token)
-
-  if (data) {
-    req.session.userId = data.id
-    req.session.userEmail = data.email
-  }
-
-  User.markVerified(data.id)
-  res.redirect(302, '/graph')
-})
-
-app.use(morgan('short'))
-app.use(helmet())
 gql.applyMiddleware({
   app,
   path: '/api/graphql',

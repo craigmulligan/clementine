@@ -19,19 +19,15 @@ services:
       - redis
       - nginx
     environment:
+      PORT: 80
       DATABASE_URL: postgres://user:pass@postgres:5432/db
-      NODE_ENV: production
-      PORT: 3000
-      MAX_DB_CONNECTIONS: ${MAX_DB_CONNECTIONS}
+      NODE_ENV: development
       SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
-      KEY_SECRET: ${KEY_SECRET:-"super-secret"}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_EMAIL: ${SMTP_EMAIL}
+      SMTP: ${SMTP_HOST}
       SMTP_EMAIL_FROM: ${SMTP_EMAIL_FROM}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
       ENGINE_API_KEY: ${ENGINE_API_KEY}
     ports:
-      - "3000:3000"
+      - 80
     command: npm run dev
     volumes:
       - ./server/src:/app/src
@@ -44,9 +40,9 @@ services:
     build: ./client
     environment:
       NODE_ENV: development
-      PORT: 5000
+      PORT: 80
     ports:
-      - "5000:5000"
+      - 80
     stdin_open: true
     command: npm run start
     volumes:
