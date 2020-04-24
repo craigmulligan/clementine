@@ -1,11 +1,23 @@
 # docker-compose.yml
 version: "3"
 services:
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - clementine
+    ports:
+      - 8080:8080
+      - 80:80
+      - 443:80
+
   server:
     build: ./server
     depends_on:
       - postgres
       - redis
+      - nginx
     environment:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: production
