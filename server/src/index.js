@@ -3,7 +3,7 @@ const morgan = require('morgan')
 const helmet = require('helmet')
 const { typeDefs, resolvers } = require('./graphql')
 const { ApolloServer } = require('apollo-server-express')
-const { SESSION_SECRET } = require('./config')
+const { SESSION_SECRET, CLIENT_URL } = require('./config')
 const cors = require('cors')
 const session = require('express-session')
 const RedisStore = require('connect-redis')(session)
@@ -61,10 +61,15 @@ app.use(
     resave: false
   })
 )
-app.get('/', (req, res) => res.sendStatus(200))
-app.get('/health', (req, res) => res.sendStatus(200))
-app.get('/magic', async (req, res) => {
+app.get('/api', (req, res) => res.sendStatus(200))
+app.get('/api/health', (req, res) => res.sendStatus(200))
+app.get('/api/verify', async (req, res) => {
+  console.log('YASSS')
   const token = req.query.token
+  if (!token) {
+    res.redirect(302, '/login')
+  }
+
   const data = await magicLink.verify(token)
 
   if (data) {
@@ -73,9 +78,7 @@ app.get('/magic', async (req, res) => {
   }
 
   User.markVerified(data.id)
-  // Todo add verification flag to user.
-
-  res.redirect(302, 'http://localhost:3000')
+  res.redirect(302, '/graph')
 })
 
 app.use(morgan('short'))
@@ -84,7 +87,7 @@ gql.applyMiddleware({
   app,
   path: '/api/graphql',
   cors: {
-    origin: 'http://localhost:5000',
+    origin: CLIENT_URL,
     credentials: true
   }
 })

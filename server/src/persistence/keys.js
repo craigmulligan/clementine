@@ -2,7 +2,6 @@ const { sql } = require('slonik')
 const uuid = require('uuid/v4')
 const db = require('./db')
 const redis = require('./redis')
-const { KEY_SECRET } = require('../config')
 const crypto = require('crypto')
 const EXPIRE = 216000 // 1 Day (we revoke on delete)
 
