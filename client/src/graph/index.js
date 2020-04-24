@@ -230,6 +230,7 @@ export const GRAPH_SETTINGS = gql`
       keys {
         id
         secret
+        prefix
       }
     }
   }

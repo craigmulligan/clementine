@@ -1,9 +1,10 @@
 const emailjs = require('emailjs')
+const [host, user, password] = process.env.SMTP.split(':')
 
 const email = emailjs.server.connect({
-  user: process.env.SMTP_EMAIL,
-  password: process.env.SMTP_PASSWORD,
-  host: process.env.SMTP_HOST,
+  user,
+  password,
+  host,
   ssl: true,
   port: 465
 })

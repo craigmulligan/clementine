@@ -9,6 +9,7 @@ const QUERY = gql`
     keyCreate(graphId: $graphId) {
       id
       secret
+      prefix
     }
   }
 `
@@ -97,7 +98,7 @@ export function KeyList({ keys, graphId }) {
                   Save your key now - you wont be able to retrieve it later.
                 </span>
               )}
-              {key.secret ? key.secret : key.prefix}
+              {key.secret ? key.secret : key.prefix + '...'}
               <KeyRevoke keyId={key.id} graphId={graphId} />
             </span>
           </li>
