@@ -18,12 +18,8 @@ services:
       - postgres
       - redis
     environment:
-      PORT: 80
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: development
-      SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
-    ports:
-      - 80
     command: npm run dev:worker
     volumes:
       - ./server/src:/app/src
