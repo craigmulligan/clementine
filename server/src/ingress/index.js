@@ -43,12 +43,12 @@ router.post(
       oneofs: true // includes virtual oneof fields set to the present field's name
     })
 
-    const job = await queue.add({
+    const { id } = await queue.add({
       ...report,
       graphId
     })
 
-    res.status(201).send(job)
+    res.status(201).send({ id })
   }
 )
 
