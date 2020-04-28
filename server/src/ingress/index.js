@@ -23,9 +23,7 @@ router.post(
 
     // verifyKey
     const [clementineApiKey, apolloApiKey] = apiKey.split('?')
-
-    const graphId = clementineApiKey.split(':')[0]
-    const key = clementineApiKey.split(':')[1]
+    const [graphId, key] = clementineApiKey.split(':')
 
     const isVerified = await Key.verify(key, graphId)
 

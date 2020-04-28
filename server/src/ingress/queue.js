@@ -4,7 +4,7 @@ const thresholdQueue = new Queue('trace:threshold', {
   redis: { host: 'redis' }
 })
 
-const forwardQueue = new Queue('trace:threshold', {
+const forwardQueue = new Queue('trace:forward', {
   redis: { host: 'redis' }
 })
 
