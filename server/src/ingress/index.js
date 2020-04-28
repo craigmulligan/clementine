@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const { Trace, Key } = require('../persistence')
 const { prepareTraces } = require('./utils')
-const queue = require('./queue')
+const { ingestQueue } = require('./queue')
 
 const router = Router()
 // https://www.apollographql.com/docs/graph-manager/setup-analytics/#sending-metrics-to-the-reporting-endpoint
@@ -43,7 +43,7 @@ router.post(
       oneofs: true // includes virtual oneof fields set to the present field's name
     })
 
-    const { id } = await queue.add({
+    const { id } = await ingestQueue.add({
       ...report,
       graphId
     })

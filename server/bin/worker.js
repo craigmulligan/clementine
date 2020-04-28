@@ -1,6 +1,8 @@
 const logger = require('loglevel')
-const consumer = require('../src/ingress/consumer')
-const queue = require('../src/ingress/queue')
+const { thresholdQueue, ingestQueue } = require('../src/ingress/queue')
+const { ingest, cull } = require('../src/ingress/consumer')
 
 logger.info('Running worker')
-queue.process(consumer)
+
+ingestQueue.process(ingest(thresholdQueue))
+cullQueue.process(cull)

@@ -20,6 +20,7 @@ services:
     environment:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: development
+      TRACE_THRESHOLD: ${TRACE_THRESHOLD:-"500000"}
     command: npm run dev:worker
     volumes:
       - ./server/src:/app/src
