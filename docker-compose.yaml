@@ -20,6 +20,7 @@ services:
     environment:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: development
+      LOG_LEVEL: info
       TRACE_THRESHOLD: ${TRACE_THRESHOLD:-"500000"}
     command: npm run dev:worker
     volumes:
@@ -36,6 +37,7 @@ services:
       - redis
       - nginx
     environment:
+      LOGLEVEL: info
       PORT: 80
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       NODE_ENV: development
@@ -56,6 +58,7 @@ services:
   client:
     build: ./client
     environment:
+      LOG_LEVEL: info
       NODE_ENV: development
       PORT: 80
     ports:

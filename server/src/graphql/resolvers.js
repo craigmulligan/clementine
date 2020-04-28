@@ -274,7 +274,8 @@ module.exports = {
         }
       }
 
-      await magicLink.send(user)
+      // fire and forget
+      magicLink.send(user)
       return true
     },
     tokenVerify: async (_, { token }, { req, magicLink }) => {

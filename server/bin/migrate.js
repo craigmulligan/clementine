@@ -1,5 +1,6 @@
 const { runMigration } = require('../src/persistence/migrator')
 const logger = require('loglevel')
+if (process.env.LOG_LEVEL != null) logger.setLevel(process.env.LOG_LEVEL)
 
 const [command] = process.argv.slice(2)
 
