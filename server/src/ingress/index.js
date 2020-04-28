@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const proto = require('apollo-engine-reporting-protobuf')
 const { Trace, Key } = require('../persistence')
 const { prepareTraces } = require('./utils')
-const { ingestQueue } = require('./queue')
+const { ingestQueue, forwardQueue } = require('./queue')
 
 const router = Router()
 // https://www.apollographql.com/docs/graph-manager/setup-analytics/#sending-metrics-to-the-reporting-endpoint
@@ -17,6 +17,7 @@ router.post(
   }),
   async (req, res) => {
     const apiKey = req.get('x-api-key')
+    const apolloApiKey = req.query.apolloApiKey
 
     if (!apiKey) {
       return res.status(403).send('FORBIDDEN: Missing apiKey')
@@ -45,8 +46,16 @@ router.post(
 
     const { id } = await ingestQueue.add({
       ...report,
-      graphId
+      graphId,
+      apolloApiKey
     })
+
+    if (apolloApiKey) {
+      await forwardQueue.add({
+        report,
+        apolloApiKey
+      })
+    }
 
     res.status(201).send({ id })
   }

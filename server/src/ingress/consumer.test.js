@@ -1,6 +1,6 @@
 const proto = require('apollo-engine-reporting-protobuf')
-const { thresholdQueue, ingestQueue } = require('./queue')
-const { ingest, cull } = require('./consumer')
+const { thresholdQueue, ingestQueue, forwardQueue } = require('./queue')
+const { ingest, cull, forward } = require('./consumer')
 const { Trace, User, Graph } = require('../persistence')
 
 function nowTill(from, to) {
@@ -105,5 +105,35 @@ describe('ingress ingest', () => {
     // Cull should have deleted traces.
 
     expect(mock.add.mock.calls.length).toBe(1)
+  })
+
+  test('forward should send to apollo', async () => {
+    const user = await User.create('email@email.com')
+    const graph = await Graph.create('myGraph', user.id)
+    const messageJSON = require('./__data__/traces.json')
+    const message = proto.FullTracesReport.fromObject(messageJSON)
+
+    const job = await forwardQueue.add({
+      report: message,
+      apolloApiKey: '123'
+    })
+
+    const mock = jest.fn()
+
+    const res = await forward(mock)(job)
+
+    const expectedArgs = [
+      'https://engine-report.apollodata.com/api/ingress/traces',
+      {
+        method: 'POST',
+        headers: {
+          'user-agent': 'apollo-engine-reporting',
+          'x-api-key': '123',
+          'content-encoding': 'gzip'
+        },
+        body: res
+      }
+    ]
+    expect(mock).toBeCalledWith(...expectedArgs)
   })
 })

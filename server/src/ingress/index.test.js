@@ -4,6 +4,7 @@ const zlib = require('zlib')
 const promisify = require('util').promisify
 const gzip = promisify(zlib.gzip)
 const { Trace, Graph, User, sql, Key, db } = require('../persistence')
+const { forwardQueue } = require('./queue')
 const supertest = require('supertest')
 
 function formatProto(path) {
@@ -75,5 +76,25 @@ describe('/api/ingress', () => {
       .expect(201)
 
     expect(res.body.id).toBeDefined()
+  })
+
+  test('Forward to Apollo Engine', async () => {
+    const compressed = await formatProto('./__data__/traces.json')
+    const request = supertest.agent(app)
+
+    const user = await User.create('email@email.com')
+    const graph = await Graph.create('myGraph', user.id)
+    const key = await Key.create(graph.id)
+
+    const res = await request
+      .post('/api/ingress/traces?apolloApiKey=xyz')
+      .set('content-encoding', 'gzip')
+      .set('x-api-key', graph.id + ':' + key.secret)
+      .send(compressed)
+      .expect(201)
+
+    expect(res.body.id).toBeDefined()
+    const jobs = await forwardQueue.getJobs()
+    expect(jobs.length).toBe(1)
   })
 })
