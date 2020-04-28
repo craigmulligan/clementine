@@ -86,10 +86,12 @@ describe('/api/ingress', () => {
     const graph = await Graph.create('myGraph', user.id)
     const key = await Key.create(graph.id)
 
+    const apolloApiKey = '123:xxxx'
+
     const res = await request
-      .post('/api/ingress/traces?apolloApiKey=xyz')
+      .post('/api/ingress/traces')
       .set('content-encoding', 'gzip')
-      .set('x-api-key', graph.id + ':' + key.secret)
+      .set('x-api-key', graph.id + ':' + key.secret + '?' + apolloApiKey)
       .send(compressed)
       .expect(201)
 
