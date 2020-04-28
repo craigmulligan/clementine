@@ -85,6 +85,19 @@ module.exports = {
     const { rows } = await db.query(query)
     return rows
   },
+  async cull(threshold = 1) {
+    return db.query(sql`
+        delete from traces where id in (
+          select id from (
+            select * from (
+              select id, row_number() over (partition by "graphId" order by "createdAt" desc) as seq
+              from traces
+            ) as t
+            where seq > ${threshold}
+          ) as tt
+        )
+      `)
+  },
   async findAll(
     traceFilters = [],
     { to, from },
@@ -158,7 +171,7 @@ module.exports = {
 
     const query = sql`
     with ops as (
-        select *, 
+        select *,
         (CASE WHEN count = 0 THEN 0 ELSE (100 * "errorCount"/count) END) as "errorPercent"
         from (
           SELECT  key, "operationId" as id, PERCENTILE_CONT(0.95)
