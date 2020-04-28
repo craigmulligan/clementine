@@ -28,8 +28,6 @@ function compileTraceFilters(filters) {
 
 module.exports = {
   async create(graphId, traces) {
-    // TODO
-    // Add details, cacheHits
     const values = traces.map(trace => {
       const {
         durationNs,
@@ -41,7 +39,7 @@ module.exports = {
         clientName,
         clientVersion,
         schemaTag,
-        details,
+        details = {},
         hasErrors
       } = trace
 
