@@ -17,15 +17,15 @@ router.post(
   }),
   async (req, res) => {
     const apiKey = req.get('x-api-key')
-    const apolloApiKey = req.query.apolloApiKey
-
     if (!apiKey) {
       return res.status(403).send('FORBIDDEN: Missing apiKey')
     }
 
     // verifyKey
-    const graphId = apiKey.split(':')[0]
-    const key = apiKey.split(':')[1]
+    const [clementineApiKey, apolloApiKey] = apiKey.split('?')
+
+    const graphId = clementineApiKey.split(':')[0]
+    const key = clementineApiKey.split(':')[1]
 
     const isVerified = await Key.verify(key, graphId)
 
