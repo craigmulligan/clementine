@@ -32,6 +32,7 @@ psql postgres://user:pass@localhost:5432/db
 # TODO:
 
 - Use redis for queues [server]
+- Add TRACE_THRESHOLD per graph - this will delete old records when threshold is exceeded.
 - Forward to apollo-engine [server]
 - Add deployment instructions helm chart? [server]
 
