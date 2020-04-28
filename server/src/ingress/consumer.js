@@ -3,6 +3,9 @@ const { Trace } = require('../persistence')
 const { prepareTraces } = require('./utils')
 const logger = require('loglevel')
 const { redis } = require('../persistence')
+const zlib = require('zlib')
+const promisify = require('util').promisify
+const gzip = promisify(zlib.gzip)
 
 const HOUR = 60 * 60 * 1000
 const TRACE_THRESHOLD = process.env.TRACE_THRESHOLD || 1
@@ -45,7 +48,34 @@ async function cull(job) {
   return
 }
 
+function forward(fetch) {
+  return async job => {
+    // forwards traces to apollo
+    logger.info('Forward job starting', job.id)
+    const { apolloApiKey, report } = job.data
+    const buffer = proto.FullTracesReport.encode(report).finish()
+    const compressed = await gzip(buffer)
+
+    const res = await fetch(
+      'https://engine-report.apollodata.com/api/ingress/traces',
+      {
+        method: 'POST',
+        headers: {
+          'user-agent': 'apollo-engine-reporting',
+          'x-api-key': apolloApiKey,
+          'content-encoding': 'gzip'
+        },
+        body: compressed
+      }
+    )
+
+    logger.info('Forward job complete', job.id)
+    return compressed
+  }
+}
+
 module.exports = {
   ingest,
-  cull
+  cull,
+  forward
 }

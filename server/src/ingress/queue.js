@@ -4,7 +4,12 @@ const thresholdQueue = new Queue('trace:threshold', {
   redis: { host: 'redis' }
 })
 
+const forwardQueue = new Queue('trace:threshold', {
+  redis: { host: 'redis' }
+})
+
 module.exports = {
   ingestQueue,
-  thresholdQueue
+  thresholdQueue,
+  forwardQueue
 }
