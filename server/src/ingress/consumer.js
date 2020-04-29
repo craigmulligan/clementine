@@ -33,7 +33,7 @@ function ingest(cullQueue) {
 
       return rowIds
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       throw err
     }
   }
@@ -51,7 +51,6 @@ async function cull(job) {
 function forward(fetch) {
   return async job => {
     // forwards traces to apollo
-    logger.info('Forward job starting', job.id)
     const { apolloApiKey, report } = job.data
     const buffer = proto.FullTracesReport.encode(report).finish()
     const compressed = await gzip(buffer)
