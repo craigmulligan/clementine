@@ -7,6 +7,9 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - clementine
+    depends_on:
+      - server
+      - client
     ports:
       - 8080:8080
       - 80:80
@@ -35,7 +38,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - nginx
     environment:
       LOGLEVEL: info
       PORT: 80
