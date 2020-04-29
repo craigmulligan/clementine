@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { Loading, ErrorBanner } from '../utils'
+import { Loading, ErrorBanner, NotFound } from '../utils'
 import { Link } from 'react-router-dom'
 import Stats from '../stats'
 import { FiltersContext } from '../trace'
@@ -64,7 +64,7 @@ export default function OperationList({ graphId }) {
   if (error) return <ErrorBanner error={error} />
 
   if (data.operations.nodes.length === 0) {
-    return <div>Not Found</div>
+    return <NotFound />
   }
 
   return (

@@ -10,11 +10,8 @@ module.exports.up = async function(next) {
       name text,
       "createdAt" timestamp with time zone default (now() at time zone 'utc') NOT NULL
     );
+    CREATE INDEX IF NOT EXISTS "graphUser" on graphs ("userId");
   `)
-
-  // await db.query(sql`
-  // CREATE INDEX "graphUser" on graphs ("userId");
-  // `)
 
   next()
 }
@@ -22,6 +19,7 @@ module.exports.up = async function(next) {
 module.exports.down = async function(next) {
   await db.query(sql`
   DROP TABLE graphs CASCADE;
+  DROP INDEX IF EXISTS "graphUser";
   `)
 
   next()

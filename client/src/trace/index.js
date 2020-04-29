@@ -1,7 +1,7 @@
 import React from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { Loading, ErrorBanner } from '../utils'
+import { Loading, ErrorBanner, NotFound } from '../utils'
 import TracingReponse from './TracingReponse'
 import Filters from './filters'
 import FiltersContext, { FiltersProvider } from './filtersContext'
@@ -11,6 +11,7 @@ import Details from './details'
 import { printDuration } from '../utils'
 import styles from './index.module.css'
 import { getOperationName } from '../operation/utils'
+import { printDate } from '../utils'
 
 const TRACE_SHOW = gql`
   query trace($traceId: ID!) {
@@ -39,7 +40,7 @@ export function TraceShow({ traceId }) {
   const { trace } = data
 
   if (!trace) {
-    return <div>Not Found</div>
+    return <NotFound />
   }
 
   return (
@@ -52,10 +53,10 @@ export function TraceShow({ traceId }) {
           <div className={styles.statTitle}>Duration</div>
         </div>
         <h2>{trace.id}</h2>
-        <i className={styles.subtitle}>
-          {getOperationName(gql(trace.key))} {String.fromCharCode(255)}{' '}
+        <i className={styles.subTitle}>{getOperationName(gql(trace.key))} </i>
+        <i className={styles.subTitle}>
+          {printDate(new Date(trace.startTime))}
         </i>
-        <i className={styles.subtitle}>{trace.startTime.toString()}</i>
       </div>
       <details>
         <summary>View Query</summary>

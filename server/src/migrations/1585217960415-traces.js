@@ -21,10 +21,14 @@ module.exports.up = async function(next) {
       "hasErrors" boolean NOT NULL
     );
 
+    CREATE INDEX IF NOT EXISTS "traceOperation" on traces ("operationId");
+    CREATE INDEX IF NOT EXISTS "traceGraph" on traces ("graphId");
+    CREATE INDEX IF NOT EXISTS "traceStartTime" on traces ("startTime" DESC);
+    CREATE INDEX IF NOT EXISTS "traceDuration" on traces ("duration");
+    CREATE INDEX IF NOT EXISTS "tracesClientName" on traces ("clientName");
+    CREATE INDEX IF NOT EXISTS "tracesClientVersion" on traces ("clientVersion");
+    CREATE INDEX IF NOT EXISTS "tracesSchemaTag" on traces ("schemaTag");
 
-  `)
-
-  await db.query(sql`
     CREATE OR REPLACE FUNCTION date_round(base_date timestamptz, round_interval interval)
       RETURNS timestamptz AS $BODY$
   SELECT '1970-01-01'::timestamptz
@@ -32,6 +36,7 @@ module.exports.up = async function(next) {
       / EXTRACT(epoch FROM $2)::integer
       * EXTRACT(epoch FROM $2)::integer * interval '1 second';
   $BODY$ LANGUAGE SQL STABLE;
+
   `)
 
   // await db.query(sql`
@@ -50,6 +55,13 @@ module.exports.up = async function(next) {
 module.exports.down = async function(next) {
   await db.query(sql`
     DROP TABLE traces;
+    DROP INDEX IF EXISTS "traceOperation";
+    DROP INDEX IF EXISTS "traceGraph" on traces ("graphId");
+    DROP INDEX IF EXISTS "traceStartTime" on traces ("startTime" DESC);
+    DROP INDEX IF EXISTS "traceDuration" on traces ("duration");
+    DROP INDEX IF EXISTS "tracesClientName" on traces ("clientName");
+    DROP INDEX IF EXISTS "tracesClientVersion" on traces ("clientVersion");
+    DROP INDEX IF EXISTS "tracesSchemaTag" on traces ("schemaTag");
     DROP FUNCTION IF EXISTS date_round(timestamptz, interval);
   `)
 

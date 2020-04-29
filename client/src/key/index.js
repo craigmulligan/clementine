@@ -1,8 +1,10 @@
 import React from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { GRAPH_SETTINGS } from './graph'
+import { GRAPH_SETTINGS } from '../graph'
 import { cloneDeep } from 'lodash'
+import styles from './index.module.css'
+import { printDate } from '../utils'
 
 const QUERY = gql`
   mutation createApiKey($graphId: ID!) {
@@ -10,6 +12,7 @@ const QUERY = gql`
       id
       secret
       prefix
+      createdAt
     }
   }
 `
@@ -91,17 +94,22 @@ export function KeyList({ keys, graphId }) {
     <ul>
       {keys.map(key => {
         return (
-          <li key={key.id}>
-            <span>
+          <div className={styles.row} key={key.id}>
+            <div>
               {key.secret && (
-                <span>
+                <span className={styles.notice}>
                   Save your key now - you wont be able to retrieve it later.
                 </span>
               )}
-              {key.secret ? key.secret : key.prefix + '...'}
+              <code>{key.secret ? key.secret : key.prefix + '...'}</code>
+            </div>
+            <div>
+              <p>{printDate(new Date(key.createdAt))}</p>
+            </div>
+            <div>
               <KeyRevoke keyId={key.id} graphId={graphId} />
-            </span>
-          </li>
+            </div>
+          </div>
         )
       })}
     </ul>

@@ -11,11 +11,8 @@ module.exports.up = async function(next) {
       hash text UNIQUE,
       prefix text
     );
+    CREATE INDEX IF NOT EXISTS "keyGraph" on keys ("graphId");
   `)
-
-  // await db.query(sql`
-  // CREATE INDEX "graphKey" on keys ("graphId");
-  // `)
 
   next()
 }
@@ -23,6 +20,7 @@ module.exports.up = async function(next) {
 module.exports.down = async function(next) {
   await db.query(sql`
     DROP TABLE keys;
+    DROP INDEX IF EXISTS "keyGraph";
   `)
   next()
 }

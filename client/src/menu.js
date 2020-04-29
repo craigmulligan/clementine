@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useContext } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useRouteMatch } from 'react-router-dom'
 import Logout from './logout'
 import UserContext from './user'
 import { FiltersContext } from './trace'
@@ -10,7 +10,9 @@ function Menu() {
   const { user } = useContext(UserContext)
   const { rawFilters: filters } = useContext(FiltersContext)
   const location = useLocation()
+  const match = useRouteMatch('/graph/:graphId')
   const search = new URLSearchParams(location.search)
+
   let path
 
   // toggle fitlers query
@@ -23,12 +25,12 @@ function Menu() {
   }
 
   if (user) {
-    const label = filters.length > 0 ? <Label /> : ""
+    const label = filters.length > 0 ? <Label /> : ''
     return (
       <header>
         <nav>
           <Link to="/graph">Graphs</Link>
-          <Link to={path}>Filters{' '}{label}</Link>
+          {match && <Link to={path}>Filters {label}</Link>}
           <Logout />
         </nav>
       </header>

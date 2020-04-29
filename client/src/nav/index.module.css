@@ -24,7 +24,3 @@
   text-align: center;
   padding: 25px 0;
 }
-
-.active {
-  border-bottom: 1px solid var(--color-black);
-}

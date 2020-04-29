@@ -1,6 +1,6 @@
 .wrapper {
   padding-top: 6px;
-  padding-left: 50px;
+  padding-left: 100px;
   padding-right: 25px;
   overflow: auto;
   position: relative;
@@ -15,6 +15,6 @@
   overflow: auto;
   top: 0;
   left: 0;
-  width: calc(100% + 100px);
-  height: calc(100% + 116px);
+  width: calc(100% + 150px);
+  height: calc(100% + 166px);
 }

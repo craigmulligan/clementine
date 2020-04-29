@@ -8,11 +8,8 @@ module.exports.up = async function(next) {
     "createdAt" timestamp with time zone default (now() at time zone 'utc') NOT NULL,
     "isVerified" boolean default FALSE
   );
+  CREATE INDEX IF NOT EXISTS  "usersEmail" on users (email);
   `)
-
-  // await db.query(sql`
-  // CREATE INDEX "usersEmail" on users (email);
-  // `)
 
   next()
 }
@@ -20,6 +17,7 @@ module.exports.up = async function(next) {
 module.exports.down = async function(next) {
   await db.query(sql`
     DROP TABLE users;
+    DROP INDEX IF EXISTS "usersEmail";
   `)
   next()
 }

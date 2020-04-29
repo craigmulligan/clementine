@@ -26,12 +26,13 @@ psql postgres://user:pass@localhost:5432/db
 
 # TODO:
 
-- Forward to apollo-engine [server]
 - Add deployment instructions helm chart? [server]
+- next page on traces?
 
 # RoadMap
 
 - Add extra filters for cache hits etc.
 - Filter by different percentiles.
 - Team/Org support.
+- Add error distribution views.
 - Add error distribution views.

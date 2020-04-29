@@ -1,6 +1,6 @@
 .row {
   position: relative;
-  font-size: 12px;
+  font-size: 16px;
   display: table;
   padding-right: 25px;
 }
@@ -11,11 +11,11 @@
   margin: 0 10px;
   height: 1.5px;
   bottom: 4px;
-  background: black;
+  background: var(--color-black);
 }
 
 .duration {
-  font-size: 10px;
+  font-size: 16px;
 }
 
 .wrapper {
@@ -28,5 +28,5 @@
 }
 
 .name {
-  font-size: 10px;
+  font-size: 16px;
 }

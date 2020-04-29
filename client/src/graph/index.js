@@ -46,7 +46,7 @@ export function GraphList() {
   if (error) return <ErrorBanner error={error} />
 
   if (!data.user) {
-    return <div>Not Found</div>
+    return <NotFound />
   }
 
   return (
@@ -204,7 +204,7 @@ export function GraphHeader({ graphId }) {
   if (error) return <ErrorBanner error={error} />
 
   if (!data.graph) {
-    return <div>Not Found</div>
+    return <NotFound />
   }
 
   return (
@@ -231,6 +231,7 @@ export const GRAPH_SETTINGS = gql`
         id
         secret
         prefix
+        createdAt
       }
     }
   }

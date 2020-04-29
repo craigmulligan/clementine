@@ -42,11 +42,16 @@ export default function TraceFilters({ graphId, isVisible }) {
       return true
     })
     .map(([k, v]) => {
+      let operators = ['eq', 'ne']
+      if (k === 'interval') {
+        operators = ['eq']
+      }
+
       return {
         label: k,
         name: k,
         type: 'list',
-        operators: ['eq', 'ne'],
+        operators: operators,
         list: v
           ? v
               .filter(v => !!v)

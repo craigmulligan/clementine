@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { useQuery } from '@apollo/react-hooks'
 import { gql } from 'apollo-boost'
-import { Loading, ErrorBanner } from '../utils'
+import { Loading, ErrorBanner, NotFound } from '../utils'
 import { useHistory } from 'react-router-dom'
 import FiltersContext from './filtersContext'
 import Chart from '../timeline/chart'
@@ -91,7 +91,7 @@ export default function TraceList({ graphId, operationId }) {
   if (error) return <ErrorBanner error={error} />
 
   if (data.traces.nodes.length === 0) {
-    return <div>Not Found</div>
+    return <NotFound />
   }
 
   const dataSeries = data.traces.nodes.map(d => ({

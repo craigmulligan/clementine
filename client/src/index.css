@@ -396,7 +396,10 @@ blockquote footer {
 }
 
 /* Custom styles */
-
 .w-100 {
   width: 100%;
+}
+
+.active {
+  border-bottom: 1px solid var(--color-black);
 }

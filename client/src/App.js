@@ -19,6 +19,7 @@ function App() {
             <Route
               path="/graph/:graphId"
               component={({ match: { params }, location }) => {
+                // this  displays filters dropdown
                 const isVisible = new URLSearchParams(location.search).get(
                   'filters'
                 )
@@ -51,7 +52,7 @@ function App() {
                   }}
                 />
               </Switch>
-              <Route exact path="/graph" component={GraphList} />
+              <Route exact path={['/graph', '/']} component={GraphList} />
               <Route
                 exact
                 path="/graph/:graphId/settings"
