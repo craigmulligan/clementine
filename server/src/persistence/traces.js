@@ -1,6 +1,5 @@
 const { sql } = require('slonik')
 const uuid = require('uuid/v4')
-const bcrypt = require('bcrypt')
 const db = require('./db')
 
 const Operators = {

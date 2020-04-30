@@ -16,10 +16,12 @@
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "react-visual-filter": "^1.0.9"
+    "react-visual-filter": "^1.0.9",
+    "serve": "^11.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "serve build",
+    "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -29,7 +31,11 @@
   },
   "proxy": "http://localhost:3000",
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",

@@ -9,21 +9,18 @@
     "test": "npm run wait:db && jest --watchAll --runInBand",
     "ci": "npm run wait:db && npm test",
     "format": "prettier",
-    "start:worker": "nodemon ./bin/worker.js",
+    "start:worker": "node ./bin/worker.js",
     "start": "node ./bin/start.js",
     "dev": "nodemon ./bin/start.js",
     "dev:worker": "nodemon ./bin/worker.js",
     "migrate": "npm run wait:db && node ./bin/migrate.js",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
   },
-  "keywords": [
-    "graphql"
-  ],
+  "keywords": ["graphql"],
   "author": "hobochild",
   "license": "MIT",
   "dependencies": {
     "apollo-server-express": "^2.11.0",
-    "bcrypt": "^4.0.1",
     "bull": "^3.13.0",
     "connect-redis": "^4.0.4",
     "cors": "^2.8.5",
@@ -57,13 +54,8 @@
   },
   "homepage": "https://github.com/hobochild/clementine#readme",
   "jest": {
-    "testPathIgnorePatterns": [
-      "utils.js",
-      "/node_modules"
-    ],
-    "setupFilesAfterEnv": [
-      "./src/setupTests.js"
-    ]
+    "testPathIgnorePatterns": ["utils.js", "/node_modules"],
+    "setupFilesAfterEnv": ["./src/setupTests.js"]
   },
   "bin": {
     "clementine": "migrate.js"
