@@ -1,0 +1,28 @@
+# docker-compose.yml
+version: "3"
+services:
+  worker:
+    user: node
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+    command: npm run start:worker
+
+  server:
+    user: node
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+    command: npm run start
+
+  client:
+    build: ./client/Dockerfile.prod
+    user: node
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+    command: npm run start
+    volumes:
+      - ./client/src:/app/src
+    networks:
+      - clementine

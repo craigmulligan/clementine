@@ -1,10 +1,6 @@
-# docker-compose.yml
 version: "3"
 services:
   nginx:
-    build: ./nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       - clementine
     depends_on:
@@ -16,59 +12,37 @@ services:
       - 443:80
 
   worker:
-    build: ./server
     depends_on:
       - postgres
       - redis
     environment:
       DATABASE_URL: postgres://user:pass@postgres:5432/db
-      NODE_ENV: development
-      LOG_LEVEL: info
       TRACE_THRESHOLD: ${TRACE_THRESHOLD:-500000}
-    command: npm run dev:worker
-    volumes:
-      - ./server/src:/app/src
-      - ./server/bin:/app/bin
-      - ./server/package.json:/app/package.json
     networks:
       - clementine
 
   server:
-    build: ./server
     depends_on:
       - postgres
       - redis
     environment:
-      LOGLEVEL: info
       PORT: 80
       DATABASE_URL: postgres://user:pass@postgres:5432/db
-      NODE_ENV: development
       SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
       SMTP: ${SMTP}
       SMTP_EMAIL_FROM: ${SMTP_EMAIL_FROM}
       ENGINE_API_KEY: ${ENGINE_API_KEY}
     ports:
       - 80
-    command: npm run dev
-    volumes:
-      - ./server/src:/app/src
-      - ./server/bin:/app/bin
-      - ./server/package.json:/app/package.json
     networks:
       - clementine
 
   client:
     build: ./client
     environment:
-      LOG_LEVEL: info
-      NODE_ENV: development
       PORT: 80
     ports:
       - 80
-    stdin_open: true
-    command: npm run start
-    volumes:
-      - ./client/src:/app/src
     networks:
       - clementine
 

@@ -11,3 +11,5 @@ COPY ./package.json ./package-lock.json ./
 RUN npm install --no-optional && npm cache clean --force
 
 COPY . .
+
+RUN npm run build

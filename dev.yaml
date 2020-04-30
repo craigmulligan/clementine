@@ -1,0 +1,55 @@
+version: "3"
+services:
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  worker:
+    build:
+      context: ./server
+      args:
+        NODE_ENV: development
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: debug
+    command: npm run dev:worker
+    volumes:
+      - ./server/src:/app/src
+      - ./server/bin:/app/bin
+    networks:
+      - clementine
+
+  server:
+    build:
+      context: ./server
+      args:
+        NODE_ENV: development
+    environment:
+      LOGLEVEL: debug
+      NODE_ENV: development
+    command: npm run dev
+    volumes:
+      - ./server/src:/app/src
+      - ./server/bin:/app/bin
+    networks:
+      - clementine
+
+  client:
+    build:
+      context: ./client
+      args:
+        NODE_ENV: development
+    environment:
+      LOG_LEVEL: debug
+      NODE_ENV: development
+    stdin_open: true
+    command: npm run dev
+    volumes:
+      - ./client/src:/app/src
+    networks:
+      - clementine
+
+  postgres:
+
+  redis:

@@ -1,13 +1,13 @@
-FROM node:10
+FROM node:12.16.3-alpine3.11
 
-RUN apt-get update && apt-get install -y postgresql-client
+ARG NODE_ENV=production
+
+ENV NODE_ENV $NODE_ENV
 
 WORKDIR /app
 
 COPY ./package.json ./package-lock.json ./
 
-RUN npm install
+RUN npm install --no-optional && npm cache clean --force
 
 COPY . .
-
-CMD npm start

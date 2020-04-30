@@ -10,10 +10,10 @@ ci:
 	docker-compose run server npm ci
 
 build:
-	docker-compose build
+	docker-compose -f docker-compose.yaml -f dev.yaml build
 
 dev:
-	docker-compose up
+	docker-compose -f docker-compose.yaml -f dev.yaml up
 
 migrate:
 	docker-compose run server npm run migrate up
@@ -26,3 +26,10 @@ db-rm:
 
 psql:
 	psql postgres://user:pass@localhost:5432/db
+
+build-prod:
+	docker-compose -f docker-compose.yaml -f dev.yaml build
+
+start: build-prod
+	docker-compose -f docker-compose.yml -f production.yml up -d
+
