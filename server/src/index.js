@@ -16,7 +16,7 @@ const { User } = require('./persistence')
 const ingress = require('./ingress')
 
 const app = express()
-const api = express.Router();
+const api = express.Router()
 
 app.use(
   session({
@@ -57,10 +57,10 @@ const gql = new ApolloServer({
   introspection: true,
   engine: {
     logger,
-    endpointUrl: 'http://server',
+    endpointUrl: 'http://server:3000',
     apiKey: process.env.ENGINE_API_KEY,
     debugPrintReports: true,
-    schemaTag: 'test',
+    schemaTag: 'dev',
     sendHeaders: { all: true },
     sendVariableValues: { all: true },
     reportErrorFunction: err => {

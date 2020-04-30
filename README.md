@@ -4,7 +4,7 @@
 
 ## Setup
 
-Add all required envars from `.env`.
+Add all required environment variables in `.env`.
 
 Then:
 
@@ -12,13 +12,13 @@ Then:
 make dev
 ```
 
-The frontend will now be served on localhost. Postgres is exposed on port `5432`. The connection string is `postgres://user:pass@localhost:35432/db` (username, password and database name are defined in [./docker-compose.yaml](./docker-compose.yaml)).
+Or for production:
 
-You can connect to Postgres using the psql client:
-
-```sh
-psql postgres://user:pass@localhost:5432/db
 ```
+make start
+```
+
+The frontend will now be served on localhost:80. Postgres is exposed on port `5432`. The connection string is `postgres://user:pass@localhost:35432/db` (username, password and database name are defined in [./docker-compose.yaml](./docker-compose.yaml)).
 
 `make migrate` will run the migrations.
 

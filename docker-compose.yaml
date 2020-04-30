@@ -1,6 +1,7 @@
 version: "3"
 services:
   nginx:
+    build: ./nginx
     networks:
       - clementine
     depends_on:
@@ -12,6 +13,7 @@ services:
       - 443:80
 
   worker:
+    build: ./server
     depends_on:
       - postgres
       - redis
@@ -22,34 +24,35 @@ services:
       - clementine
 
   server:
+    build: ./server
     depends_on:
       - postgres
       - redis
     environment:
-      PORT: 80
+      PORT: 3000
       DATABASE_URL: postgres://user:pass@postgres:5432/db
       SESSION_SECRET: ${SESSION_SECRET:-"super-secret"}
       SMTP: ${SMTP}
       SMTP_EMAIL_FROM: ${SMTP_EMAIL_FROM}
       ENGINE_API_KEY: ${ENGINE_API_KEY}
     ports:
-      - 80
+      - 3000
     networks:
       - clementine
 
   client:
     build: ./client
     environment:
-      PORT: 80
+      PORT: 3000
     ports:
-      - 80
+      - 3000
     networks:
       - clementine
 
   postgres:
     image: postgres:10.4
     ports:
-      - "5432:5432"
+      - 5432
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
@@ -60,7 +63,7 @@ services:
   redis:
     image: 'bitnami/redis:latest'
     ports:
-      - "6379:6379"
+      - 6379
     environment:
       ALLOW_EMPTY_PASSWORD: "yes"
     networks:
