@@ -29,6 +29,7 @@ services:
       - postgres
       - redis
     environment:
+      DOMAIN: ${DOMAIN}
       PORT: 3000
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       SESSION_SECRET: ${SESSION_SECRET}
