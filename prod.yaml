@@ -1,28 +1,45 @@
 # docker-compose.yml
 version: "3"
 services:
+  nginx:
+
+  postgres:
+
+  redis:
+
   worker:
+    build:
+      context: ./server
+      args:
+        NODE_ENV: production
     user: node
     environment:
       NODE_ENV: production
       LOG_LEVEL: info
     command: npm run start:worker
+    restart: unless-stopped
 
   server:
+    build:
+      context: ./server
+      args:
+        NODE_ENV: production
     user: node
     environment:
       NODE_ENV: production
       LOG_LEVEL: info
     command: npm run start
+    restart: unless-stopped
 
   client:
-    build: ./client/Dockerfile.prod
+    build:
+      context: ./client
+      dockerfile: Dockerfile.prod
+      args:
+        NODE_ENV: production
     user: node
     environment:
       NODE_ENV: production
       LOG_LEVEL: info
     command: npm run start
-    volumes:
-      - ./client/src:/app/src
-    networks:
-      - clementine
+    restart: unless-stopped

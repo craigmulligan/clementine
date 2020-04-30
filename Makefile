@@ -1,10 +1,5 @@
-ARGS := $(filter-out $(KNOWN_TARGETS),$(MAKECMDGOALS))
-
 test:
 	docker-compose run server npm test
-
-test-debug:
-	docker-compose run server node --inspect node_modules/.bin/jest --runInBand
 
 ci:
 	docker-compose run server npm ci
@@ -28,8 +23,7 @@ psql:
 	psql postgres://user:pass@localhost:5432/db
 
 build-prod:
-	docker-compose -f docker-compose.yaml -f dev.yaml build
+	docker-compose -f docker-compose.yaml -f prod.yaml build
 
 start: build-prod
-	docker-compose -f docker-compose.yml -f production.yml up -d
-
+	docker-compose -f docker-compose.yaml -f prod.yaml up -d
