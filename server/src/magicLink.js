@@ -15,7 +15,7 @@ function hash(str) {
 
 const EXPIRE = 3600 // 1 hr
 
-const domain = process.env.DOMAIN || 'http://localhost'
+const domain = process.env.DOMAIN
 
 async function generate(data) {
   const token = uuid()

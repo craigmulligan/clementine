@@ -336,7 +336,6 @@ module.exports = {
       if (!traceFilters) {
         traceFilters = []
       }
-
       return Trace.findStats(
         [...traceFilters, { field: 'graphId', operator: 'eq', value: id }],
         processDates(from, to)

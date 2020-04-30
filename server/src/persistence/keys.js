@@ -20,7 +20,7 @@ module.exports = {
     const { rows } = await db.query(sql`
         INSERT INTO keys (id, hash, "graphId",  prefix)
         VALUES (${uuid()}, ${hashedSecret}, ${graphId}, ${secret.slice(0, 4)})
-        RETURNING id, "graphId", prefix;
+        RETURNING id, "graphId", prefix, "createdAt";
       `)
 
     const [key] = rows

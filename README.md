@@ -18,21 +18,14 @@ Or for production:
 make start
 ```
 
-The frontend will now be served on localhost:80. Postgres is exposed on port `5432`. The connection string is `postgres://user:pass@localhost:35432/db` (username, password and database name are defined in [./docker-compose.yaml](./docker-compose.yaml)).
+The frontend will now be served on localhost:80.
 
-`make migrate` will run the migrations.
+### Getting Started
 
-`make migrate-down` will roll back the migrations.
+Once you
 
-# TODO:
+### RoadMap
 
-- Add deployment instructions helm chart? [server]
-- next page on traces?
-
-# RoadMap
-
-- Add extra filters for cache hits etc.
-- Filter by different percentiles.
 - Team/Org support.
 - Add error distribution views.
-- Add error distribution views.
+- Add helm chart.
