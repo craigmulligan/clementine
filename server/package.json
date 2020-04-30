@@ -10,8 +10,8 @@
     "ci": "npm run wait:db && npm test",
     "format": "prettier",
     "start:worker": "node ./bin/worker.js",
-    "start": "node ./bin/start.js",
-    "dev": "nodemon ./bin/start.js",
+    "start": "npm run migrate up && node ./bin/start.js",
+    "dev": "npm run migrate up && nodemon ./bin/start.js",
     "dev:worker": "nodemon ./bin/worker.js",
     "migrate": "npm run wait:db && node ./bin/migrate.js",
     "migrate:create": "npm run wait:db && migrate create --migrations-dir='./src/migrations'"
@@ -37,13 +37,13 @@
     "redis": "^3.0.2",
     "slonik": "^22.4.4",
     "uuid": "^3.3.2",
-    "uuid-by-string": "^3.0.2"
+    "uuid-by-string": "^3.0.2",
+    "wait-on": "^4.0.1"
   },
   "devDependencies": {
     "jest": "^25.1.0",
     "nodemon": "^2.0.2",
-    "supertest": "^4.0.2",
-    "wait-on": "^4.0.1"
+    "supertest": "^4.0.2"
   },
   "repository": {
     "type": "git",

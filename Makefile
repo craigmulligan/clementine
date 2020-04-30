@@ -7,7 +7,7 @@ ci:
 build:
 	docker-compose -f docker-compose.yaml -f dev.yaml build
 
-dev:
+dev: build
 	docker-compose -f docker-compose.yaml -f dev.yaml up
 
 migrate:
