@@ -2,6 +2,9 @@
 version: "3"
 services:
   nginx:
+    volumes:
+      - ./nginx/user.conf.d/prod.conf:/etc/nginx/conf.d/default.conf
+      - static:/home/www-data/clementine:ro
 
   postgres:
 
@@ -38,8 +41,13 @@ services:
       args:
         NODE_ENV: production
     user: node
+    volumes:
+      - static:/app/build
     environment:
       NODE_ENV: production
       LOG_LEVEL: info
-    command: npm run start
+    command: echo "mounting static!"
     restart: unless-stopped
+
+volumes:
+  static:
