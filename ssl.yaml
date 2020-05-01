@@ -1,0 +1,23 @@
+# docker-compose.yml
+version: "3"
+services:
+  nginx:
+    volumes:
+      # We mount over our dev .nginx.conf
+      - ./nginx/user.conf.d/ssl.conf:/etc/nginx/user.conf.d/nginx.conf:ro
+      - letsencrypt:/etc/letsencrypt
+
+  postgres:
+
+  redis:
+
+  worker:
+
+  server:
+    env:
+      IS_SSL: "1"
+
+  client:
+
+volumes:
+    letsencrypt:

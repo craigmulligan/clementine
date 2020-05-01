@@ -16,6 +16,7 @@ function hash(str) {
 const EXPIRE = 3600 // 1 hr
 
 const domain = process.env.DOMAIN
+const protocol = !!process.env.IS_SSL ? 'https' : 'http'
 
 async function generate(data) {
   const token = uuid()
@@ -25,7 +26,7 @@ async function generate(data) {
     'EX',
     EXPIRE
   )
-  return [token, `${domain}/api/verify?token=${token}`]
+  return [token, `${protocol}://${domain}/api/verify?token=${token}`]
 }
 
 async function verify(token) {
