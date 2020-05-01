@@ -9,7 +9,7 @@ services:
       CERTBOT_EMAIL: ${LETSENCRYPT_EMAIL}
       DOMAIN: ${DOMAIN}
       ENVSUBST_VARS: DOMAIN
-      IS_STAGING: "1"
+      IS_STAGING: ${LETSENCRYPT_IS_STAGING:-"1"}
     volumes:
       # We mount over our dev nginx.conf
       - ./nginx/ssl.conf:/etc/nginx/nginx.conf:ro
