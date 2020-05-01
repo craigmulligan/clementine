@@ -11,9 +11,8 @@ services:
       ENVSUBST_VARS: DOMAIN
       IS_STAGING: ${LETSENCRYPT_IS_STAGING:-"1"}
     volumes:
-      # We mount over our dev nginx.conf
-      - ./nginx/ssl.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/user.conf.d:/etc/nginx/user.conf.d:ro
+      # nginx-certbot moves nginx.conf to ./conf.d/ and overwrites our thang
+      - ./nginx/user.conf.d/ssl.conf:/etc/nginx/user.conf.d/nginx.conf:ro
       - letsencrypt:/etc/letsencrypt
 
   postgres:
