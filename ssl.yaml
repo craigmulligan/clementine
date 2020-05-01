@@ -2,9 +2,18 @@
 version: "3"
 services:
   nginx:
+    ports:
+      - 443:443
+    image: staticfloat/nginx-certbot
+    environment:
+      CERTBOT_EMAIL: ${LETS_ENCRYPT_EMAIL}
+      DOMAIN: ${DOMAIN}
+      ENVSUBST_VARS: DOMAIN
+      IS_STAGING: "1"
     volumes:
-      # We mount over our dev .nginx.conf
-      - ./nginx/user.conf.d/ssl.conf:/etc/nginx/user.conf.d/nginx.conf:ro
+      # We mount over our dev nginx.conf
+      - ./nginx/ssl.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/user.conf.d:/etc/nginx/user.conf.d:ro
       - letsencrypt:/etc/letsencrypt
 
   postgres:
@@ -14,7 +23,7 @@ services:
   worker:
 
   server:
-    env:
+    environment:
       IS_SSL: "1"
 
   client:

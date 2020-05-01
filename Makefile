@@ -8,7 +8,7 @@ build:
 	docker-compose -f docker-compose.yaml -f dev.yaml build
 
 dev: build
-	docker-compose -f docker-compose.yaml -f dev.yaml up
+	docker-compose -f docker-compose.yaml -f dev.yaml up --remove-orphans
 
 migrate:
 	docker-compose run server npm run migrate up
