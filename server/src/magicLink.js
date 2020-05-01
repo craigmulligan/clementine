@@ -16,7 +16,7 @@ function hash(str) {
 const EXPIRE = 3600 // 1 hr
 
 const domain = process.env.DOMAIN
-const protocol = !!process.env.IS_SSL ? 'https' : 'http'
+const protocol = process.env.IS_SSL === '1' ? 'https' : 'http'
 
 async function generate(data) {
   const token = uuid()

@@ -28,4 +28,4 @@ services:
   client:
 
 volumes:
-    letsencrypt:
+  letsencrypt:

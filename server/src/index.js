@@ -18,6 +18,8 @@ const ingress = require('./ingress')
 const app = express()
 const api = express.Router()
 
+app.set('trust proxy', 'loopback')
+
 app.use(
   session({
     store: new RedisStore({ client }),
