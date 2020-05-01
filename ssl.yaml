@@ -6,7 +6,7 @@ services:
       - 443:443
     image: staticfloat/nginx-certbot
     environment:
-      CERTBOT_EMAIL: ${LETS_ENCRYPT_EMAIL}
+      CERTBOT_EMAIL: ${LETSENCRYPT_EMAIL}
       DOMAIN: ${DOMAIN}
       ENVSUBST_VARS: DOMAIN
       IS_STAGING: "1"
