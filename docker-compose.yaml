@@ -4,7 +4,6 @@ services:
     image: nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/user.conf.d/server.conf:/etc/nginx/conf.d/nginx.conf
     networks:
       - clementine
     depends_on:
