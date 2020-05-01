@@ -1,18 +1,23 @@
 version: "3"
 services:
   nginx:
-    build: ./nginx
+    image: staticfloat/nginx-certbot
+    environment:
+      CERTBOT_EMAIL: ${LETS_ENCRYPT_EMAIL}
+      DOMAIN: ${DOMAIN}
+      ENVSUBST_VARS: DOMAIN
+      IS_STAGING: "1"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/user.conf.d/nginx.conf:/etc/nginx/user.conf.d/nginx.conf:ro
+      - ./nginx/conf.d/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - clementine
     depends_on:
       - server
       - client
     ports:
-      - 8080:8080
       - 80:80
-      - 443:80
+      - 443:443
 
   worker:
     build: ./server
@@ -38,6 +43,7 @@ services:
       SMTP: ${SMTP}
       SMTP_EMAIL_FROM: ${SMTP_EMAIL_FROM}
       ENGINE_API_KEY: ${ENGINE_API_KEY}
+      IS_SSL: "0"
     ports:
       - 3000
     networks:
