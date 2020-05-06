@@ -1,4 +1,4 @@
-# Clementine
+# Clementine 🍊
 
 > A self-hosted Graphql Analytics and Observability Platform
 
