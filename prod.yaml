@@ -2,8 +2,12 @@
 version: "3"
 services:
   nginx:
+    CERTBOT_EMAIL: ${LETSENCRYPT_EMAIL}
+    DOMAIN: ${DOMAIN}
+    ENVSUBST_VARS: DOMAIN
+    IS_STAGING: ${LETSENCRYPT_IS_STAGING:-"1"}
     volumes:
-      - ./nginx/user.conf.d/prod.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/user.conf.d/${NGINX_CONF:-"prod"}.conf:/etc/nginx/conf.d/default.conf:ro
       - static:/home/www-data/clementine:ro
 
   postgres:
