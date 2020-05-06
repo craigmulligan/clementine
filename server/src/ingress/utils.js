@@ -15,7 +15,7 @@ const extractErrors = (node, acc = []) => {
 }
 
 function parseTS(message) {
-  return new Date(message.seconds * 1000 + message.nanos / 1000)
+  return new Date(message.seconds * 1000 + message.nanos / 1000000)
 }
 
 function prepareTraces(report) {
@@ -28,8 +28,8 @@ function prepareTraces(report) {
           key,
           operationId: uuidByString(key),
           ...trace,
-          startTime: parseTS(trace.endTime),
-          endTime: parseTS(trace.startTime),
+          startTime: parseTS(trace.startTime),
+          endTime: parseTS(trace.endTime),
           hasErrors: extractErrors(trace.root).length > 0
         }
       })
