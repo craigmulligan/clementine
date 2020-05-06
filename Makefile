@@ -26,7 +26,7 @@ build-prod:
 	docker-compose -f docker-compose.yaml -f prod.yaml build
 
 start: build-prod
-	docker-compose -f docker-compose.yaml -f prod.yaml up -d
+	docker-compose -f docker-compose.yaml -f prod.yaml -f ssl-less.yaml up -d
 
 start_with_ssl: build-prod
 	docker-compose -f docker-compose.yaml -f prod.yaml -f ssl.yaml up -d

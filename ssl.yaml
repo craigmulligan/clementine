@@ -12,7 +12,7 @@ services:
       IS_STAGING: ${LETSENCRYPT_IS_STAGING:-"1"}
     volumes:
       # nginx-certbot moves nginx.conf to ./conf.d/ and overwrites our thang
-      - ./nginx/user.conf.d/ssl.conf:/etc/nginx/user.conf.d/default.conf:ro
+      - ./nginx/user.conf.d/ssl.conf:/etc/nginx/user.conf.d/default.conf
       - letsencrypt:/etc/letsencrypt
 
   postgres:
