@@ -81,7 +81,15 @@ export default function TimeLine({ graphId, operationId }) {
         snapTooltipToDataX
         renderTooltip={renderTooltip}
       >
-        <XAxis tickFormat={tick => tick.toFixed(2)} label="Duration" />
+        <XAxis
+          tickFormat={(tick, index) => {
+            if (index % 2 === 0) {
+              return tick.toFixed(2)
+            }
+            return null
+          }}
+          label="Duration"
+        />
         <YAxis label="Requests" />
         <BarSeries data={dataCount} fill="black" />
         <CrossHair showHorizontalLine={true} fullHeight stroke="orange" />
