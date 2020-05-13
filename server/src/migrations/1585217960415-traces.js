@@ -39,16 +39,6 @@ module.exports.up = async function(next) {
 
   `)
 
-  // await db.query(sql`
-  // CREATE INDEX "tracesGraphId" on traces ("graphId");
-  // `)
-  // await db.query(sql`
-  // CREATE INDEX "tracesKey" on traces (key);
-  // `)
-  // await db.query(sql`
-  // CREATE INDEX "tracesClientName" on traces ("clientName");
-  // `)
-
   next()
 }
 
@@ -56,12 +46,12 @@ module.exports.down = async function(next) {
   await db.query(sql`
     DROP TABLE traces;
     DROP INDEX IF EXISTS "traceOperation";
-    DROP INDEX IF EXISTS "traceGraph" on traces ("graphId");
-    DROP INDEX IF EXISTS "traceStartTime" on traces ("startTime" DESC);
-    DROP INDEX IF EXISTS "traceDuration" on traces ("duration");
-    DROP INDEX IF EXISTS "tracesClientName" on traces ("clientName");
-    DROP INDEX IF EXISTS "tracesClientVersion" on traces ("clientVersion");
-    DROP INDEX IF EXISTS "tracesSchemaTag" on traces ("schemaTag");
+    DROP INDEX IF EXISTS "traceGraph";
+    DROP INDEX IF EXISTS "traceStartTime";
+    DROP INDEX IF EXISTS "traceDuration";
+    DROP INDEX IF EXISTS "tracesClientName";
+    DROP INDEX IF EXISTS "tracesClientVersion";
+    DROP INDEX IF EXISTS "tracesSchemaTag";
     DROP FUNCTION IF EXISTS date_round(timestamptz, interval);
   `)
 
