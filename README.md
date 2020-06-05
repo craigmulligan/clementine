@@ -4,7 +4,7 @@
 
 Most analytics tools don't work well for graphql because they are tuned for standard REST based services. Clementine aims to provide a simple way to understand the performance of your graphql server. Allowing you to quickly find your slowest queries and bottleneck resolvers. Its simple to install and has drop in support for graphql servers that support [Apollo Tracing format](https://github.com/apollographql/apollo-tracing).
 
-**Note**: Clementine only implements a subset of [Apollo Graph Manager](https://www.apollographql.com/docs/graph-manager/) features, if you can afford it you should you should just use them (they're pretty great).
+**Note**: Clementine only implements a subset of [Apollo Graph Manager](https://www.apollographql.com/docs/graph-manager/) features, if you can afford it you should just use their service.
 
 Warning! Clementine is still alpha software. You can try on the [demo](https://clementine.hobochild.com). But you should really run your own instance if you care about uptime or reliability.
 
