@@ -33,7 +33,7 @@
     "loglevel": "^1.6.7",
     "migrate": "^1.6.2",
     "morgan": "^1.9.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "redis": "^3.0.2",
     "slonik": "^22.4.4",
     "uuid": "^3.3.2",
